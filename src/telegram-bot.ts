@@ -265,12 +265,11 @@ export function createTelegramBot(
       let agentId = session.agentId;
       let agentUrl = session.agentUrl;
 
-      // Prefer follow-ups — creating a brand-new cloud agent is much slower.
+      // Prefer follow-ups on an IDLE agent — creating a brand-new cloud agent is much slower.
+      // Never attach to ACTIVE agents (they already have a run in flight).
       if (!forceNew && !agentId) {
         try {
-          const existing = (await cursor.listAgents(10)).find((a) =>
-            ["IDLE", "ACTIVE"].includes(a.status),
-          );
+          const existing = (await cursor.listAgents(10)).find((a) => a.status === "IDLE");
           if (existing) {
             agentId = existing.id;
             agentUrl = existing.url;
