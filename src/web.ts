@@ -4,17 +4,17 @@ import type { SessionStore } from "./session-store.js";
 import type { AlertStore } from "./alert-store.js";
 
 export function createWebApp(
-  config: AppConfig,
+  getConfig: () => AppConfig,
   sessions: SessionStore,
   alerts: AlertStore,
 ) {
   const app = new Hono();
-  const webhookUrl = tradingViewWebhookUrl(config);
 
   app.get("/api/status", (c) => {
+    const config = getConfig();
     return c.json({
       ...connectionStatus(config),
-      tradingViewWebhookUrl: webhookUrl,
+      tradingViewWebhookUrl: tradingViewWebhookUrl(config),
       tradingViewAlertCount: alerts.count(),
       recentTradingViewAlerts: alerts.list(5),
       sessions: sessions.list().map((s) => ({
@@ -32,6 +32,8 @@ export function createWebApp(
   app.get("/health", (c) => c.json({ ok: true }));
 
   app.get("/", (c) => {
+    const config = getConfig();
+    const webhookUrl = tradingViewWebhookUrl(config);
     const status = connectionStatus(config);
     const recent = alerts.list(8);
     const html = `<!doctype html>

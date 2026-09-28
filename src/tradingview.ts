@@ -8,11 +8,12 @@ export type AlertNotifier = {
 
 export function registerTradingViewRoutes(
   app: Hono,
-  config: AppConfig,
+  getConfig: () => AppConfig,
   alerts: AlertStore,
   notifier: AlertNotifier,
 ) {
   const handler = async (c: any) => {
+    const config = getConfig();
     const secret = c.req.param("secret") || c.req.query("secret") || "";
     if (!config.tradingViewWebhookSecret) {
       return c.json({ ok: false, error: "TradingView webhook secret not configured" }, 503);
@@ -60,6 +61,7 @@ export function registerTradingViewRoutes(
   app.post("/webhooks/tradingview", handler);
 
   app.get("/api/tradingview/alerts", (c) => {
+    const config = getConfig();
     return c.json({
       count: alerts.count(),
       webhookPath: config.tradingViewWebhookSecret
@@ -71,6 +73,7 @@ export function registerTradingViewRoutes(
   });
 
   app.post("/api/tradingview/test", async (c) => {
+    const config = getConfig();
     if (!config.tradingViewWebhookSecret) {
       return c.json({ ok: false, error: "secret missing" }, 503);
     }
