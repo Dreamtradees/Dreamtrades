@@ -61,6 +61,7 @@ export interface CursorClient {
   getAgent(agentId: string): Promise<AgentSummary>;
   getRun(agentId: string, runId: string): Promise<RunSummary>;
   cancelRun(agentId: string, runId: string): Promise<void>;
+  listAgents(limit?: number): Promise<AgentSummary[]>;
   watchRun(agentId: string, runId: string, opts?: RunWatcher): Promise<RunSummary>;
 }
 
@@ -79,35 +80,52 @@ export class LiveCursorClient implements CursorClient {
     return `Basic ${Buffer.from(`${this.apiKey}:`).toString("base64")}`;
   }
 
-  private async request<T>(method: string, path: string, body?: unknown): Promise<T> {
-    const res = await fetch(`${this.baseUrl}${path}`, {
-      method,
-      headers: {
-        Authorization: this.authHeader(),
-        Accept: "application/json",
-        ...(body ? { "Content-Type": "application/json" } : {}),
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
+  private async request<T>(
+    method: string,
+    path: string,
+    body?: unknown,
+    timeoutMs = 45_000,
+  ): Promise<T> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(`${this.baseUrl}${path}`, {
+        method,
+        headers: {
+          Authorization: this.authHeader(),
+          Accept: "application/json",
+          ...(body ? { "Content-Type": "application/json" } : {}),
+        },
+        body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
+      });
 
-    const text = await res.text();
-    let json: unknown = null;
-    if (text) {
-      try {
-        json = JSON.parse(text);
-      } catch {
-        json = { message: text };
+      const text = await res.text();
+      let json: unknown = null;
+      if (text) {
+        try {
+          json = JSON.parse(text);
+        } catch {
+          json = { message: text };
+        }
       }
-    }
 
-    if (!res.ok) {
-      const err = json as ApiErrorBody;
-      const message =
-        err?.error?.message || err?.message || `Cursor API ${res.status} on ${path}`;
-      throw new Error(message);
-    }
+      if (!res.ok) {
+        const err = json as ApiErrorBody;
+        const message =
+          err?.error?.message || err?.message || `Cursor API ${res.status} on ${path}`;
+        throw new Error(message);
+      }
 
-    return json as T;
+      return json as T;
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") {
+        throw new Error(`Cursor API timed out after ${Math.round(timeoutMs / 1000)}s on ${path}`);
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   async createAgent(input: CreateAgentInput) {
@@ -129,13 +147,32 @@ export class LiveCursorClient implements CursorClient {
       ];
     }
 
-    return this.request<{ agent: AgentSummary; run: RunSummary }>("POST", "/v1/agents", payload);
+    // Creating a new cloud agent can take a while while capacity is allocated.
+    const data = await this.request<{ agent: AgentSummary; run: RunSummary }>(
+      "POST",
+      "/v1/agents",
+      payload,
+      120_000,
+    );
+    if (!data?.agent?.id || !data?.run?.id) {
+      throw new Error(`Unexpected createAgent response: ${JSON.stringify(data).slice(0, 300)}`);
+    }
+    return data;
   }
 
   async createRun(input: CreateRunInput) {
-    return this.request<RunSummary>("POST", `/v1/agents/${input.agentId}/runs`, {
-      prompt: { text: input.text },
-    });
+    // API wraps the run: { run: { id, ... } }
+    const data = await this.request<{ run: RunSummary } | RunSummary>(
+      "POST",
+      `/v1/agents/${input.agentId}/runs`,
+      { prompt: { text: input.text } },
+      60_000,
+    );
+    const run = "run" in data && data.run ? data.run : (data as RunSummary);
+    if (!run?.id) {
+      throw new Error(`Unexpected createRun response: ${JSON.stringify(data).slice(0, 300)}`);
+    }
+    return run;
   }
 
   async getAgent(agentId: string) {
@@ -150,7 +187,18 @@ export class LiveCursorClient implements CursorClient {
     await this.request("POST", `/v1/agents/${agentId}/runs/${runId}/cancel`);
   }
 
+  async listAgents(limit = 10) {
+    const data = await this.request<{ items: AgentSummary[] }>(
+      "GET",
+      `/v1/agents?limit=${limit}&includeArchived=false`,
+    );
+    return data.items ?? [];
+  }
+
   async watchRun(agentId: string, runId: string, opts: RunWatcher = {}) {
+    if (!agentId || !runId) {
+      throw new Error(`watchRun missing ids (agentId=${agentId}, runId=${runId})`);
+    }
     try {
       return await this.streamRun(agentId, runId, opts);
     } catch (err) {
@@ -346,10 +394,6 @@ export class MockCursorClient implements CursorClient {
     const runId = this.id("run");
     const run: RunSummary = { id: runId, agentId: input.agentId, status: "RUNNING" };
     this.runs.set(runId, run);
-    const agent = this.agents.get(input.agentId);
-    if (agent) {
-      this.agents.set(input.agentId, { ...agent, status: "ACTIVE", latestRunId: runId });
-    }
     setTimeout(() => {
       this.runs.set(runId, {
         ...run,
@@ -378,12 +422,13 @@ export class MockCursorClient implements CursorClient {
     this.runs.set(runId, { ...run, status: "CANCELLED", result: "Cancelled in mock mode." });
   }
 
+  async listAgents() {
+    return [...this.agents.values()];
+  }
+
   async watchRun(agentId: string, runId: string, opts: RunWatcher = {}) {
     await opts.onEvent?.({ type: "status", status: "RUNNING", runId });
     await opts.onEvent?.({ type: "assistant", text: "Mock agent is drafting a reply… " });
-    await new Promise((r) => setTimeout(r, 200));
-    const run = await this.getRun(agentId, runId);
-    // Wait until finished
     for (let i = 0; i < 40; i++) {
       const current = await this.getRun(agentId, runId);
       if (["FINISHED", "ERROR", "CANCELLED", "EXPIRED"].includes(current.status)) {
@@ -399,6 +444,6 @@ export class MockCursorClient implements CursorClient {
       }
       await new Promise((r) => setTimeout(r, 100));
     }
-    return run;
+    return this.getRun(agentId, runId);
   }
 }

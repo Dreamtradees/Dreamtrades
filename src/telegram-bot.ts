@@ -255,17 +255,43 @@ export function createTelegramBot(
       }
     };
 
-    try {
-      await bot.api.sendMessage(
-        chatId,
-        forceNew || !session.agentId ? "Got it — starting a Cloud Agent…" : "Got it — sending follow-up…",
+    const heartbeat = startHeartbeat(chatId, async (seconds) => {
+      await editOrSendStatus(
+        `Still working… (${seconds}s)\nStarting/waiting on Cursor Cloud Agents can take a minute.`,
       );
+    });
 
+    try {
       let agentId = session.agentId;
       let agentUrl = session.agentUrl;
-      let runId = session.runId;
 
-      if (forceNew || !agentId) {
+      // Prefer follow-ups — creating a brand-new cloud agent is much slower.
+      if (!forceNew && !agentId) {
+        try {
+          const existing = (await cursor.listAgents(10)).find((a) =>
+            ["IDLE", "ACTIVE"].includes(a.status),
+          );
+          if (existing) {
+            agentId = existing.id;
+            agentUrl = existing.url;
+            sessions.update(chatId, { agentId, agentUrl });
+          }
+        } catch (err) {
+          console.warn("listAgents failed:", err);
+        }
+      }
+
+      const startingNew = forceNew || !agentId;
+      await bot.api.sendMessage(
+        chatId,
+        startingNew
+          ? "Got it — starting a Cloud Agent (this step can take ~30–90s)…"
+          : "Got it — sending follow-up…",
+      );
+
+      let runId: string;
+
+      if (startingNew) {
         const { agent, run } = await cursor.createAgent({
           text: prompt,
           repoUrl: session.repoUrl || undefined,
@@ -283,10 +309,17 @@ export function createTelegramBot(
           lastStatus: run.status,
         });
       } else {
-        const run = await cursor.createRun({ agentId, text: prompt });
+        const run = await cursor.createRun({ agentId: agentId!, text: prompt });
         runId = run.id;
-        sessions.update(chatId, { runId, lastStatus: run.status });
+        sessions.update(chatId, { runId, lastStatus: run.status, agentUrl });
       }
+
+      if (!runId) {
+        throw new Error("Cursor did not return a run id");
+      }
+
+      console.log(`chat ${chatId}: agent=${agentId} run=${runId}`);
+      heartbeat.stop();
 
       await editOrSendStatus(
         [
@@ -371,11 +404,33 @@ export function createTelegramBot(
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
+      console.error(`chat ${chatId} error:`, message);
       sessions.update(chatId, { lastStatus: "ERROR" });
       await bot.api.sendMessage(chatId, `Error: ${message}`);
     } finally {
+      heartbeat.stop();
       busyChats.delete(chatId);
     }
+  }
+
+  function startHeartbeat(chatId: number, tick: (seconds: number) => Promise<void>) {
+    const started = Date.now();
+    let stopped = false;
+    const timer = setInterval(() => {
+      if (stopped) return;
+      const seconds = Math.round((Date.now() - started) / 1000);
+      void tick(seconds).catch((err) => console.warn("heartbeat failed", err));
+    }, 12_000);
+    // First tick soon so the user isn't staring at silence during createAgent.
+    setTimeout(() => {
+      if (!stopped) void tick(Math.round((Date.now() - started) / 1000)).catch(() => {});
+    }, 8_000);
+    return {
+      stop() {
+        stopped = true;
+        clearInterval(timer);
+      },
+    };
   }
 
   bot.catch((err) => {
