@@ -32,6 +32,7 @@ If you still want a third-party ID bot, try `@RawDataBot` or `@getidsbot` instea
 | --- | --- |
 | `/start` | Connect this chat and show help |
 | `/whoami` | Show your Telegram user ID (works before allowlist) |
+| `/tv` | TradingView webhook URL + recent alerts |
 | `/status` | Show active agent, repo, and last run |
 | `/repo <url> [branch]` | Set the repo agents work on |
 | `/new <prompt>` | Start a fresh Cloud Agent |
@@ -50,11 +51,26 @@ See `.env.example` for the full list. Important:
 - `MOCK_MODE=1` — force mock Cursor responses even with tokens set
 - `PORT` — defaults to `43127`
 
+## TradingView alerts
+
+TradingView does **not** offer a personal “log into my account” API for apps. The supported path is **alert webhooks**.
+
+1. Start the bridge — it opens a public tunnel (or uses `PUBLIC_BASE_URL`) and prints a webhook URL.
+2. Or message the bot `/tv` to get the URL.
+3. In TradingView: chart → **Alert** → Notifications → **Webhook URL** → paste the URL.
+4. Example alert message:
+
+```json
+{"ticker":"{{ticker}}","action":"buy","price":"{{close}}","interval":"{{interval}}","message":"{{strategy.order.comment}}"}
+```
+
+When an alert fires, the bridge stores it and forwards it to your Telegram allowlist. Dashboard: open the home page and use **Send test alert**.
+
 ## How it works
 
 1. Telegram long-polling receives your message.
 2. The bridge calls `POST /v1/agents` (or `/v1/agents/{id}/runs` for follow-ups).
-3. It polls the run until `FINISHED` / `ERROR` / `CANCELLED`.
+3. It streams/polls the run until `FINISHED` / `ERROR` / `CANCELLED`.
 4. The run `result` (and PR/branch links when present) is sent back to Telegram.
 
-Sessions are stored in `data/sessions.json` so each Telegram chat keeps its active agent.
+Sessions are stored in `data/sessions.json` so each Telegram chat keeps its active agent. TradingView alerts are stored in `data/tradingview-alerts.json`.

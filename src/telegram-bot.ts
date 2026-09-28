@@ -1,7 +1,9 @@
 import { Bot, GrammyError, HttpError } from "grammy";
 import type { AppConfig } from "./config.js";
+import { tradingViewWebhookUrl } from "./config.js";
 import type { CursorClient, StreamEvent } from "./cursor-client.js";
 import type { SessionStore } from "./session-store.js";
+import type { AlertStore } from "./alert-store.js";
 
 function isAllowed(config: AppConfig, userId: number | undefined): boolean {
   if (!userId) return false;
@@ -25,6 +27,7 @@ function helpText(config: AppConfig): string {
     "/new <prompt> — start a new Cloud Agent",
     "/cancel — cancel the active run",
     "/reset — forget the active agent",
+    "/tv — recent TradingView alerts + webhook setup",
     "",
     "Or just send a message — it becomes a follow-up on your active agent,",
     "or starts a new one if none is active.",
@@ -40,6 +43,7 @@ export function createTelegramBot(
   config: AppConfig,
   cursor: CursorClient,
   sessions: SessionStore,
+  alerts: AlertStore,
 ) {
   if (!config.telegramBotToken && !config.mockMode) {
     throw new Error("TELEGRAM_BOT_TOKEN is required in live mode");
@@ -48,6 +52,29 @@ export function createTelegramBot(
   const token = config.telegramBotToken || "000000000:MOCK_TOKEN_FOR_DASHBOARD_ONLY";
   const bot = new Bot(token);
   const busyChats = new Set<number>();
+
+  async function notifyTradingViewAlert(summary: string, raw: unknown) {
+    const targets = config.telegramAllowedUserIds.length
+      ? config.telegramAllowedUserIds.map(Number)
+      : sessions.list().map((s) => s.chatId);
+    const unique = [...new Set(targets.filter((id) => Number.isFinite(id)))];
+    if (unique.length === 0) {
+      console.warn("No Telegram targets for TradingView alert");
+      return;
+    }
+    const detail =
+      typeof raw === "string"
+        ? raw.slice(0, 1200)
+        : JSON.stringify(raw, null, 2).slice(0, 1200);
+    const text = truncate(`TradingView alert\n\n${summary}\n\n${detail}`);
+    await Promise.all(
+      unique.map((chatId) =>
+        bot.api.sendMessage(chatId, text).catch((err) => {
+          console.error(`TV alert notify failed for ${chatId}:`, err);
+        }),
+      ),
+    );
+  }
 
   bot.command("whoami", async (ctx) => {
     const userId = ctx.from?.id;
@@ -106,6 +133,27 @@ export function createTelegramBot(
 
   bot.command("help", async (ctx) => {
     await ctx.reply(helpText(config));
+  });
+
+  bot.command("tv", async (ctx) => {
+    const url = tradingViewWebhookUrl(config);
+    const recent = alerts.list(5);
+    await ctx.reply(
+      [
+        "TradingView connection (alerts only — not full account login)",
+        "",
+        url
+          ? `Webhook URL:\n${url}`
+          : "Webhook URL not public yet. Set PUBLIC_BASE_URL or use the tunnel printed in server logs.",
+        "",
+        "In TradingView: create an Alert → Notifications → Webhook URL → paste the URL above.",
+        'Message example: {"ticker":"{{ticker}}","action":"{{strategy.order.action}}","price":"{{close}}","interval":"{{interval}}","message":"{{strategy.order.comment}}"}',
+        "",
+        recent.length
+          ? `Recent alerts:\n${recent.map((a) => `• ${a.receivedAt.slice(11, 19)} ${a.summary}`).join("\n")}`
+          : "No alerts received yet. Send /tvtest from the dashboard or fire a TradingView alert.",
+      ].join("\n"),
+    );
   });
 
   bot.command("status", async (ctx) => {
@@ -445,5 +493,5 @@ export function createTelegramBot(
     }
   });
 
-  return bot;
+  return { bot, notifyTradingViewAlert };
 }
