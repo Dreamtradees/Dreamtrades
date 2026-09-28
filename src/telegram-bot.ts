@@ -19,6 +19,7 @@ function helpText(config: AppConfig): string {
     "",
     "Commands:",
     "/start — connect this chat",
+    "/whoami — show your Telegram user ID",
     "/help — show this help",
     "/status — show active agent + repo",
     "/repo <url> [branch] — set default repository",
@@ -49,12 +50,34 @@ export function createTelegramBot(
   const token = config.telegramBotToken || "000000000:MOCK_TOKEN_FOR_DASHBOARD_ONLY";
   const bot = new Bot(token);
 
+  // Works for everyone — no allowlist needed (so @userinfobot is unnecessary).
+  bot.command("whoami", async (ctx) => {
+    const userId = ctx.from?.id;
+    if (!userId) {
+      await ctx.reply("Could not read your user ID from this update.");
+      return;
+    }
+    await ctx.reply(
+      [
+        `Your Telegram user ID is: ${userId}`,
+        "",
+        "Put that number in TELEGRAM_ALLOWED_USER_IDS in .env, restart the bridge, then send /start.",
+      ].join("\n"),
+    );
+  });
+
   bot.use(async (ctx, next) => {
     const userId = ctx.from?.id;
     if (!isAllowed(config, userId)) {
       if (ctx.chat && ctx.message) {
         await ctx.reply(
-          "This bot is locked to an allowlist. Set TELEGRAM_ALLOWED_USER_IDS to your Telegram user ID (from @userinfobot).",
+          [
+            "This bot is locked to an allowlist.",
+            userId ? `Your Telegram user ID is: ${userId}` : "Could not read your user ID.",
+            "",
+            "Set TELEGRAM_ALLOWED_USER_IDS to that number in .env, restart, then send /start.",
+            "Tip: you can also send /whoami anytime to see your ID.",
+          ].join("\n"),
         );
       }
       return;

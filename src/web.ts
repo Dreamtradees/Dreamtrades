@@ -176,15 +176,14 @@ export function createWebApp(config: AppConfig, sessions: SessionStore) {
         <h2>Connect your Telegram</h2>
         <ol>
           <li>Open Telegram and message <strong>@BotFather</strong> → <span class="mono">/newbot</span>. Copy the bot token.</li>
-          <li>Message <strong>@userinfobot</strong> and copy your numeric user ID.</li>
           <li>Create a Cursor API key at <span class="mono">cursor.com/dashboard/api</span>.</li>
           <li>Copy <span class="mono">.env.example</span> to <span class="mono">.env</span> and fill:
             <br /><span class="mono">TELEGRAM_BOT_TOKEN</span>,
-            <span class="mono">TELEGRAM_ALLOWED_USER_IDS</span>,
             <span class="mono">CURSOR_API_KEY</span>,
             <span class="mono">CURSOR_DEFAULT_REPO</span>.
           </li>
-          <li>Restart with <span class="mono">npm run dev</span>, then send <span class="mono">/start</span> to your bot.</li>
+          <li>Restart with <span class="mono">npm run dev</span>, message your bot <span class="mono">/whoami</span> — it replies with your numeric user ID (no @userinfobot needed).</li>
+          <li>Put that ID in <span class="mono">TELEGRAM_ALLOWED_USER_IDS</span>, restart again, then send <span class="mono">/start</span>.</li>
         </ol>
         <a class="cta" href="/api/status">View JSON status</a>
       </section>

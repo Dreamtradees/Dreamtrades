@@ -19,16 +19,19 @@ Without tokens the server runs in **mock mode** so you can verify the UI. Add cr
 ## Connect your Telegram (live)
 
 1. In Telegram, open **@BotFather** → `/newbot` → copy the bot token into `TELEGRAM_BOT_TOKEN`.
-2. Open **@userinfobot** → copy your numeric user ID into `TELEGRAM_ALLOWED_USER_IDS`.
-3. Create a Cursor API key at [cursor.com/dashboard/api](https://cursor.com/dashboard/api) → `CURSOR_API_KEY`.
-4. Set `CURSOR_DEFAULT_REPO` to a GitHub repo your Cursor account can access.
-5. Restart `npm run dev`, then send `/start` to your bot.
+2. Create a Cursor API key at [cursor.com/dashboard/api](https://cursor.com/dashboard/api) → `CURSOR_API_KEY`.
+3. Set `CURSOR_DEFAULT_REPO` to a GitHub repo your Cursor account can access.
+4. Restart `npm run dev`, then message your bot `/whoami` — it replies with your numeric user ID (you do **not** need `@userinfobot`).
+5. Put that ID in `TELEGRAM_ALLOWED_USER_IDS`, restart again, then send `/start`.
+
+If you still want a third-party ID bot, try `@RawDataBot` or `@getidsbot` instead of `@userinfobot`.
 
 ## Bot commands
 
 | Command | Action |
 | --- | --- |
 | `/start` | Connect this chat and show help |
+| `/whoami` | Show your Telegram user ID (works before allowlist) |
 | `/status` | Show active agent, repo, and last run |
 | `/repo <url> [branch]` | Set the repo agents work on |
 | `/new <prompt>` | Start a fresh Cloud Agent |

@@ -38,9 +38,8 @@ async function main() {
     }
     if (!config.mockMode && config.telegramAllowedUserIds.length === 0) {
       console.warn(
-        "WARNING: TELEGRAM_ALLOWED_USER_IDS is empty. Refusing to poll in live mode without an allowlist.",
+        "TELEGRAM_ALLOWED_USER_IDS is empty — bot will only answer /whoami until you set an allowlist.",
       );
-      return;
     }
     const bot = createTelegramBot(config, cursor, sessions);
     console.log("Starting Telegram long polling…");
