@@ -34,17 +34,34 @@ export type RunSummary = {
   } | null;
 };
 
+export type StreamEvent =
+  | { type: "status"; status: string; runId?: string }
+  | { type: "assistant"; text: string }
+  | { type: "thinking"; text: string }
+  | { type: "tool_call"; name: string; status: string }
+  | {
+      type: "result";
+      status: string;
+      text?: string;
+      durationMs?: number;
+      git?: RunSummary["git"];
+      runId?: string;
+    }
+  | { type: "error"; message: string }
+  | { type: "done" };
+
+export type RunWatcher = {
+  onEvent?: (event: StreamEvent) => void | Promise<void>;
+  timeoutMs?: number;
+};
+
 export interface CursorClient {
   createAgent(input: CreateAgentInput): Promise<{ agent: AgentSummary; run: RunSummary }>;
   createRun(input: CreateRunInput): Promise<RunSummary>;
   getAgent(agentId: string): Promise<AgentSummary>;
   getRun(agentId: string, runId: string): Promise<RunSummary>;
   cancelRun(agentId: string, runId: string): Promise<void>;
-  waitForRun(
-    agentId: string,
-    runId: string,
-    opts?: { timeoutMs?: number; pollMs?: number },
-  ): Promise<RunSummary>;
+  watchRun(agentId: string, runId: string, opts?: RunWatcher): Promise<RunSummary>;
 }
 
 type ApiErrorBody = {
@@ -112,12 +129,7 @@ export class LiveCursorClient implements CursorClient {
       ];
     }
 
-    const data = await this.request<{
-      agent: AgentSummary;
-      run: RunSummary;
-    }>("POST", "/v1/agents", payload);
-
-    return data;
+    return this.request<{ agent: AgentSummary; run: RunSummary }>("POST", "/v1/agents", payload);
   }
 
   async createRun(input: CreateRunInput) {
@@ -138,24 +150,158 @@ export class LiveCursorClient implements CursorClient {
     await this.request("POST", `/v1/agents/${agentId}/runs/${runId}/cancel`);
   }
 
-  async waitForRun(
-    agentId: string,
-    runId: string,
-    opts: { timeoutMs?: number; pollMs?: number } = {},
-  ) {
+  async watchRun(agentId: string, runId: string, opts: RunWatcher = {}) {
+    try {
+      return await this.streamRun(agentId, runId, opts);
+    } catch (err) {
+      console.warn("SSE stream failed, falling back to poll:", err);
+      return this.pollRun(agentId, runId, opts);
+    }
+  }
+
+  private async streamRun(agentId: string, runId: string, opts: RunWatcher) {
     const timeoutMs = opts.timeoutMs ?? 15 * 60 * 1000;
-    const pollMs = opts.pollMs ?? 2500;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const res = await fetch(
+        `${this.baseUrl}/v1/agents/${agentId}/runs/${runId}/stream`,
+        {
+          headers: {
+            Authorization: this.authHeader(),
+            Accept: "text/event-stream",
+          },
+          signal: controller.signal,
+        },
+      );
+
+      if (!res.ok || !res.body) {
+        throw new Error(`Stream HTTP ${res.status}`);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let final: RunSummary | null = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let splitAt = buffer.indexOf("\n\n");
+        while (splitAt !== -1) {
+          const rawEvent = buffer.slice(0, splitAt);
+          buffer = buffer.slice(splitAt + 2);
+          const parsed = parseSseEvent(rawEvent);
+          if (parsed) {
+            await opts.onEvent?.(parsed);
+            if (parsed.type === "result") {
+              final = {
+                id: runId,
+                agentId,
+                status: parsed.status,
+                result: parsed.text ?? null,
+                durationMs: parsed.durationMs ?? null,
+                git: parsed.git ?? null,
+              };
+            }
+            if (parsed.type === "done" && final) {
+              return final;
+            }
+            if (parsed.type === "error") {
+              throw new Error(parsed.message);
+            }
+          }
+          splitAt = buffer.indexOf("\n\n");
+        }
+      }
+
+      if (final) return final;
+      return this.getRun(agentId, runId);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private async pollRun(agentId: string, runId: string, opts: RunWatcher) {
+    const timeoutMs = opts.timeoutMs ?? 15 * 60 * 1000;
     const started = Date.now();
+    let lastStatus = "";
 
     while (Date.now() - started < timeoutMs) {
       const run = await this.getRun(agentId, runId);
+      if (run.status !== lastStatus) {
+        lastStatus = run.status;
+        await opts.onEvent?.({ type: "status", status: run.status, runId });
+      }
       if (["FINISHED", "ERROR", "CANCELLED", "EXPIRED"].includes(run.status)) {
+        await opts.onEvent?.({
+          type: "result",
+          status: run.status,
+          text: run.result ?? undefined,
+          durationMs: run.durationMs ?? undefined,
+          git: run.git,
+          runId,
+        });
+        await opts.onEvent?.({ type: "done" });
         return run;
       }
-      await new Promise((r) => setTimeout(r, pollMs));
+      await new Promise((r) => setTimeout(r, 1000));
     }
 
     throw new Error(`Timed out waiting for run ${runId}`);
+  }
+}
+
+function parseSseEvent(raw: string): StreamEvent | null {
+  let event = "message";
+  const dataLines: string[] = [];
+  for (const line of raw.split("\n")) {
+    if (line.startsWith("event:")) event = line.slice(6).trim();
+    else if (line.startsWith("data:")) dataLines.push(line.slice(5).trim());
+  }
+  if (dataLines.length === 0) return null;
+
+  let data: Record<string, unknown> = {};
+  try {
+    data = JSON.parse(dataLines.join("\n")) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+
+  switch (event) {
+    case "status":
+      return { type: "status", status: String(data.status ?? ""), runId: data.runId as string };
+    case "assistant":
+      return { type: "assistant", text: String(data.text ?? "") };
+    case "thinking":
+      return { type: "thinking", text: String(data.text ?? "") };
+    case "tool_call":
+      return {
+        type: "tool_call",
+        name: String(data.name ?? "tool"),
+        status: String(data.status ?? ""),
+      };
+    case "result":
+      return {
+        type: "result",
+        status: String(data.status ?? ""),
+        text: data.text as string | undefined,
+        durationMs: data.durationMs as number | undefined,
+        git: data.git as RunSummary["git"],
+        runId: data.runId as string | undefined,
+      };
+    case "error":
+      return {
+        type: "error",
+        message: String(data.message ?? data.code ?? "stream error"),
+      };
+    case "done":
+      return { type: "done" };
+    default:
+      return null;
   }
 }
 
@@ -179,60 +325,39 @@ export class MockCursorClient implements CursorClient {
       url: `https://cursor.com/agents/${agentId}`,
       latestRunId: runId,
     };
-    const run: RunSummary = {
-      id: runId,
-      agentId,
-      status: "RUNNING",
-    };
+    const run: RunSummary = { id: runId, agentId, status: "RUNNING" };
     this.agents.set(agentId, agent);
     this.runs.set(runId, run);
-
-    setTimeout(() => {
-      const finished: RunSummary = {
-        ...run,
-        status: "FINISHED",
-        durationMs: 1200,
-        result:
-          `Mock agent finished.\n\nPrompt: ${input.text}\n` +
-          (input.repoUrl ? `Repo: ${input.repoUrl}@${input.startingRef || "main"}\n` : "") +
-          `\nAdd TELEGRAM_BOT_TOKEN + CURSOR_API_KEY to .env to go live.`,
-      };
-      this.runs.set(runId, finished);
-      this.agents.set(agentId, { ...agent, status: "IDLE" });
-    }, 800);
-
-    return { agent, run };
-  }
-
-  async createRun(input: CreateRunInput) {
-    const runId = this.id("run");
-    const run: RunSummary = {
-      id: runId,
-      agentId: input.agentId,
-      status: "RUNNING",
-    };
-    this.runs.set(runId, run);
-    const agent = this.agents.get(input.agentId);
-    if (agent) {
-      this.agents.set(input.agentId, {
-        ...agent,
-        status: "ACTIVE",
-        latestRunId: runId,
-      });
-    }
 
     setTimeout(() => {
       this.runs.set(runId, {
         ...run,
         status: "FINISHED",
         durationMs: 900,
+        result: `Mock agent finished.\n\nPrompt: ${input.text}`,
+      });
+      this.agents.set(agentId, { ...agent, status: "IDLE" });
+    }, 600);
+
+    return { agent, run };
+  }
+
+  async createRun(input: CreateRunInput) {
+    const runId = this.id("run");
+    const run: RunSummary = { id: runId, agentId: input.agentId, status: "RUNNING" };
+    this.runs.set(runId, run);
+    const agent = this.agents.get(input.agentId);
+    if (agent) {
+      this.agents.set(input.agentId, { ...agent, status: "ACTIVE", latestRunId: runId });
+    }
+    setTimeout(() => {
+      this.runs.set(runId, {
+        ...run,
+        status: "FINISHED",
+        durationMs: 500,
         result: `Mock follow-up finished.\n\n${input.text}`,
       });
-      if (agent) {
-        this.agents.set(input.agentId, { ...agent, status: "IDLE", latestRunId: runId });
-      }
-    }, 700);
-
+    }, 500);
     return run;
   }
 
@@ -253,14 +378,27 @@ export class MockCursorClient implements CursorClient {
     this.runs.set(runId, { ...run, status: "CANCELLED", result: "Cancelled in mock mode." });
   }
 
-  async waitForRun(agentId: string, runId: string) {
+  async watchRun(agentId: string, runId: string, opts: RunWatcher = {}) {
+    await opts.onEvent?.({ type: "status", status: "RUNNING", runId });
+    await opts.onEvent?.({ type: "assistant", text: "Mock agent is drafting a reply… " });
+    await new Promise((r) => setTimeout(r, 200));
+    const run = await this.getRun(agentId, runId);
+    // Wait until finished
     for (let i = 0; i < 40; i++) {
-      const run = await this.getRun(agentId, runId);
-      if (["FINISHED", "ERROR", "CANCELLED", "EXPIRED"].includes(run.status)) {
-        return run;
+      const current = await this.getRun(agentId, runId);
+      if (["FINISHED", "ERROR", "CANCELLED", "EXPIRED"].includes(current.status)) {
+        await opts.onEvent?.({
+          type: "result",
+          status: current.status,
+          text: current.result ?? undefined,
+          durationMs: current.durationMs ?? undefined,
+          runId,
+        });
+        await opts.onEvent?.({ type: "done" });
+        return current;
       }
-      await new Promise((r) => setTimeout(r, 200));
+      await new Promise((r) => setTimeout(r, 100));
     }
-    throw new Error(`Mock wait timed out for ${runId}`);
+    return run;
   }
 }

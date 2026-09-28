@@ -1,12 +1,11 @@
 import { Bot, GrammyError, HttpError } from "grammy";
 import type { AppConfig } from "./config.js";
-import type { CursorClient } from "./cursor-client.js";
+import type { CursorClient, StreamEvent } from "./cursor-client.js";
 import type { SessionStore } from "./session-store.js";
 
 function isAllowed(config: AppConfig, userId: number | undefined): boolean {
   if (!userId) return false;
   if (config.telegramAllowedUserIds.length === 0) {
-    // Open allowlist is only OK in mock mode; live mode requires an allowlist.
     return config.mockMode;
   }
   return config.telegramAllowedUserIds.includes(String(userId));
@@ -46,11 +45,10 @@ export function createTelegramBot(
     throw new Error("TELEGRAM_BOT_TOKEN is required in live mode");
   }
 
-  // In mock mode without a token, use a placeholder bot that never polls.
   const token = config.telegramBotToken || "000000000:MOCK_TOKEN_FOR_DASHBOARD_ONLY";
   const bot = new Bot(token);
+  const busyChats = new Set<number>();
 
-  // Works for everyone — no allowlist needed (so @userinfobot is unnecessary).
   bot.command("whoami", async (ctx) => {
     const userId = ctx.from?.id;
     if (!userId) {
@@ -125,6 +123,7 @@ export function createTelegramBot(
         `Agent: ${session.agentId || "(none)"}`,
         `Run: ${session.runId || "(none)"}`,
         `Status: ${session.lastStatus || "(idle)"}`,
+        busyChats.has(ctx.chat.id) ? "Bridge: working…" : "Bridge: idle",
         session.agentUrl ? `URL: ${session.agentUrl}` : "",
       ]
         .filter(Boolean)
@@ -188,12 +187,12 @@ export function createTelegramBot(
       modelId: config.cursorDefaultModel,
     });
     sessions.clearAgent(ctx.chat.id);
-    await runPrompt(ctx.chat.id, ctx.from!.id, prompt, true);
+    void runPrompt(ctx.chat.id, ctx.from!.id, prompt, true);
   });
 
   bot.on("message:text", async (ctx) => {
     if (ctx.message.text.startsWith("/")) return;
-    await runPrompt(ctx.chat.id, ctx.from!.id, ctx.message.text, false);
+    void runPrompt(ctx.chat.id, ctx.from!.id, ctx.message.text, false);
   });
 
   async function runPrompt(
@@ -202,14 +201,65 @@ export function createTelegramBot(
     prompt: string,
     forceNew: boolean,
   ) {
+    if (busyChats.has(chatId)) {
+      await bot.api.sendMessage(
+        chatId,
+        "Still working on your last request. Send /cancel to abort, or wait for it to finish.",
+      );
+      return;
+    }
+
+    busyChats.add(chatId);
     const session = sessions.upsert(chatId, userId, {
       repoUrl: config.cursorDefaultRepo,
       startingRef: config.cursorDefaultRef,
       modelId: config.cursorDefaultModel,
     });
 
+    let statusMessageId: number | null = null;
+    let draftMessageId: number | null = null;
+    let assistantBuffer = "";
+    let lastDraftFlush = 0;
+    let lastTool = "";
+
+    const editOrSendStatus = async (text: string) => {
+      try {
+        if (statusMessageId) {
+          await bot.api.editMessageText(chatId, statusMessageId, truncate(text, 500));
+        } else {
+          const msg = await bot.api.sendMessage(chatId, truncate(text, 500));
+          statusMessageId = msg.message_id;
+        }
+      } catch {
+        const msg = await bot.api.sendMessage(chatId, truncate(text, 500));
+        statusMessageId = msg.message_id;
+      }
+    };
+
+    const flushDraft = async (force = false) => {
+      if (!assistantBuffer.trim()) return;
+      const now = Date.now();
+      if (!force && now - lastDraftFlush < 1500 && assistantBuffer.length < 350) return;
+      lastDraftFlush = now;
+      const body = truncate(`Drafting…\n\n${assistantBuffer}`);
+      try {
+        if (draftMessageId) {
+          await bot.api.editMessageText(chatId, draftMessageId, body);
+        } else {
+          const msg = await bot.api.sendMessage(chatId, body);
+          draftMessageId = msg.message_id;
+        }
+      } catch {
+        const msg = await bot.api.sendMessage(chatId, body);
+        draftMessageId = msg.message_id;
+      }
+    };
+
     try {
-      await bot.api.sendMessage(chatId, forceNew || !session.agentId ? "Starting agent…" : "Sending follow-up…");
+      await bot.api.sendMessage(
+        chatId,
+        forceNew || !session.agentId ? "Got it — starting a Cloud Agent…" : "Got it — sending follow-up…",
+      );
 
       let agentId = session.agentId;
       let agentUrl = session.agentUrl;
@@ -238,12 +288,58 @@ export function createTelegramBot(
         sessions.update(chatId, { runId, lastStatus: run.status });
       }
 
-      const finished = await cursor.waitForRun(agentId!, runId!);
+      await editOrSendStatus(
+        [
+          `Status: ${sessions.get(chatId)?.lastStatus || "CREATING"}`,
+          agentUrl ? `Agent: ${agentUrl}` : "",
+          "Streaming updates…",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      );
+
+      const finished = await cursor.watchRun(agentId!, runId!, {
+        onEvent: async (event: StreamEvent) => {
+          if (event.type === "status") {
+            sessions.update(chatId, { lastStatus: event.status });
+            await editOrSendStatus(
+              [
+                `Status: ${event.status}`,
+                agentUrl ? `Agent: ${agentUrl}` : "",
+                lastTool ? `Last tool: ${lastTool}` : "Streaming updates…",
+              ]
+                .filter(Boolean)
+                .join("\n"),
+            );
+          } else if (event.type === "tool_call") {
+            lastTool = `${event.name} (${event.status})`;
+            await editOrSendStatus(
+              [
+                `Status: RUNNING`,
+                `Tool: ${lastTool}`,
+                agentUrl ? `Agent: ${agentUrl}` : "",
+              ]
+                .filter(Boolean)
+                .join("\n"),
+            );
+          } else if (event.type === "assistant") {
+            assistantBuffer += event.text;
+            await flushDraft(false);
+          } else if (event.type === "result") {
+            sessions.update(chatId, { lastStatus: event.status });
+            if (event.text) assistantBuffer = event.text;
+          }
+        },
+      });
+
+      await flushDraft(true);
       sessions.update(chatId, { lastStatus: finished.status });
 
       const bits = [
         `Status: ${finished.status}`,
-        finished.result ? `\n${finished.result}` : "",
+        finished.result || assistantBuffer
+          ? `\n${finished.result || assistantBuffer}`
+          : "\n(No text result — open the agent URL for details.)",
         agentUrl ? `\nAgent: ${agentUrl}` : "",
       ];
 
@@ -251,11 +347,34 @@ export function createTelegramBot(
       if (branch?.branch) bits.push(`Branch: ${branch.branch}`);
       if (branch?.prUrl) bits.push(`PR: ${branch.prUrl}`);
 
-      await bot.api.sendMessage(chatId, truncate(bits.filter(Boolean).join("\n")));
+      const finalText = truncate(bits.filter(Boolean).join("\n"));
+      if (draftMessageId) {
+        try {
+          await bot.api.editMessageText(chatId, draftMessageId, finalText);
+        } catch {
+          await bot.api.sendMessage(chatId, finalText);
+        }
+      } else {
+        await bot.api.sendMessage(chatId, finalText);
+      }
+
+      try {
+        if (statusMessageId) {
+          await bot.api.editMessageText(
+            chatId,
+            statusMessageId,
+            `Done (${finished.status})${finished.durationMs ? ` · ${Math.round(finished.durationMs / 1000)}s` : ""}`,
+          );
+        }
+      } catch {
+        // ignore edit races
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       sessions.update(chatId, { lastStatus: "ERROR" });
       await bot.api.sendMessage(chatId, `Error: ${message}`);
+    } finally {
+      busyChats.delete(chatId);
     }
   }
 
