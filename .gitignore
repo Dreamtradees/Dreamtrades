@@ -8,3 +8,4 @@ data/
 agent-tools/
 web/.next/
 web/node_modules/
+bin/
