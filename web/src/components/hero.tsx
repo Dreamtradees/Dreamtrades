@@ -8,7 +8,7 @@ export function Hero() {
     <section className="relative min-h-[100svh] overflow-hidden">
       <HeroMarket />
 
-      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-6xl items-end px-5 pb-16 pt-28 md:items-center md:px-8 md:pb-24">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-6xl items-end px-5 pb-14 pt-28 md:px-8 md:pb-24 lg:pb-28">
         <div className="max-w-xl text-[#f4efe4]">
           <p className="animate-rise font-heading text-5xl font-bold tracking-[-0.045em] sm:text-6xl md:text-7xl">
             DreamTrades
