@@ -1,10 +1,23 @@
-# Telegram ↔ Cursor
+# DreamTrades
 
-Connect your Telegram account to [Cursor Cloud Agents](https://cursor.com/docs/cloud-agent/api/endpoints). Message a bot on your phone to create agents, send follow-ups, and get results back in chat.
+Attentive trading brand site plus a Telegram ↔ Cursor bridge with TradingView alert webhooks.
 
-Cursor itself has **no native Telegram integration**. This bridge is the connection: Telegram bot → this service → Cursor Cloud Agents API.
+## DreamTrades website
 
-## Quick start
+```bash
+cd web
+npm install
+npm run dev -- --port 43128
+```
+
+Open [http://127.0.0.1:43128](http://127.0.0.1:43128)
+
+From the repo root you can also run `npm run dev:web`.
+
+- `/` — brand landing with full-bleed market hero and attention board
+- `/watch` — focused watch desk
+
+## Telegram ↔ Cursor bridge
 
 ```bash
 npm install
@@ -12,65 +25,33 @@ cp .env.example .env
 npm run dev
 ```
 
-Open the dashboard: [http://127.0.0.1:43127](http://127.0.0.1:43127)
+Open the bridge dashboard: [http://127.0.0.1:43127](http://127.0.0.1:43127)
 
-Without tokens the server runs in **mock mode** so you can verify the UI. Add credentials to go live.
+### Connect Telegram (live)
 
-## Connect your Telegram (live)
+1. @BotFather → `/newbot` → `TELEGRAM_BOT_TOKEN`
+2. Cursor API key → `CURSOR_API_KEY`
+3. Restart, message your bot `/whoami`, set `TELEGRAM_ALLOWED_USER_IDS`
+4. Send `/start`
 
-1. In Telegram, open **@BotFather** → `/newbot` → copy the bot token into `TELEGRAM_BOT_TOKEN`.
-2. Create a Cursor API key at [cursor.com/dashboard/api](https://cursor.com/dashboard/api) → `CURSOR_API_KEY`.
-3. Set `CURSOR_DEFAULT_REPO` to a GitHub repo your Cursor account can access.
-4. Restart `npm run dev`, then message your bot `/whoami` — it replies with your numeric user ID (you do **not** need `@userinfobot`).
-5. Put that ID in `TELEGRAM_ALLOWED_USER_IDS`, restart again, then send `/start`.
+### TradingView alerts
 
-If you still want a third-party ID bot, try `@RawDataBot` or `@getidsbot` instead of `@userinfobot`.
+TradingView does not offer personal account login for apps. Use alert webhooks:
 
-## Bot commands
+1. Start the bridge — it opens a public tunnel and prints a webhook URL (or use `/tv` in Telegram)
+2. TradingView chart → Alert → Notifications → Webhook URL
+3. Alerts forward to your Telegram allowlist
+
+### Bot commands
 
 | Command | Action |
 | --- | --- |
-| `/start` | Connect this chat and show help |
-| `/whoami` | Show your Telegram user ID (works before allowlist) |
-| `/tv` | TradingView webhook URL + recent alerts |
-| `/status` | Show active agent, repo, and last run |
-| `/repo <url> [branch]` | Set the repo agents work on |
-| `/new <prompt>` | Start a fresh Cloud Agent |
-| `/cancel` | Cancel the active run |
-| `/reset` | Forget the active agent |
-| _(plain text)_ | Follow up on the active agent, or start one |
-
-## Environment
-
-See `.env.example` for the full list. Important:
-
-- `TELEGRAM_BOT_TOKEN` — from BotFather
-- `TELEGRAM_ALLOWED_USER_IDS` — required in live mode (comma-separated)
-- `CURSOR_API_KEY` — Cursor dashboard API key
-- `CURSOR_DEFAULT_REPO` / `CURSOR_DEFAULT_REF` — default git target
-- `MOCK_MODE=1` — force mock Cursor responses even with tokens set
-- `PORT` — defaults to `43127`
-
-## TradingView alerts
-
-TradingView does **not** offer a personal “log into my account” API for apps. The supported path is **alert webhooks**.
-
-1. Start the bridge — it opens a public tunnel (or uses `PUBLIC_BASE_URL`) and prints a webhook URL.
-2. Or message the bot `/tv` to get the URL.
-3. In TradingView: chart → **Alert** → Notifications → **Webhook URL** → paste the URL.
-4. Example alert message:
-
-```json
-{"ticker":"{{ticker}}","action":"buy","price":"{{close}}","interval":"{{interval}}","message":"{{strategy.order.comment}}"}
-```
-
-When an alert fires, the bridge stores it and forwards it to your Telegram allowlist. Dashboard: open the home page and use **Send test alert**.
-
-## How it works
-
-1. Telegram long-polling receives your message.
-2. The bridge calls `POST /v1/agents` (or `/v1/agents/{id}/runs` for follow-ups).
-3. It streams/polls the run until `FINISHED` / `ERROR` / `CANCELLED`.
-4. The run `result` (and PR/branch links when present) is sent back to Telegram.
-
-Sessions are stored in `data/sessions.json` so each Telegram chat keeps its active agent. TradingView alerts are stored in `data/tradingview-alerts.json`.
+| `/start` | Connect this chat |
+| `/whoami` | Show Telegram user ID |
+| `/tv` | TradingView webhook + recent alerts |
+| `/status` | Active agent + repo |
+| `/repo <url> [branch]` | Set default repository |
+| `/new <prompt>` | Start a Cloud Agent |
+| `/cancel` | Cancel active run |
+| `/reset` | Forget active agent |
+| _(plain text)_ | Follow up or start an agent |
