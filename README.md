@@ -1,6 +1,10 @@
 # DreamTrades
 
-Attentive trading brand site plus a Telegram ↔ Cursor bridge with TradingView alert webhooks.
+Attentive trading brand site, Telegram ↔ Cursor bridge with TradingView alert webhooks, and a MetaTrader 5 steady-passive Expert Advisor.
+
+## MetaTrader 5 bot
+
+See [`mt5/README.md`](mt5/README.md) for the **DreamTrades Steady Passive** EA and how to attach it to your MT5 account (demo first).
 
 ## DreamTrades website
 
