@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { AttentionBoard } from "@/components/attention-board";
+import { XauusdDesk } from "@/components/xauusd-desk";
 import { SiteFooter } from "@/components/site-footer";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,12 +25,21 @@ export default function WatchPage() {
             A quieter desk for the instruments that deserve your eyes. Focus one
             market at a time — notes update with your attention.
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/#join"
+              href="/watch/xauusd"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "rounded-sm bg-ink px-5 text-primary-foreground hover:bg-tide",
+              )}
+            >
+              Open XAUUSD desk
+            </Link>
+            <Link
+              href="/#join"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "rounded-sm border-ink/20 px-5 text-ink hover:bg-ink/5",
               )}
             >
               Join the live desk
@@ -41,6 +51,7 @@ export default function WatchPage() {
           <AttentionBoard />
         </div>
       </section>
+      <XauusdDesk />
       <SiteFooter />
     </main>
   );

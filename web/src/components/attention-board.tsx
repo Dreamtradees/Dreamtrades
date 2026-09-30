@@ -48,7 +48,7 @@ function formatPrice(symbol: string, price: number) {
 }
 
 export function AttentionBoard() {
-  const [focus, setFocus] = useState(0);
+  const [focus, setFocus] = useState(1); // default to XAUUSD
   const [rows, setRows] = useState(seed);
 
   useEffect(() => {

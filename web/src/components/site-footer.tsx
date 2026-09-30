@@ -7,6 +7,9 @@ export function SiteFooter() {
         <p className="font-heading text-base font-semibold text-ink">DreamTrades</p>
         <p>Attentive trading. Not financial advice.</p>
         <div className="flex gap-4">
+          <Link href="/watch/xauusd" className="hover:text-ink">
+            XAUUSD
+          </Link>
           <Link href="/watch" className="hover:text-ink">
             Watch desk
           </Link>

@@ -1,9 +1,9 @@
 const items = [
+  "XAUUSD · gold desk live",
+  "XAUUSD · levels in focus",
   "EURUSD · patient bid",
-  "XAUUSD · mid-range watch",
   "NAS100 · trend respect",
   "BTCUSD · higher-low hold",
-  "US10Y · yield drift",
   "DXY · soft pressure",
 ];
 

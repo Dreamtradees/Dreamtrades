@@ -14,8 +14,14 @@ export function SiteHeader() {
         </Link>
         <nav className="flex items-center gap-2 md:gap-3">
           <Link
-            href="/watch"
+            href="/watch/xauusd"
             className="hidden px-3 py-2 text-sm font-medium text-[#f4efe4]/75 transition-colors hover:text-[#f4efe4] sm:inline"
+          >
+            XAUUSD
+          </Link>
+          <Link
+            href="/watch"
+            className="hidden px-3 py-2 text-sm font-medium text-[#f4efe4]/75 transition-colors hover:text-[#f4efe4] md:inline"
           >
             Watch desk
           </Link>
