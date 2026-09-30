@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { XauusdDesk } from "@/components/xauusd-desk";
+import { MarketDesk } from "@/components/market-desk";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export default function XauusdWatchPage() {
+export default function MarketsWatchPage() {
   return (
     <main className="min-h-screen">
       <div className="relative bg-ink pb-8 pt-0">
@@ -16,14 +16,14 @@ export default function XauusdWatchPage() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">
-              Watch desk · gold
+              Watch desk · markets
             </p>
             <h1 className="mt-3 font-heading text-4xl font-semibold tracking-tight text-ink md:text-5xl">
-              XAUUSD desk
+              Gold & forex desk
             </h1>
             <p className="mt-4 text-ink/65">
-              Full-attention gold coverage — live chart, quote pulse, and
-              DreamTrades session updates.
+              Start on XAUUSD, then switch into majors without leaving the desk —
+              chart, quote, and notes update with your focus.
             </p>
           </div>
           <Link
@@ -37,7 +37,7 @@ export default function XauusdWatchPage() {
           </Link>
         </div>
       </section>
-      <XauusdDesk showLink={false} chartVariant="full" chartHeight={560} />
+      <MarketDesk showLink={false} chartVariant="full" chartHeight={560} />
       <SiteFooter />
     </main>
   );

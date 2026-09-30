@@ -8,7 +8,7 @@ export function SiteFooter() {
         <p>Attentive trading. Not financial advice.</p>
         <div className="flex gap-4">
           <Link href="/watch/xauusd" className="hover:text-ink">
-            XAUUSD
+            Markets
           </Link>
           <Link href="/watch" className="hover:text-ink">
             Watch desk

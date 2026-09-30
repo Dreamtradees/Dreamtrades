@@ -17,7 +17,7 @@ export function SiteHeader() {
             href="/watch/xauusd"
             className="hidden px-3 py-2 text-sm font-medium text-[#f4efe4]/75 transition-colors hover:text-[#f4efe4] sm:inline"
           >
-            XAUUSD
+            Markets
           </Link>
           <Link
             href="/watch"
