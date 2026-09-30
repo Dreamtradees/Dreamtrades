@@ -66,11 +66,31 @@ You connect the bot locally in MetaTrader 5 (or on a VPS) with your own login.
 3. Keep `InpRiskPercent` at **0.25–0.5**.
 4. Only switch to live when you understand the fills and drawdowns.
 
+## XAUUSD scalping signals (indicator)
+
+Chart arrows for **M1 gold scalps** using EMA 9/21 + RSI 7 on your broker’s XAUUSD ticks.
+
+This is an **indicator** (signals only) — it does **not** open trades.
+
+### Install
+
+1. File → Open Data Folder → `MQL5/Indicators/`
+2. Copy `Indicators/DreamTrades_XAU_ScalpSignals.mq5` into that folder
+3. MetaEditor → Compile (F7) → `0 errors`
+4. Open **XAUUSD M1** chart
+5. Drag **DreamTrades_XAU_ScalpSignals** onto the chart
+6. Green arrow = BUY scalp · Red arrow = SELL scalp · On-chart label = live bias
+
+Site mirror (futures proxy, refreshes ~15s): `/#scalp` and `/watch/xauusd#scalp`
+
+> Broker XAUUSD can differ from the website GC=F proxy. Prefer the MT5 arrows for your own feed.
+
 ## Files
 
 ```
 mt5/
   Experts/DreamTrades_SteadyPassive.mq5
+  Indicators/DreamTrades_XAU_ScalpSignals.mq5
   README.md
 ```
 

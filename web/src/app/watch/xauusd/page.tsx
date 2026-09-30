@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MarketDesk } from "@/components/market-desk";
+import { XauusdScalpSignals } from "@/components/xauusd-scalp-signals";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,7 @@ export default function MarketsWatchPage() {
         </div>
       </section>
       <MarketDesk showLink={false} chartVariant="full" chartHeight={560} />
+      <XauusdScalpSignals />
       <SiteFooter />
     </main>
   );

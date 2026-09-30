@@ -20,6 +20,12 @@ export function SiteHeader() {
             Markets
           </Link>
           <Link
+            href="/#scalp"
+            className="hidden px-3 py-2 text-sm font-medium text-[#f4efe4]/75 transition-colors hover:text-[#f4efe4] sm:inline"
+          >
+            Scalp
+          </Link>
+          <Link
             href="/watch"
             className="hidden px-3 py-2 text-sm font-medium text-[#f4efe4]/75 transition-colors hover:text-[#f4efe4] md:inline"
           >
