@@ -37,7 +37,7 @@ export default function XauusdWatchPage() {
           </Link>
         </div>
       </section>
-      <XauusdDesk showLink={false} />
+      <XauusdDesk showLink={false} chartVariant="full" chartHeight={560} />
       <SiteFooter />
     </main>
   );

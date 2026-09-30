@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { AttentionBoard } from "@/components/attention-board";
-import { XauusdDesk } from "@/components/xauusd-desk";
 import { SiteFooter } from "@/components/site-footer";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -22,8 +21,8 @@ export default function WatchPage() {
             DreamTrades attention board
           </h1>
           <p className="mt-4 text-ink/65">
-            A quieter desk for the instruments that deserve your eyes. Focus one
-            market at a time — notes update with your attention.
+            A quieter desk for the instruments that deserve your eyes. Open the
+            gold desk for the live XAUUSD chart and quote stream.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -51,7 +50,6 @@ export default function WatchPage() {
           <AttentionBoard />
         </div>
       </section>
-      <XauusdDesk />
       <SiteFooter />
     </main>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Quote = {
   ok: boolean;
@@ -38,12 +38,12 @@ function buildUpdates(price: number | null, prev: number | null): UpdateItem[] {
 
   const liveBody =
     price == null
-      ? "Connecting to the XAUUSD feed. Chart below stays live via TradingView."
+      ? "Connecting to the XAUUSD feed…"
       : drift > 0.02
-        ? `Gold printing near ${price.toFixed(2)}. DreamTrades stays with the bid only while structure holds above the session mid.`
+        ? `Gold printing near ${price.toFixed(2)}. Stay with the bid only while structure holds above session mid.`
         : drift < -0.02
-          ? `Gold easing near ${price.toFixed(2)}. No chase — wait for a clean reclaim or a disciplined fade at prior supply.`
-          : `Gold steady near ${price.toFixed(2)}. Attention on acceptance outside the last 15-minute range, not the noise inside it.`;
+          ? `Gold easing near ${price.toFixed(2)}. No chase — wait for reclaim or a disciplined fade.`
+          : `Gold steady near ${price.toFixed(2)}. Watch acceptance outside the last range, not noise inside it.`;
 
   return [
     {
@@ -57,22 +57,15 @@ function buildUpdates(price: number | null, prev: number | null): UpdateItem[] {
       id: "levels",
       time: stamp(12),
       title: "Levels in focus",
-      body: "Mark prior day high/low and the London open midpoint. Those are the only invalidation lines that matter this session.",
+      body: "Prior day high/low and London midpoint — the only invalidation lines that matter this session.",
       tone: "neutral",
     },
     {
       id: "macro",
       time: stamp(28),
       title: "Macro tape check",
-      body: "Dollar and yields still set the tone for XAUUSD. If DXY softens while gold holds higher lows, stay with the attentive long bias.",
+      body: "Dollar and yields still steer XAUUSD. Soft DXY + higher lows keeps the attentive long bias.",
       tone: "bid",
-    },
-    {
-      id: "risk",
-      time: stamp(45),
-      title: "Risk note",
-      body: "Skip thin spikes. DreamTrades wants clean location — not the first tick after a headline.",
-      tone: "offer",
     },
   ];
 }
@@ -81,31 +74,51 @@ export function XauusdUpdates() {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [prevPrice, setPrevPrice] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]);
+  const [status, setStatus] = useState<"idle" | "loading" | "live" | "error">(
+    "loading",
+  );
+  const inFlight = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
+      if (inFlight.current) return;
+      inFlight.current = true;
       try {
-        const res = await fetch("/api/xauusd", { cache: "no-store" });
+        const res = await fetch("/api/xauusd", {
+          cache: "no-store",
+          signal: AbortSignal.timeout(5000),
+        });
         const data = (await res.json()) as Quote;
         if (cancelled) return;
-        setQuote((current) => {
-          if (current?.price != null) setPrevPrice(current.price);
-          return data;
-        });
+
         if (data.ok && typeof data.price === "number") {
-          setHistory((h) => [...h.slice(-23), data.price!]);
+          setQuote((current) => {
+            if (current?.price != null && current.price !== data.price) {
+              setPrevPrice(current.price);
+            }
+            return data;
+          });
+          setHistory((h) => {
+            const next = data.price!;
+            if (h[h.length - 1] === next) return h;
+            return [...h.slice(-31), next];
+          });
+          setStatus("live");
+        } else {
+          setStatus("error");
+          setQuote(data);
         }
       } catch {
-        if (!cancelled) {
-          setQuote({ ok: false, error: "Could not refresh gold quote" });
-        }
+        if (!cancelled) setStatus("error");
+      } finally {
+        inFlight.current = false;
       }
     };
 
     void load();
-    const id = window.setInterval(() => void load(), 20_000);
+    const id = window.setInterval(() => void load(), 5000);
     return () => {
       cancelled = true;
       window.clearInterval(id);
@@ -145,13 +158,16 @@ export function XauusdUpdates() {
             <p className="font-mono text-xs uppercase tracking-[0.18em] text-tide">
               XAUUSD · live quote
             </p>
-            <p className="mt-2 font-heading text-4xl font-semibold tracking-tight text-ink">
-              {price != null ? price.toFixed(2) : "—"}
+            <p className="mt-2 font-heading text-4xl font-semibold tracking-tight text-ink tabular-nums">
+              {price != null ? price.toFixed(2) : status === "loading" ? "…" : "—"}
             </p>
             <p className="mt-1 font-mono text-sm text-ink/55">
-              {changePct == null
-                ? "Refreshing…"
-                : `${changePct >= 0 ? "+" : ""}${changePct.toFixed(3)}% since last tick`}
+              {status === "loading" && "Fetching quote…"}
+              {status === "live" &&
+                (changePct == null
+                  ? "Live · updating every 5s"
+                  : `${changePct >= 0 ? "+" : ""}${changePct.toFixed(3)}% · 5s refresh`)}
+              {status === "error" && "Quote paused · retrying"}
             </p>
           </div>
           <svg width="120" height="36" viewBox="0 0 120 36" aria-hidden="true">
@@ -164,11 +180,6 @@ export function XauusdUpdates() {
             />
           </svg>
         </div>
-        {quote && !quote.ok ? (
-          <p className="mt-3 text-sm text-ink/55">
-            Quote feed paused. Chart updates still run below.
-          </p>
-        ) : null}
       </div>
 
       <div className="mt-5 flex-1 space-y-4">

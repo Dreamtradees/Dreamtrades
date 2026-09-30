@@ -6,9 +6,16 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   showLink?: boolean;
+  /** homepage uses lite chart for speed; gold desk page uses full */
+  chartVariant?: "lite" | "full";
+  chartHeight?: number;
 };
 
-export function XauusdDesk({ showLink = true }: Props) {
+export function XauusdDesk({
+  showLink = true,
+  chartVariant = "lite",
+  chartHeight = 420,
+}: Props) {
   return (
     <section id="xauusd" className="mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-28">
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -20,8 +27,8 @@ export function XauusdDesk({ showLink = true }: Props) {
             XAUUSD — gold under DreamTrades attention
           </h2>
           <p className="mt-3 text-ink/65">
-            Live TradingView chart, rolling quote, and desk notes so you can
-            watch gold without drowning in noise.
+            Fast quote pulse and chart — loaded only when you scroll to gold, so
+            the rest of the site stays snappy.
           </p>
         </div>
         {showLink ? (
@@ -38,7 +45,7 @@ export function XauusdDesk({ showLink = true }: Props) {
       </div>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.35fr_0.85fr]">
-        <XauusdChart height={540} />
+        <XauusdChart height={chartHeight} variant={chartVariant} />
         <XauusdUpdates />
       </div>
     </section>
