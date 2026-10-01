@@ -44,7 +44,7 @@ function buildUpdates(market: Market, price: number | null, prev: number | null)
     price == null
       ? `Connecting ${market.label} quote…`
       : drift > 0.02
-        ? `${market.name} near ${px}. DreamTrades stays with strength only while structure holds.`
+        ? `${market.name} near ${px}. LJ CIRCLE stays with strength only while structure holds.`
         : drift < -0.02
           ? `${market.name} near ${px}. Wait for reclaim or a clean fade at prior supply.`
           : `${market.name} steady near ${px}. Focus on acceptance outside the last range.`;
@@ -159,7 +159,7 @@ export function MarketUpdates({ market }: { market: Market }) {
       <div className="rounded-sm border border-ink/10 bg-[color-mix(in_srgb,white_65%,transparent)] p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-tide">
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-gold">
               {market.label} · live quote
             </p>
             <p className="mt-2 font-heading text-4xl font-semibold tracking-tight text-ink tabular-nums">

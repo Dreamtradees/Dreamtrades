@@ -26,7 +26,7 @@ export const MARKETS: Market[] = [
     tvSymbol: "OANDA:XAUUSD",
     kind: "metal",
     decimals: 2,
-    blurb: "Gold under DreamTrades attention — levels first, noise last.",
+    blurb: "Gold under LJ CIRCLE attention — levels first, noise last.",
   },
   {
     id: "EURUSD",

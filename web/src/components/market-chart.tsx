@@ -58,8 +58,8 @@ export function MarketChart({ market, height = 420, variant = "lite" }: Props) {
         theme: "light",
         style: "1",
         locale: "en",
-        backgroundColor: "rgba(238, 244, 240, 1)",
-        gridColor: "rgba(16, 35, 31, 0.08)",
+        backgroundColor: "rgba(238, 243, 248, 1)",
+        gridColor: "rgba(10, 22, 40, 0.08)",
         hide_top_toolbar: true,
         hide_legend: true,
         save_image: false,
@@ -96,7 +96,7 @@ export function MarketChart({ market, height = 420, variant = "lite" }: Props) {
         lineWidth: 2,
         lineType: 0,
         dateRanges: ["1d|1", "1m|30", "3m|60", "12m|1D", "60m|1W", "all|1M"],
-        color: "rgba(31, 107, 87, 1)",
+        color: "rgba(13, 138, 111, 1)",
       });
     }
 
@@ -119,10 +119,10 @@ export function MarketChart({ market, height = 420, variant = "lite" }: Props) {
       style={{ height }}
     >
       {!ready ? (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[color-mix(in_srgb,#eef4f0_92%,white)]">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[color-mix(in_srgb,#eef3f8_92%,white)]">
           <div className="text-center">
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-tide">
-              {market.label}
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-gold">
+              {market.label} · TradingView
             </p>
             <p className="mt-2 font-heading text-lg text-ink/70">Loading chart…</p>
           </div>

@@ -70,14 +70,14 @@ export function AttentionBoard() {
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-gold">
           Attentive desk
         </p>
         <h2 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-ink md:text-4xl">
           Hover to focus. Everything else softens.
         </h2>
         <p className="mt-3 max-w-md text-ink/65">
-          DreamTrades is built around selective attention — one instrument, one
+          LJ CIRCLE is built around selective attention — one instrument, one
           read, one clear next step.
         </p>
       </div>

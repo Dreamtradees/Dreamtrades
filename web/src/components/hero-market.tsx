@@ -1,62 +1,81 @@
 export function HeroMarket() {
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_28%,#2a5247_0%,transparent_42%),linear-gradient(125deg,#0f1f1b_0%,#132821_46%,#1a3d34_100%)]" />
-      <div className="attention-orb absolute right-[8%] top-[18%] h-56 w-56 rounded-full bg-[radial-gradient(circle,#c47a2c44,transparent_70%)] blur-2xl" />
-      <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.07)_1px,transparent_1px)] [background-size:56px_56px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_30%,#1e3a5f_0%,transparent_42%),linear-gradient(128deg,#07101c_0%,#0a1628_44%,#12263f_100%)]" />
 
-      {/* Keep the chart on the right so it doesn't sit under the brand type */}
+      <div className="attention-orb absolute right-[10%] top-[16%] h-64 w-64 rounded-full bg-[radial-gradient(circle,#c4a35a55,transparent_70%)] blur-2xl" />
+      <div className="absolute left-[8%] top-[42%] h-40 w-40 rounded-full bg-[radial-gradient(circle,#0d8a6f33,transparent_70%)] blur-xl" />
+
+      <div className="absolute inset-0 opacity-[0.14] [background-image:radial-gradient(rgba(255,255,255,0.45)_1px,transparent_1px)] [background-size:28px_28px]" />
+
+      {/* Concentric brand circles — full-bleed visual plane */}
       <svg
-        className="absolute inset-y-0 right-0 h-full w-[72%] max-w-none translate-x-[4%] md:w-[68%]"
-        viewBox="0 0 1200 800"
-        preserveAspectRatio="xMaxYMid slice"
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 1440 900"
+        preserveAspectRatio="xMidYMid slice"
       >
         <defs>
+          <linearGradient id="ringGold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#c4a35a" stopOpacity="0.05" />
+            <stop offset="55%" stopColor="#e8d19a" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#c4a35a" stopOpacity="0.9" />
+          </linearGradient>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#7ea894" stopOpacity="0.05" />
-            <stop offset="35%" stopColor="#e8c089" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#c47a2c" stopOpacity="1" />
+            <stop offset="0%" stopColor="#7a93ad" stopOpacity="0.05" />
+            <stop offset="40%" stopColor="#e8d19a" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="#c4a35a" stopOpacity="1" />
           </linearGradient>
           <linearGradient id="fillGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#c47a2c" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#c47a2c" stopOpacity="0" />
+            <stop offset="0%" stopColor="#c4a35a" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#c4a35a" stopOpacity="0" />
           </linearGradient>
-          <linearGradient id="fadeLeft" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="white" stopOpacity="0" />
-            <stop offset="18%" stopColor="white" stopOpacity="1" />
-          </linearGradient>
-          <mask id="chartMask">
-            <rect width="1200" height="800" fill="url(#fadeLeft)" />
-          </mask>
         </defs>
 
-        <g mask="url(#chartMask)">
-          <path
-            d="M80,620 C220,590 280,500 380,525 C500,555 560,430 660,405 C790,370 860,470 950,360 C1040,250 1100,280 1200,200 L1200,800 L80,800 Z"
-            fill="url(#fillGrad)"
-          />
-          <path
-            className="chart-line"
-            d="M80,620 C220,590 280,500 380,525 C500,555 560,430 660,405 C790,370 860,470 950,360 C1040,250 1100,280 1200,200"
+        <g className="orbit-ring" opacity="0.55">
+          <circle
+            cx="980"
+            cy="380"
+            r="210"
             fill="none"
-            stroke="url(#lineGrad)"
-            strokeWidth="3.4"
-            strokeLinecap="round"
+            stroke="url(#ringGold)"
+            strokeWidth="1.2"
           />
-          {[
-            [660, 405],
-            [950, 360],
-            [1200, 200],
-          ].map(([x, y], i) => (
-            <g key={i}>
-              <circle cx={x} cy={y} r="12" fill="#c47a2c" opacity="0.16" />
-              <circle cx={x} cy={y} r="4.5" fill="#f6e7cf" />
-            </g>
-          ))}
+          <circle
+            cx="980"
+            cy="380"
+            r="150"
+            fill="none"
+            stroke="#c4a35a"
+            strokeOpacity="0.28"
+            strokeWidth="1"
+          />
+          <circle
+            cx="980"
+            cy="380"
+            r="92"
+            fill="none"
+            stroke="#e8d19a"
+            strokeOpacity="0.4"
+            strokeWidth="1.4"
+          />
+          <circle cx="980" cy="170" r="3.5" fill="#e8d19a" />
         </g>
+
+        <path
+          d="M620,640 C740,600 820,520 900,540 C1000,565 1060,450 1140,420 C1230,385 1300,470 1380,360 C1440,290 1440,290 1440,290 L1440,900 L620,900 Z"
+          fill="url(#fillGrad)"
+        />
+        <path
+          className="chart-line"
+          d="M620,640 C740,600 820,520 900,540 C1000,565 1060,450 1140,420 C1230,385 1300,470 1380,360 C1440,290 1440,290 1440,290"
+          fill="none"
+          stroke="url(#lineGrad)"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+        />
       </svg>
 
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-[#0f1f1b] via-[#0f1f1b]/85 to-transparent md:w-[48%]" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-[58%] bg-gradient-to-r from-[#07101c] via-[#07101c]/88 to-transparent md:w-[50%]" />
     </div>
   );
 }

@@ -1,8 +1,7 @@
 import { SiteHeader } from "@/components/site-header";
 import { Hero } from "@/components/hero";
 import { Ticker } from "@/components/ticker";
-import { AttentionBoard } from "@/components/attention-board";
-import { XauusdDesk } from "@/components/xauusd-desk";
+import { MarketDesk } from "@/components/market-desk";
 import { XauusdScalpSignals } from "@/components/xauusd-scalp-signals";
 import { Practice } from "@/components/practice";
 import { Join } from "@/components/join";
@@ -14,11 +13,8 @@ export default function HomePage() {
       <SiteHeader />
       <Hero />
       <Ticker />
-      <XauusdDesk />
+      <MarketDesk chartVariant="full" chartHeight={500} />
       <XauusdScalpSignals />
-      <section className="mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-28">
-        <AttentionBoard />
-      </section>
       <Practice />
       <Join />
       <SiteFooter />

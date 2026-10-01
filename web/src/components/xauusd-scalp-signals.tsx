@@ -61,7 +61,7 @@ export function XauusdScalpSignals() {
   return (
     <section id="scalp" className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
       <div className="max-w-2xl">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-gold">
           XAUUSD · scalping
         </p>
         <h2 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-ink md:text-4xl">
@@ -80,7 +80,7 @@ export function XauusdScalpSignals() {
           <div
             className={cn(
               "rounded-sm border p-5",
-              bias === "BUY" && "border-tide/40 bg-[color-mix(in_srgb,#1f6b57_10%,white)]",
+              bias === "BUY" && "border-tide/40 bg-[color-mix(in_srgb,#0d8a6f_10%,white)]",
               bias === "SELL" && "border-[#b42318]/35 bg-[color-mix(in_srgb,#b42318_8%,white)]",
               bias === "WAIT" && "border-ink/10 bg-[color-mix(in_srgb,white_65%,transparent)]",
             )}

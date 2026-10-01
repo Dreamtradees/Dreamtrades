@@ -17,8 +17,8 @@ type Props = {
 
 export function MarketDesk({
   showLink = true,
-  chartVariant = "lite",
-  chartHeight = 420,
+  chartVariant = "full",
+  chartHeight = 480,
   initialSymbol = "XAUUSD",
 }: Props) {
   const [symbol, setSymbol] = useState<MarketId>(initialSymbol);
@@ -28,13 +28,16 @@ export function MarketDesk({
     <section id="xauusd" className="mx-auto max-w-6xl px-5 py-20 md:px-8 md:py-28">
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div className="max-w-2xl">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">
-            Markets desk
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-gold">
+            Live markets · TradingView
           </p>
           <h2 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-ink md:text-4xl">
             {market.label} — {market.name}
           </h2>
-          <p className="mt-3 text-ink/65">{market.blurb}</p>
+          <p className="mt-3 text-ink/65">
+            Live quote beside a TradingView chart. Start on gold, switch majors
+            without leaving the LJ CIRCLE desk.
+          </p>
         </div>
         {showLink ? (
           <Link
@@ -66,7 +69,7 @@ export function MarketDesk({
               className={cn(
                 "shrink-0 rounded-sm px-3 py-2 font-mono text-xs uppercase tracking-[0.14em] transition-colors",
                 active
-                  ? "bg-ink text-[#f4efe4]"
+                  ? "bg-ink text-[#f4f7fb]"
                   : "bg-ink/5 text-ink/65 hover:bg-ink/10 hover:text-ink",
               )}
             >
@@ -76,7 +79,7 @@ export function MarketDesk({
         })}
       </div>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1.35fr_0.85fr]">
+      <div className="mt-6 grid gap-8 lg:grid-cols-[1.4fr_0.8fr]">
         <MarketChart
           key={`${market.id}-${chartVariant}`}
           market={market}

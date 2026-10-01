@@ -14,11 +14,11 @@ export default function WatchPage() {
       </div>
       <section className="mx-auto max-w-6xl px-5 pb-16 pt-12 md:px-8 md:pb-24 md:pt-16">
         <div className="max-w-2xl">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-tide">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-gold">
             Watch desk
           </p>
           <h1 className="mt-3 font-heading text-4xl font-semibold tracking-tight text-ink md:text-5xl">
-            DreamTrades attention board
+            LJ CIRCLE attention board
           </h1>
           <p className="mt-4 text-ink/65">
             A quieter desk for the instruments that deserve your eyes. Open the

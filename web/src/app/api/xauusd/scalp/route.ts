@@ -141,7 +141,7 @@ async function fetchCandles(): Promise<Candle[]> {
     signal: AbortSignal.timeout(8000),
     headers: {
       Accept: "application/json",
-      "User-Agent": "Mozilla/5.0 DreamTradesScalp/1.0",
+      "User-Agent": "Mozilla/5.0 LJCircleScalp/1.0",
     },
   });
   if (!res.ok) throw new Error(`Candle upstream ${res.status}`);

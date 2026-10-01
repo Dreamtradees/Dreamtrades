@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Syne, Source_Sans_3, IBM_Plex_Mono } from "next/font/google";
+import { Space_Grotesk, Source_Sans_3, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const display = Syne({
+const display = Space_Grotesk({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["600", "700"],
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
@@ -24,9 +24,9 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DreamTrades — Attentive trading",
+  title: "LJ CIRCLE — Attentive gold & forex desk",
   description:
-    "DreamTrades watches markets with care. Clear signals, calm focus, and an attentive desk for traders who refuse noise.",
+    "LJ CIRCLE is an attentive trading desk for XAUUSD and majors — live prices, TradingView charts, and a focused Telegram circle.",
 };
 
 export default function RootLayout({
