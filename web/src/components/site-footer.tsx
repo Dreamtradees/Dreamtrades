@@ -20,7 +20,7 @@ export function SiteFooter() {
             rel="noreferrer"
             className="hover:text-ink"
           >
-            Telegram
+            @LJwealthLab
           </Link>
         </div>
       </div>

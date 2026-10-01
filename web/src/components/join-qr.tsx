@@ -11,7 +11,7 @@ export function JoinQr() {
         target="_blank"
         rel="noreferrer"
         className="rounded-sm border border-[#c4a35a]/40 bg-[#f4f7fb] p-3 transition-transform hover:-translate-y-0.5"
-        aria-label="Scan to open the LJ CIRCLE Telegram group"
+        aria-label="Scan to open the LJ CIRCLE Telegram channel @LJwealthLab"
       >
         <QRCodeSVG
           value={TELEGRAM_GROUP_URL}
@@ -27,8 +27,8 @@ export function JoinQr() {
           Scan to join
         </p>
         <p className="mt-2 text-sm leading-relaxed text-[#f4f7fb]/75">
-          Camera opens the LJ CIRCLE Telegram group automatically — same link as
-          the button.
+          Camera opens @LJwealthLab on Telegram automatically — same link as the
+          button.
         </p>
         <a
           href={TELEGRAM_GROUP_URL}
@@ -36,7 +36,7 @@ export function JoinQr() {
           rel="noreferrer"
           className="mt-3 inline-block font-mono text-xs text-[#c4a35a] underline-offset-4 hover:underline"
         >
-          Or tap to open the group
+          Or tap t.me/LJwealthLab
         </a>
       </div>
     </div>

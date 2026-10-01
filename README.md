@@ -15,9 +15,9 @@ Open [http://127.0.0.1:43128](http://127.0.0.1:43128)
 
 - `/` — brand landing, live XAUUSD desk, scalp panel, Telegram QR
 - `/watch/xauusd` — full gold & forex desk with TradingView
-- `/#join` — scan QR → Telegram group
+- `/#join` — scan QR → Telegram channel [@LJwealthLab](https://t.me/LJwealthLab)
 
-Telegram group URL is set in `web/src/lib/site.ts` (or `NEXT_PUBLIC_TELEGRAM_GROUP_URL`).
+Telegram channel URL is set in `web/src/lib/site.ts` (or `NEXT_PUBLIC_TELEGRAM_GROUP_URL`).
 
 ## MetaTrader 5
 

@@ -24,8 +24,8 @@ export function Join() {
               Scan in. Stay sharp.
             </h2>
             <p className="mt-4 text-[#f4f7fb]/72">
-              Point your camera at the QR code to enter the LJ CIRCLE Telegram
-              group — live gold focus, clean calls, no noise pile-on.
+              Point your camera at the QR code to open the LJ CIRCLE Telegram
+              channel (@LJwealthLab) — live gold focus, clean calls, no noise.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
@@ -37,7 +37,7 @@ export function Join() {
                   "rounded-sm bg-[#c4a35a] px-5 text-ink hover:bg-[#e8d19a]",
                 )}
               >
-                Open Telegram group
+                Open Telegram channel
               </Link>
               <Link
                 href="#xauusd"
