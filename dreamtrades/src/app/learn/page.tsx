@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { LearnPath } from "@/components/learn-path";
+import { LiveGoldDesk } from "@/components/live-gold-desk";
 import { buttonVariants } from "@/components/ui/button";
 import { BRAND_NAME } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -36,8 +37,8 @@ export default function LearnPage() {
             <Link href="#learn-path" className={cn(buttonVariants({ size: "lg" }), "rounded-md bg-mark px-5 text-[#041512] hover:bg-[#14b8a0]")}>
               Start the path
             </Link>
-            <Link href="/" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-md border-[#f4f7f8]/30 bg-transparent px-5 text-[#f4f7f8] hover:bg-[#f4f7f8]/10 hover:text-[#f4f7f8]")}>
-              Back home
+            <Link href="#live-gold" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-md border-[#f4f7f8]/30 bg-transparent px-5 text-[#f4f7f8] hover:bg-[#f4f7f8]/10 hover:text-[#f4f7f8]")}>
+              Live gold desk
             </Link>
           </div>
         </div>
@@ -45,6 +46,9 @@ export default function LearnPage() {
       <section id="learn-path" className="py-16 md:py-24">
         <LearnPath />
       </section>
+      <div className="border-t border-ink/10 bg-sheet/50">
+        <LiveGoldDesk variant="advanced" />
+      </div>
       <SiteFooter />
     </main>
   );

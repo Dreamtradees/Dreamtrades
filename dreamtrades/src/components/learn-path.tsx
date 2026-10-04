@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { XauusdChart } from "@/components/xauusd-chart";
 import { CHECKLIST, LESSONS, type LessonId } from "@/lib/curriculum";
 import { cn } from "@/lib/utils";
 
@@ -57,6 +58,18 @@ export function LearnPath() {
             <p className="mt-3 font-heading text-xl font-semibold tracking-tight text-ink">{lesson.rememberTitle}</p>
             <p className="mt-3 text-sm leading-relaxed text-ink/65">{lesson.rememberBody}</p>
             {active === "direction" && <LongShortDemo side={side} />}
+            {active === "pairs" && (
+              <div className="mt-8">
+                <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/45">Live example · XAUUSD</p>
+                <p className="mt-2 text-sm leading-relaxed text-ink/65">Watch the quote move while you learn what the pair means. Full desk below the lessons.</p>
+                <div className="mt-4">
+                  <XauusdChart variant="overview" height={280} />
+                </div>
+                <Link href="#live-gold" className="mt-3 inline-block text-sm font-medium text-mark hover:text-[#0c8572]">
+                  Open the live gold desk ↓
+                </Link>
+              </div>
+            )}
             {active === "candles" && <CandleDiagram />}
             {active === "supply-demand" && <ZoneSketch />}
             {active === "checklist" && <p className="mt-6 font-mono text-xs text-ink/50">{readyCount}/{CHECKLIST.length} checked</p>}

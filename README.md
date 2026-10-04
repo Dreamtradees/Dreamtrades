@@ -1,11 +1,12 @@
-# DreamTrades + LJ CIRCLE
+# DreamTrades
 
-| App | Folder | Port | Role |
-| --- | --- | --- | --- |
-| **DreamTrades** | `dreamtrades/` | 43129 | Your teaching product — how to trade, not how to take signals |
-| **LJ CIRCLE** | `web/` | 43128 | Friend’s XAUUSD desk + Telegram QR (`@LJwealthLab`) |
+Teaching site for **DreamTrades** — how to trade, not how to take signals.
 
-## DreamTrades
+| App | Folder | Port |
+| --- | --- | --- |
+| **DreamTrades** | `dreamtrades/` | 43129 |
+
+## Run
 
 ```bash
 cd dreamtrades
@@ -14,19 +15,11 @@ npm run build
 npm run start -- -p 43129 -H 0.0.0.0
 ```
 
-Open [http://127.0.0.1:43129](http://127.0.0.1:43129) · curriculum at [/learn](http://127.0.0.1:43129/learn)
+Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
 
-Includes: markets, long/short, pairs, candles, **supply & demand**, risk, checklist.
+- Curriculum: [/learn](http://127.0.0.1:43129/learn)
+- Live XAUUSD desk: [/#live-gold](http://127.0.0.1:43129/#live-gold) · [/learn#live-gold](http://127.0.0.1:43129/learn#live-gold)
 
-## LJ CIRCLE
-
-```bash
-cd web
-npm install
-npm run build
-npm run start -- -p 43128 -H 0.0.0.0
-```
-
-Join QR → https://t.me/LJwealthLab
+Includes: markets, long/short, pairs, candles, supply & demand, risk, checklist, and a live TradingView XAUUSD chart for study.
 
 Not financial advice. Markets involve risk.
