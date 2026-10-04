@@ -6,6 +6,10 @@ Teaching site for **DreamTrades** — how to trade, not how to take signals.
 | --- | --- | --- |
 | **DreamTrades** | `dreamtrades/` | 43129 |
 
+## Deploy (Vercel)
+
+Import this repo on Vercel and set **Root Directory** to `dreamtrades`. No env vars required (join links ship from `dreamtrades/src/lib/site.ts`). After deploy, share **`https://YOUR_URL/learn`** as the community starter pack. Step-by-step: [`dreamtrades/README.md`](dreamtrades/README.md).
+
 ## Run
 
 ```bash

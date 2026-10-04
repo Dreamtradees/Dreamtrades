@@ -8,6 +8,12 @@ export function SiteFooter() {
         <div>
           <p className="font-heading text-lg font-bold tracking-tight text-ink">{BRAND_NAME}</p>
           <p className="mt-1 text-sm text-ink/55">Teaching product for the DreamTrades group. Not financial advice.</p>
+          <p className="mt-2 text-sm text-ink/50">
+            Share this starter pack with the crew:{" "}
+            <Link href="/learn" className="text-ink/70 underline decoration-ink/25 underline-offset-4 hover:text-ink">
+              /learn
+            </Link>
+          </p>
         </div>
         <div className="flex gap-5 text-sm text-ink/60">
           <Link href="/learn" className="hover:text-ink">Curriculum</Link>
