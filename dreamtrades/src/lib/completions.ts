@@ -5,6 +5,10 @@ export type CompletionRecord = {
   whatsapp: string;
   note: string;
   createdAt: string;
+  /** Whether the owner Telegram DM succeeded after save. */
+  notified?: boolean;
+  /** Last notify error (null/omitted when notified or skipped cleanly). */
+  notifyError?: string | null;
 };
 
 export type CompletionInput = {
@@ -16,7 +20,7 @@ export type CompletionInput = {
 };
 
 export type CompletionValidation =
-  | { ok: true; value: Omit<CompletionRecord, "id" | "createdAt"> }
+  | { ok: true; value: Omit<CompletionRecord, "id" | "createdAt" | "notified" | "notifyError"> }
   | { ok: false; error: string };
 
 const MAX_NAME = 80;
@@ -106,15 +110,17 @@ export function formatCompletionTelegramMessage(
   })();
 
   const lines = [
-    "✅ DreamTrades checklist complete",
+    "✅ DreamTrades checklist complete — new lead",
     "",
-    count != null ? `Graduate #${count}` : "Graduate (count pending Redis)",
+    count != null ? `Graduate #${count} (running total)` : "Graduate (count pending durable store)",
     `Name: ${record.name || "—"}`,
     `Telegram: ${record.telegram || "—"}`,
     `WhatsApp: ${record.whatsapp || "—"}`,
     `Note: ${record.note || "—"}`,
     `When: ${when}`,
-    `Id: ${record.id}`,
+    `Lead id: ${record.id}`,
+    "",
+    "Reach out on Telegram or WhatsApp. Full list: /admin/completions?key=…",
   ];
   return lines.join("\n");
 }

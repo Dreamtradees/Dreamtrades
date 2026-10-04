@@ -9,3 +9,5 @@
 !.env.example
 *.tsbuildinfo
 next-env.d.ts
+# Local/dev lead store (file fallback when Redis is unset)
+.data/

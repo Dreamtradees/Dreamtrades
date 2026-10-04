@@ -4,6 +4,7 @@ import {
   notifyOwnerTelegram,
   telegramBotConfigured,
   telegramEnvConfigured,
+  telegramNotifyMock,
   telegramOwnerChatId,
 } from "@/lib/telegram-notify";
 
@@ -35,9 +36,11 @@ export async function GET(request: Request) {
   if (!telegramBotConfigured()) {
     return NextResponse.json(
       {
-        error: "TELEGRAM_BOT_TOKEN is not set.",
+        error:
+          "TELEGRAM_BOT_TOKEN is not set. Create a bot with @BotFather, paste the token into Vercel env TELEGRAM_BOT_TOKEN, Redeploy, then message the bot and refresh this endpoint.",
         telegramConfigured: false,
         telegramBotConfigured: false,
+        telegramMock: telegramNotifyMock(),
         ownerChatIdSet: Boolean(telegramOwnerChatId()),
       },
       { status: 503 },
@@ -62,14 +65,16 @@ export async function GET(request: Request) {
     ok: true,
     telegramConfigured: telegramEnvConfigured(),
     telegramBotConfigured: true,
+    telegramMock: telegramNotifyMock(),
     ownerChatIdSet: Boolean(telegramOwnerChatId()),
     ownerChatIdHint: telegramOwnerChatId() || null,
     chats: discovered.chats,
     instructions: [
       "1. Open your bot in Telegram and press Start (or send /start).",
       "2. Refresh this endpoint — your numeric chatId should appear below.",
-      "3. Paste that chatId into Vercel env TELEGRAM_OWNER_CHAT_ID and redeploy.",
+      "3. Paste that chatId into Vercel → Settings → Environment Variables → TELEGRAM_OWNER_CHAT_ID (Production) and Redeploy.",
       "4. Or message @userinfobot and copy the Id field.",
+      "5. POST this same URL to send yourself a test DM.",
     ],
   });
 }

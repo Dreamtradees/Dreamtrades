@@ -2,10 +2,16 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import type { CompletionRecord } from "@/lib/completions";
-import { listCompletions, redisConfigured } from "@/lib/completions-store";
+import {
+  listCompletions,
+  localFileStoreActive,
+  redisConfigured,
+  type StoreBackend,
+} from "@/lib/completions-store";
 import {
   telegramBotConfigured,
   telegramEnvConfigured,
+  telegramNotifyMock,
 } from "@/lib/telegram-notify";
 import { BRAND_NAME } from "@/lib/site";
 
@@ -35,6 +41,21 @@ function formatWhen(iso: string): string {
   }
 }
 
+function backendLabel(backend: StoreBackend, durable: boolean): string {
+  if (backend === "redis") return "Durable count (Upstash Redis).";
+  if (backend === "file") return "Local file store (.data/completions.json) — fine for dev; use Upstash on Vercel.";
+  return durable
+    ? "Stored locally."
+    : "In-memory only — will reset on restart / cold start. Add Upstash on Vercel.";
+}
+
+function notifyLabel(item: CompletionRecord): { text: string; ok: boolean | null } {
+  if (item.notified === true) return { text: "DM sent", ok: true };
+  if (item.notifyError) return { text: "DM failed", ok: false };
+  if (item.notified === false) return { text: "Pending / skipped", ok: false };
+  return { text: "—", ok: null };
+}
+
 export default async function AdminCompletionsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const key = params.key?.trim();
@@ -43,6 +64,7 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
   let items: CompletionRecord[] = [];
   let count = 0;
   let durable = false;
+  let backend: StoreBackend = "memory";
   let loadError: string | null = null;
 
   if (authorized) {
@@ -51,6 +73,7 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
       items = data.items;
       count = data.count;
       durable = data.durable;
+      backend = data.backend;
     } catch (err) {
       loadError = err instanceof Error ? err.message : "Failed to load completions";
     }
@@ -58,10 +81,13 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
 
   const telegramOk = telegramEnvConfigured();
   const telegramBotOk = telegramBotConfigured();
+  const telegramMock = telegramNotifyMock();
   const redisOk = redisConfigured();
+  const fileOk = localFileStoreActive();
   const setupPath = key
     ? `/api/completions/telegram-setup?key=${encodeURIComponent(key)}`
     : null;
+  const adminSecretSet = Boolean(process.env.ADMIN_SECRET?.trim());
 
   return (
     <>
@@ -88,11 +114,22 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
             <p className="mt-2 text-sm leading-relaxed text-ink/65">
               Add a valid <span className="font-mono text-[12px]">?key=</span> that matches{" "}
               <span className="font-mono text-[12px]">ADMIN_SECRET</span> in Vercel env.
+              {!adminSecretSet ? (
+                <>
+                  {" "}
+                  <span className="font-medium text-flare">
+                    ADMIN_SECRET is not set on this deployment yet.
+                  </span>
+                </>
+              ) : null}
             </p>
             <SetupHints
               telegramOk={telegramOk}
               telegramBotOk={telegramBotOk}
+              telegramMock={telegramMock}
               redisOk={redisOk}
+              fileOk={fileOk}
+              adminSecretSet={adminSecretSet}
               setupPath={null}
             />
           </div>
@@ -103,14 +140,13 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
                 <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-mark">
                   Total graduates
                 </p>
-                <p className="mt-2 font-heading text-4xl font-bold tracking-tight text-ink">
+                <p
+                  className="mt-2 font-heading text-4xl font-bold tracking-tight text-ink"
+                  data-testid="admin-total-count"
+                >
                   {count}
                 </p>
-                <p className="mt-2 text-sm text-ink/60">
-                  {durable
-                    ? "Durable count (Upstash Redis)."
-                    : "In-memory only until Upstash is set."}
-                </p>
+                <p className="mt-2 text-sm text-ink/60">{backendLabel(backend, durable)}</p>
               </div>
               <div className="rounded-md border border-ink/10 bg-white/70 p-5 sm:col-span-2">
                 <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/45">
@@ -118,7 +154,8 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-ink/65">
                   Each successful claim stores name, Telegram, WhatsApp, note, and timestamp, then
-                  DMs you on Telegram with graduate # and contact details. Open that DM (or this
+                  DMs you on Telegram with graduate # and contact details. A Telegram blip never
+                  drops the lead — check the Notify column if a DM failed. Open that DM (or this
                   table) and message them on Telegram or WhatsApp.
                 </p>
               </div>
@@ -127,7 +164,10 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
             <SetupHints
               telegramOk={telegramOk}
               telegramBotOk={telegramBotOk}
+              telegramMock={telegramMock}
               redisOk={redisOk}
+              fileOk={fileOk}
+              adminSecretSet={adminSecretSet}
               setupPath={setupPath}
             />
 
@@ -156,16 +196,19 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
                       <th className="px-4 py-3 font-medium">Telegram</th>
                       <th className="px-4 py-3 font-medium">WhatsApp</th>
                       <th className="px-4 py-3 font-medium">Note</th>
+                      <th className="px-4 py-3 font-medium">Notify</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.map((item, index) => {
                       const displayNum =
                         count > 0 ? Math.max(count - index, 1) : items.length - index;
+                      const notify = notifyLabel(item);
                       return (
                         <tr
                           key={item.id}
                           className="border-b border-ink/8 align-top last:border-b-0"
+                          data-testid="admin-lead-row"
                         >
                           <td className="whitespace-nowrap px-4 py-3">
                             <p className="font-heading font-semibold text-ink">#{displayNum}</p>
@@ -178,8 +221,26 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
                           </td>
                           <td className="px-4 py-3 text-ink/80">{item.telegram || "—"}</td>
                           <td className="px-4 py-3 text-ink/80">{item.whatsapp || "—"}</td>
-                          <td className="max-w-[220px] px-4 py-3 text-ink/65">
+                          <td className="max-w-[200px] px-4 py-3 text-ink/65">
                             {item.note || "—"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <p
+                              className={
+                                notify.ok === true
+                                  ? "font-medium text-mark"
+                                  : notify.ok === false
+                                    ? "font-medium text-flare"
+                                    : "text-ink/45"
+                              }
+                            >
+                              {notify.text}
+                            </p>
+                            {item.notifyError ? (
+                              <p className="mt-1 max-w-[180px] font-mono text-[10px] leading-snug text-ink/45">
+                                {item.notifyError}
+                              </p>
+                            ) : null}
                           </td>
                         </tr>
                       );
@@ -205,12 +266,18 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
 function SetupHints({
   telegramOk,
   telegramBotOk,
+  telegramMock,
   redisOk,
+  fileOk,
+  adminSecretSet,
   setupPath,
 }: {
   telegramOk: boolean;
   telegramBotOk: boolean;
+  telegramMock: boolean;
   redisOk: boolean;
+  fileOk: boolean;
+  adminSecretSet: boolean;
   setupPath: string | null;
 }) {
   return (
@@ -218,21 +285,35 @@ function SetupHints({
       <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/45">Setup</p>
       <ul className="mt-2 space-y-1.5">
         <li>
+          ADMIN_SECRET:{" "}
+          <span className={adminSecretSet ? "font-medium text-mark" : "font-medium text-flare"}>
+            {adminSecretSet ? "set" : "missing — admin page / setup helpers locked"}
+          </span>
+        </li>
+        <li>
           Telegram notify:{" "}
           <span className={telegramOk ? "font-medium text-mark" : "font-medium text-flare"}>
-            {telegramOk
-              ? "configured"
-              : telegramBotOk
-                ? "bot token set — missing TELEGRAM_OWNER_CHAT_ID"
-                : "missing TELEGRAM_BOT_TOKEN / TELEGRAM_OWNER_CHAT_ID"}
+            {telegramMock
+              ? "MOCK mode (TELEGRAM_NOTIFY_MOCK=1) — server logs only"
+              : telegramOk
+                ? "configured"
+                : telegramBotOk
+                  ? "bot token set — missing TELEGRAM_OWNER_CHAT_ID"
+                  : "missing TELEGRAM_BOT_TOKEN / TELEGRAM_OWNER_CHAT_ID"}
           </span>
         </li>
         <li>
           Durable leads:{" "}
-          <span className={redisOk ? "font-medium text-mark" : "font-medium text-ink/55"}>
+          <span
+            className={
+              redisOk ? "font-medium text-mark" : fileOk ? "font-medium text-ink/70" : "font-medium text-ink/55"
+            }
+          >
             {redisOk
               ? "Upstash Redis connected"
-              : "add UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN (or Vercel KV aliases)"}
+              : fileOk
+                ? "local file store (dev) — add UPSTASH_REDIS_REST_URL + TOKEN on Vercel"
+                : "add UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN (or Vercel KV aliases)"}
           </span>
         </li>
       </ul>

@@ -1,8 +1,12 @@
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import path from "node:path";
 import type { CompletionRecord } from "@/lib/completions";
 
 const COUNT_KEY = "dreamtrades:completions:count";
 const LIST_KEY = "dreamtrades:completions:list";
 const MAX_LIST = 200;
+
+export type StoreBackend = "redis" | "file" | "memory";
 
 type MemoryStore = {
   count: number;
@@ -12,6 +16,8 @@ type MemoryStore = {
 declare global {
   // eslint-disable-next-line no-var
   var __dreamtradesCompletionsMemory: MemoryStore | undefined;
+  // eslint-disable-next-line no-var
+  var __dreamtradesCompletionsFileLoaded: boolean | undefined;
 }
 
 function memoryStore(): MemoryStore {
@@ -19,6 +25,67 @@ function memoryStore(): MemoryStore {
     globalThis.__dreamtradesCompletionsMemory = { count: 0, items: [] };
   }
   return globalThis.__dreamtradesCompletionsMemory;
+}
+
+/**
+ * Local/dev file path for leads when Redis is not configured.
+ * Survives process restarts (unlike pure memory). Not used on Vercel
+ * serverless (ephemeral FS) — set Upstash there instead.
+ */
+function fileStorePath(): string {
+  const override = process.env.COMPLETIONS_FILE_PATH?.trim();
+  if (override) return override;
+  return path.join(process.cwd(), ".data", "completions.json");
+}
+
+function fileStoreAllowed(): boolean {
+  // Explicit opt-in, or automatic in development / memory-allow mode.
+  if (process.env.COMPLETIONS_USE_FILE === "0") return false;
+  if (process.env.COMPLETIONS_USE_FILE === "1") return true;
+  return (
+    process.env.NODE_ENV === "development" ||
+    process.env.COMPLETIONS_ALLOW_MEMORY === "1"
+  );
+}
+
+function loadFileIntoMemory(): void {
+  if (globalThis.__dreamtradesCompletionsFileLoaded) return;
+  globalThis.__dreamtradesCompletionsFileLoaded = true;
+
+  if (!fileStoreAllowed()) return;
+
+  const filePath = fileStorePath();
+  if (!existsSync(filePath)) return;
+
+  try {
+    const raw = readFileSync(filePath, "utf8");
+    const parsed = JSON.parse(raw) as {
+      count?: number;
+      items?: CompletionRecord[];
+    };
+    const mem = memoryStore();
+    mem.count = Number.isFinite(Number(parsed.count)) ? Number(parsed.count) : 0;
+    mem.items = Array.isArray(parsed.items) ? parsed.items.slice(0, MAX_LIST) : [];
+  } catch (err) {
+    console.error("[completions-store] Failed to load file store", err);
+  }
+}
+
+function persistMemoryToFile(): void {
+  if (!fileStoreAllowed()) return;
+
+  const mem = memoryStore();
+  const filePath = fileStorePath();
+  try {
+    mkdirSync(path.dirname(filePath), { recursive: true });
+    writeFileSync(
+      filePath,
+      JSON.stringify({ count: mem.count, items: mem.items }, null, 2),
+      "utf8",
+    );
+  } catch (err) {
+    console.error("[completions-store] Failed to write file store", err);
+  }
 }
 
 /**
@@ -42,6 +109,10 @@ export function redisCredentials(): { url: string; token: string } | null {
 
 export function redisConfigured(): boolean {
   return Boolean(redisCredentials());
+}
+
+export function localFileStoreActive(): boolean {
+  return !redisConfigured() && fileStoreAllowed();
 }
 
 async function redisPipeline(commands: (string | number)[][]): Promise<unknown[]> {
@@ -102,21 +173,32 @@ async function redisExec<T>(command: (string | number)[]): Promise<T> {
 export type SaveCompletionResult = {
   count: number;
   durable: boolean;
+  backend: StoreBackend;
   record: CompletionRecord;
 };
 
-function saveInMemory(record: CompletionRecord): SaveCompletionResult {
+function saveLocal(record: CompletionRecord): SaveCompletionResult {
+  loadFileIntoMemory();
   const mem = memoryStore();
   mem.count += 1;
   mem.items.unshift(record);
   if (mem.items.length > MAX_LIST) mem.items.length = MAX_LIST;
-  return { count: mem.count, durable: false, record };
+
+  const usingFile = fileStoreAllowed();
+  if (usingFile) persistMemoryToFile();
+
+  return {
+    count: mem.count,
+    durable: usingFile,
+    backend: usingFile ? "file" : "memory",
+    record,
+  };
 }
 
 /**
  * Persist a graduate lead.
  * Prefer Upstash Redis (durable across Vercel cold starts). Falls back to
- * process memory when Redis is missing or fails so Telegram notify can still fire.
+ * local file (dev) or process memory so Telegram notify can still fire.
  */
 export async function saveCompletion(
   record: CompletionRecord,
@@ -132,39 +214,103 @@ export async function saveCompletion(
       return {
         count: Number.isFinite(count) ? count : 0,
         durable: true,
+        backend: "redis",
         record,
       };
     } catch (err) {
-      console.error("[completions-store] Redis save failed; using memory fallback", err);
-      return saveInMemory(record);
+      console.error("[completions-store] Redis save failed; using local fallback", err);
+      return saveLocal(record);
     }
   }
 
-  return saveInMemory(record);
+  return saveLocal(record);
+}
+
+/**
+ * Patch notify outcome onto an already-saved lead.
+ * Best-effort — never throws to the claim path.
+ */
+export async function updateCompletionNotifyStatus(
+  id: string,
+  notified: boolean,
+  notifyError: string | null,
+): Promise<void> {
+  try {
+    if (redisConfigured()) {
+      try {
+        const raw = await redisExec<string[] | null>(["LRANGE", LIST_KEY, 0, MAX_LIST - 1]);
+        const rows = raw || [];
+        for (let i = 0; i < rows.length; i++) {
+          try {
+            const item = JSON.parse(rows[i]) as CompletionRecord;
+            if (item.id !== id) continue;
+            const updated: CompletionRecord = {
+              ...item,
+              notified,
+              notifyError: notifyError || null,
+            };
+            await redisExec(["LSET", LIST_KEY, i, JSON.stringify(updated)]);
+            return;
+          } catch {
+            // skip bad row
+          }
+        }
+        return;
+      } catch (err) {
+        console.error("[completions-store] Redis notify patch failed", err);
+        // fall through to local patch
+      }
+    }
+
+    loadFileIntoMemory();
+    const mem = memoryStore();
+    const idx = mem.items.findIndex((item) => item.id === id);
+    if (idx < 0) return;
+    mem.items[idx] = {
+      ...mem.items[idx],
+      notified,
+      notifyError: notifyError || null,
+    };
+    if (fileStoreAllowed()) persistMemoryToFile();
+  } catch (err) {
+    console.error("[completions-store] updateCompletionNotifyStatus failed", err);
+  }
 }
 
 export async function getCompletionStats(): Promise<{
   count: number | null;
   durable: boolean;
+  backend: StoreBackend;
 }> {
   if (redisConfigured()) {
     try {
       const raw = await redisExec<string | number | null>(["GET", COUNT_KEY]);
       const count = raw == null ? 0 : Number(raw);
-      return { count: Number.isFinite(count) ? count : 0, durable: true };
+      return {
+        count: Number.isFinite(count) ? count : 0,
+        durable: true,
+        backend: "redis",
+      };
     } catch (err) {
       console.error("[completions-store] Redis stats failed", err);
     }
   }
 
+  loadFileIntoMemory();
   const mem = memoryStore();
-  return { count: mem.count > 0 ? mem.count : null, durable: false };
+  const usingFile = fileStoreAllowed();
+  return {
+    count: mem.count > 0 ? mem.count : null,
+    durable: usingFile,
+    backend: usingFile ? "file" : "memory",
+  };
 }
 
 export async function listCompletions(limit = 100): Promise<{
   items: CompletionRecord[];
   count: number;
   durable: boolean;
+  backend: StoreBackend;
 }> {
   const safeLimit = Math.min(Math.max(limit, 1), MAX_LIST);
 
@@ -190,16 +336,20 @@ export async function listCompletions(limit = 100): Promise<{
         items,
         count: Number.isFinite(count) ? count : items.length,
         durable: true,
+        backend: "redis",
       };
     } catch (err) {
-      console.error("[completions-store] Redis list failed; using memory", err);
+      console.error("[completions-store] Redis list failed; using local", err);
     }
   }
 
+  loadFileIntoMemory();
   const mem = memoryStore();
+  const usingFile = fileStoreAllowed();
   return {
     items: mem.items.slice(0, safeLimit),
     count: mem.count,
-    durable: false,
+    durable: usingFile,
+    backend: usingFile ? "file" : "memory",
   };
 }
