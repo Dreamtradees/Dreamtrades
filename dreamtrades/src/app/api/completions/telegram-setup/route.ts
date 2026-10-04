@@ -71,10 +71,11 @@ export async function GET(request: Request) {
     chats: discovered.chats,
     instructions: [
       "1. Open your bot in Telegram and press Start (or send /start).",
-      "2. Refresh this endpoint — your numeric chatId should appear below.",
-      "3. Paste that chatId into Vercel → Settings → Environment Variables → TELEGRAM_OWNER_CHAT_ID (Production) and Redeploy.",
-      "4. Or message @userinfobot and copy the Id field.",
-      "5. POST this same URL to send yourself a test DM.",
+      "2. Refresh this endpoint — your numeric chatId should appear in chats[].chatId.",
+      "3. Paste that chatId into Vercel → Dreamtrades → Settings → Environment Variables → TELEGRAM_OWNER_CHAT_ID (Production + Preview) and Redeploy.",
+      "4. Or message @userinfobot and copy the Id field (faster if you have not messaged the bot yet).",
+      "5. POST this same URL (curl -X POST) to send yourself a test DM once TELEGRAM_OWNER_CHAT_ID is set.",
+      "6. Confirm https://dreamtrades.vercel.app/api/completions/stats shows telegramConfigured: true.",
     ],
   });
 }

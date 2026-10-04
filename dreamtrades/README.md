@@ -41,6 +41,28 @@ https://YOUR_DEPLOYMENT_URL/api/completions/stats
 
 You want `"accepting": true`, `"telegramConfigured": true`, and preferably `"redisConfigured": true` / `"durable": true`.
 
+### One-shot production checklist (live site)
+
+Do these in order for [dreamtrades.vercel.app](https://dreamtrades.vercel.app). Root Directory is already `dreamtrades/`.
+
+1. **Telegram bot** — [@BotFather](https://t.me/BotFather) → `/newbot` (or `/token`) → copy token. Open the bot → **Start**.
+2. **Your chat id** — message [@userinfobot](https://t.me/userinfobot) → copy numeric **Id** (or discover later via telegram-setup below).
+3. **ADMIN_SECRET** — generate once: `openssl rand -hex 24` (keep the hex string private).
+4. **Upstash Redis (free)** — [console.upstash.com](https://console.upstash.com/) → Create Redis → **REST API** tab → copy URL + token.
+5. **Vercel env** — [Vercel → Dreamtrades → Settings → Environment Variables](https://vercel.com/dashboard) → add all five for **Production** + **Preview**:
+   - `TELEGRAM_BOT_TOKEN`
+   - `TELEGRAM_OWNER_CHAT_ID`
+   - `ADMIN_SECRET`
+   - `UPSTASH_REDIS_REST_URL`
+   - `UPSTASH_REDIS_REST_TOKEN`
+6. **Redeploy** — Deployments → ⋮ on latest Production → **Redeploy**.
+7. **Verify** — [stats](https://dreamtrades.vercel.app/api/completions/stats) should show `accepting` / `telegramConfigured` / `redisConfigured` / `durable` all `true`.
+8. **Admin + test DM** — open `/admin/completions?key=YOUR_ADMIN_SECRET`, then:
+   - Discover chat id: `GET https://dreamtrades.vercel.app/api/completions/telegram-setup?key=YOUR_ADMIN_SECRET`
+   - Test DM: `curl -X POST "https://dreamtrades.vercel.app/api/completions/telegram-setup?key=YOUR_ADMIN_SECRET"`
+
+If `TELEGRAM_OWNER_CHAT_ID` was blank in step 5: set bot token + `ADMIN_SECRET` first → Redeploy → message the bot → use the GET URL above → paste `chatId` into Vercel → Redeploy again.
+
 ### Set env vars on Vercel (checklist notify + leads)
 
 For the live project ([dreamtrades.vercel.app](https://dreamtrades.vercel.app)), Root Directory is already `dreamtrades/`. Without the vars below, `/learn` claim submits return **503** and you will not get Telegram DMs.
@@ -104,13 +126,13 @@ Alternative: In Vercel → Storage → create **Upstash Redis** / KV — it usua
 3. Get your numeric chat id for `TELEGRAM_OWNER_CHAT_ID`:
    - Message [@userinfobot](https://t.me/userinfobot) → copy the **Id** number, **or**
    - With `TELEGRAM_BOT_TOKEN` + `ADMIN_SECRET` already on Vercel (and redeployed), message your bot, then open:
-     `https://YOUR_URL/api/completions/telegram-setup?key=YOUR_ADMIN_SECRET`  
-     and copy your `chatId` from the JSON.
+     `https://dreamtrades.vercel.app/api/completions/telegram-setup?key=YOUR_ADMIN_SECRET`  
+     and copy your `chatId` from the JSON (`chats[].chatId`).
 4. Set `TELEGRAM_OWNER_CHAT_ID` + `ADMIN_SECRET` in Vercel → **Redeploy**.
 5. Smoke test: `POST` the same `telegram-setup` URL (e.g. with curl) — you should get a test DM:
 
 ```bash
-curl -X POST "https://YOUR_URL/api/completions/telegram-setup?key=YOUR_ADMIN_SECRET"
+curl -X POST "https://dreamtrades.vercel.app/api/completions/telegram-setup?key=YOUR_ADMIN_SECRET"
 ```
 
 ### Local /dev fallbacks (not for production)
