@@ -1,6 +1,7 @@
 "use client";
 
 import { QRCodeSVG } from "qrcode.react";
+import { GraduationClaimForm } from "@/components/graduation-claim-form";
 import {
   DISCORD_URL,
   INSTAGRAM_URL,
@@ -66,13 +67,14 @@ export function GraduationPanel({ className }: { className?: string }) {
       </p>
       <p className="mt-3 text-sm leading-relaxed text-ink/65">
         Join DreamTrades below — Telegram VIP, WhatsApp, Discord, and Instagram. Scan the QR or tap
-        the link.
+        the link. Then claim your spot so we can count you and reach out.
       </p>
       <div className="mt-6 grid gap-5 sm:grid-cols-2">
         {CHANNELS.map((channel) => (
           <ChannelCard key={channel.id} channel={channel} />
         ))}
       </div>
+      <GraduationClaimForm className="mt-6" />
     </div>
   );
 }

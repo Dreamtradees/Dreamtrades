@@ -8,7 +8,7 @@ Teaching site for **DreamTrades** — how to trade, not how to take signals.
 
 ## Deploy (Vercel)
 
-Import this repo on Vercel and set **Root Directory** to `dreamtrades`. No env vars required (join links ship from `dreamtrades/src/lib/site.ts`). After deploy, share **`https://YOUR_URL/learn`** as the community starter pack. Step-by-step: [`dreamtrades/README.md`](dreamtrades/README.md).
+Import this repo on Vercel and set **Root Directory** to `dreamtrades`. Join links ship from `dreamtrades/src/lib/site.ts`. For the post-checklist **“Count me in”** form, set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_CHAT_ID`, and `ADMIN_SECRET` (optional Upstash Redis for a durable graduate count). After deploy, share **`https://YOUR_URL/learn`**. Step-by-step: [`dreamtrades/README.md`](dreamtrades/README.md).
 
 ## Run
 

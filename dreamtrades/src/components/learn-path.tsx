@@ -132,7 +132,8 @@ export function LearnPath() {
                     You unlocked the community rooms
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-ink/65">
-                    Congrats, QR codes, and join links are in the lesson column — Telegram, WhatsApp, Discord, and Instagram.
+                    Congrats, QR codes, join links, and the “get counted” form are in the lesson column —
+                    so we can reach out after you finish.
                   </p>
                 </div>
               ) : (
