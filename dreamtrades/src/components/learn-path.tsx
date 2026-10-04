@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { GraduationPanel } from "@/components/graduation-panel";
@@ -27,10 +27,28 @@ export function LearnPath() {
   const readyCount = checked.filter(Boolean).length;
   const checklistComplete = readyCount === CHECKLIST.length;
   const lesson = LESSONS[activeIndex];
+  const wasComplete = useRef(false);
+
+  useEffect(() => {
+    if (checklistComplete && active === "checklist" && !wasComplete.current) {
+      wasComplete.current = true;
+      requestAnimationFrame(() => {
+        document.querySelector("[data-testid='graduation-panel']")?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      });
+    }
+    if (!checklistComplete) wasComplete.current = false;
+  }, [checklistComplete, active]);
 
   function go(delta: number) {
     const next = Math.min(LESSONS.length - 1, Math.max(0, activeIndex + delta));
     setActive(LESSONS[next].id);
+  }
+
+  function toggleCheck(index: number) {
+    setChecked((prev) => prev.map((v, idx) => (idx === index ? !v : v)));
   }
 
   return (
@@ -74,15 +92,20 @@ export function LearnPath() {
             {active === "checklist" && (
               <ChecklistStep
                 checked={checked}
-                onToggle={(i) => setChecked((prev) => prev.map((v, idx) => (idx === i ? !v : v)))}
+                onToggle={toggleCheck}
                 readyCount={readyCount}
+                complete={checklistComplete}
               />
             )}
           </div>
           <aside className="border-t border-ink/15 pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-mark">Remember</p>
-            <p className="mt-3 font-heading text-xl font-semibold tracking-tight text-ink">{lesson.rememberTitle}</p>
-            <p className="mt-3 text-sm leading-relaxed text-ink/65">{lesson.rememberBody}</p>
+            {!(active === "checklist" && checklistComplete) && (
+              <>
+                <p className="font-mono text-xs uppercase tracking-[0.18em] text-mark">Remember</p>
+                <p className="mt-3 font-heading text-xl font-semibold tracking-tight text-ink">{lesson.rememberTitle}</p>
+                <p className="mt-3 text-sm leading-relaxed text-ink/65">{lesson.rememberBody}</p>
+              </>
+            )}
             {active === "direction" && <DirectionIllustration side={side} />}
             {active === "pairs" && (
               <div className="mt-8">
@@ -103,7 +126,15 @@ export function LearnPath() {
             {active === "risk" && <RiskAside />}
             {active === "checklist" &&
               (checklistComplete ? (
-                <GraduationPanel />
+                <div className="mt-6">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-mark">Next step</p>
+                  <p className="mt-3 font-heading text-xl font-semibold tracking-tight text-ink">
+                    You unlocked the VIP rooms
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-ink/65">
+                    Congrats copy, QR codes, and join links are in the lesson column — Telegram VIP and WhatsApp.
+                  </p>
+                </div>
               ) : (
                 <div className="mt-6">
                   <div className="flex items-baseline justify-between gap-3">
@@ -158,16 +189,16 @@ export function LearnPath() {
               Next idea
             </button>
           ) : checklistComplete ? (
-            <p className="max-w-[14rem] text-right font-mono text-xs leading-relaxed text-mark">
-              Checklist complete — join Telegram VIP & WhatsApp in the readiness panel.
+            <p
+              className="max-w-[16rem] text-right font-mono text-xs leading-relaxed text-mark"
+              data-testid="graduation-footer"
+            >
+              You graduated — Telegram VIP & WhatsApp are unlocked above.
             </p>
           ) : (
-            <Link
-              href="/"
-              className={cn(buttonVariants({ size: "lg" }), "rounded-md bg-ink px-5 text-[#f4f7f8] hover:bg-[#1c2530]")}
-            >
-              Back to DreamTrades
-            </Link>
+            <p className="max-w-[14rem] text-right font-mono text-xs leading-relaxed text-ink/45">
+              Tick every box to unlock Telegram VIP & WhatsApp.
+            </p>
           )}
         </div>
       </div>
@@ -480,12 +511,13 @@ function ChecklistStep({
   checked,
   onToggle,
   readyCount,
+  complete,
 }: {
   checked: boolean[];
   onToggle: (index: number) => void;
   readyCount: number;
+  complete: boolean;
 }) {
-  const ready = readyCount === CHECKLIST.length;
   return (
     <div>
       <h3 className="font-heading text-2xl font-semibold tracking-tight text-ink md:text-3xl">Before you click buy or sell</h3>
@@ -508,9 +540,12 @@ function ChecklistStep({
           </li>
         ))}
       </ul>
-      <p className={cn("mt-6 font-mono text-sm", ready ? "text-mark" : "text-ink/50")}>
-        {ready ? "Ready — you have a plan. Now execute calmly." : "Not ready yet — finish the list or skip the trade."}
+      <p className={cn("mt-6 font-mono text-sm", complete ? "text-mark" : "text-ink/50")}>
+        {complete
+          ? "Ready — you have a plan. Join the rooms below."
+          : `Not ready yet — ${readyCount}/${CHECKLIST.length} checked. Finish the list or skip the trade.`}
       </p>
+      {complete && <GraduationPanel className="mt-6" />}
     </div>
   );
 }

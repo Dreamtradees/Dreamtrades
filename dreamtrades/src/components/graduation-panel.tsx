@@ -33,6 +33,8 @@ const CHANNELS: Channel[] = [
 export function GraduationPanel({ className }: { className?: string }) {
   return (
     <div
+      id="graduation-panel"
+      data-testid="graduation-panel"
       className={cn(
         "animate-rise mt-6 rounded-md border border-mark/35 bg-gradient-to-br from-mark/10 via-white/70 to-[#d5e0ea]/55 p-5",
         className,

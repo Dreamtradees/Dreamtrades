@@ -5,15 +5,24 @@ export const BRAND_BLURB =
 
 /**
  * Community join links shown after the learn checklist is complete.
- * Prefer env overrides; fall back to the named constants below.
+ * Prefer non-empty env overrides; always fall back to the live invite URLs.
  */
 export const TELEGRAM_VIP_URL_CONSTANT = "https://t.me/+BMI1xqg1TDwyYmQ8";
 
 export const WHATSAPP_GROUP_URL_CONSTANT =
   "https://chat.whatsapp.com/JP4a2T2bpi17mdneoLVoUN?mode=gi_t";
 
-export const TELEGRAM_VIP_URL =
-  process.env.NEXT_PUBLIC_TELEGRAM_VIP_URL?.trim() || TELEGRAM_VIP_URL_CONSTANT;
+function publicUrl(value: string | undefined, fallback: string) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : fallback;
+}
 
-export const WHATSAPP_GROUP_URL =
-  process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL?.trim() || WHATSAPP_GROUP_URL_CONSTANT;
+export const TELEGRAM_VIP_URL = publicUrl(
+  process.env.NEXT_PUBLIC_TELEGRAM_VIP_URL,
+  TELEGRAM_VIP_URL_CONSTANT,
+);
+
+export const WHATSAPP_GROUP_URL = publicUrl(
+  process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL,
+  WHATSAPP_GROUP_URL_CONSTANT,
+);
