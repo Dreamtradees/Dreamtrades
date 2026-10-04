@@ -1,18 +1,11 @@
-# LJ CIRCLE + First Tape
+# DreamTrades (priority) + LJ CIRCLE (friend)
 
-Monorepo with two separate frontends:
+## DreamTrades — teaching site
 
-| App | Folder | Port | Role |
-| --- | --- | --- | --- |
-| **LJ CIRCLE** | `web/` | 43128 | Attentive XAUUSD desk + Telegram join QR (`@LJwealthLab`) |
-| **First Tape** | `first-tape/` | 43129 | Teaching product — how to trade, not how to take signals |
-
-Plus an optional MetaTrader 5 toolkit and Telegram ↔ Cursor bridge.
-
-## First Tape (teaching site)
+Standalone education product for the **DreamTrades** group. Teaches how to trade (fundamentals), not how to take signals.
 
 ```bash
-cd first-tape
+cd dreamtrades
 npm install
 npm run build
 npm run start -- -p 43129 -H 0.0.0.0
@@ -20,12 +13,14 @@ npm run start -- -p 43129 -H 0.0.0.0
 
 Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
 
-- Brand-first landing: learn to trade, not copy signals
-- Fundamentals path: markets → long/short → candles → risk → checklist
+- `/` — DreamTrades brand + learning path overview
+- `/learn` — six plain-English lessons (trade, long/short, pairs, candles, risk, checklist)
 
-See [`first-tape/README.md`](first-tape/README.md).
+Details: [`dreamtrades/README.md`](dreamtrades/README.md)
 
-## LJ CIRCLE website
+## LJ CIRCLE (friend’s site — leave as-is)
+
+Attentive XAUUSD desk under `web/` with Telegram QR → [@LJwealthLab](https://t.me/LJwealthLab). Do not rebrand or grow this as DreamTrades.
 
 ```bash
 cd web
@@ -36,24 +31,8 @@ npm run start -- -p 43128 -H 0.0.0.0
 
 Open [http://127.0.0.1:43128](http://127.0.0.1:43128)
 
-- `/` — brand landing, live XAUUSD desk, scalp panel, Telegram QR
-- `/watch/xauusd` — full gold & forex desk with TradingView
-- `/#join` — scan QR → Telegram channel [@LJwealthLab](https://t.me/LJwealthLab)
+## MetaTrader 5 / Telegram bridge
 
-Telegram channel URL is set in `web/src/lib/site.ts` (or `NEXT_PUBLIC_TELEGRAM_GROUP_URL`).
-
-## MetaTrader 5
-
-See [`mt5/README.md`](mt5/README.md) for the steady-passive EA and XAUUSD scalp indicator.
-
-## Telegram ↔ Cursor bridge
-
-```bash
-npm install
-cp .env.example .env
-npm run dev
-```
-
-Dashboard: [http://127.0.0.1:43127](http://127.0.0.1:43127)
+Optional toolkit — see [`mt5/README.md`](mt5/README.md) and root `npm run dev` for the Telegram ↔ Cursor bridge (port 43127).
 
 Not financial advice. Markets involve risk.
