@@ -91,7 +91,7 @@ export function Hero() {
     <section className="relative min-h-[100svh] overflow-hidden bg-ink text-[#f4f7f8]">
       {SHOW_IG_HERO_TEST ? <IgPhotoHeroBackdrop /> : <AbstractHeroBackdrop />}
       <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-center px-5 pb-28 pt-28 md:px-8 md:pb-32 md:pt-32">
-        <p className="animate-rise font-heading text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
+        <p className="animate-rise font-heading text-[clamp(2.6rem,11vw,5.5rem)] font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
           {BRAND_NAME}
         </p>
         <h1 className="animate-rise-delay mt-6 max-w-2xl font-heading text-2xl font-semibold tracking-tight text-[#f4f7f8]/92 sm:text-3xl md:text-4xl">
