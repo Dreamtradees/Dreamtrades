@@ -96,13 +96,16 @@ export function GraduationClaimForm({ className }: { className?: string }) {
         data-testid="graduation-claim-done"
         role="status"
       >
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-mark">Counted</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-mark">
+          You’re counted
+        </p>
         <p className="mt-2 font-heading text-lg font-semibold tracking-tight text-ink">
-          You’re counted — we’ll reach out.
+          You’re counted — we’ll contact you.
         </p>
         <p className="mt-2 text-sm leading-relaxed text-ink/65">
-          Join the rooms above while you wait. We’ll contact you on Telegram and WhatsApp.
-          {state.count != null ? ` You’re graduate #${state.count}.` : ""}
+          A DreamTrades mentor will reach out on Telegram and WhatsApp using the details you shared.
+          Join the rooms above while you wait
+          {state.count != null ? ` — you’re graduate #${state.count}` : ""}.
         </p>
       </div>
     );
@@ -125,8 +128,8 @@ export function GraduationClaimForm({ className }: { className?: string }) {
         Tell us how to reach you
       </p>
       <p className="mt-2 text-sm leading-relaxed text-ink/65">
-        Finish line claim — name optional. Telegram <span className="font-medium text-ink">and</span>{" "}
-        WhatsApp are both required so we can reach you on either channel.
+        Finish-line claim — name optional. Telegram <span className="font-medium text-ink">and</span>{" "}
+        WhatsApp are both required. After you submit, we’ll contact you on those channels.
       </p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">

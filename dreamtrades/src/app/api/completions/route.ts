@@ -5,8 +5,17 @@ import {
   validateCompletionInput,
   type CompletionRecord,
 } from "@/lib/completions";
-import { listCompletions, saveCompletion } from "@/lib/completions-store";
-import { notifyOwnerTelegram, telegramEnvConfigured } from "@/lib/telegram-notify";
+import { completionsAccepting } from "@/lib/completions-accepting";
+import {
+  listCompletions,
+  redisConfigured,
+  saveCompletion,
+} from "@/lib/completions-store";
+import {
+  notifyOwnerTelegram,
+  telegramBotConfigured,
+  telegramEnvConfigured,
+} from "@/lib/telegram-notify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +41,9 @@ export async function GET(request: Request) {
       durable: data.durable,
       items: data.items,
       telegramConfigured: telegramEnvConfigured(),
-      redisConfigured: data.durable,
+      telegramBotConfigured: telegramBotConfigured(),
+      redisConfigured: redisConfigured(),
+      accepting: completionsAccepting(),
     });
   } catch (err) {
     return NextResponse.json(
@@ -58,11 +69,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
-  if (!telegramEnvConfigured()) {
+  if (!completionsAccepting()) {
     return NextResponse.json(
       {
         error:
-          "Completions are not live yet. Owner must set TELEGRAM_BOT_TOKEN and TELEGRAM_OWNER_CHAT_ID.",
+          "Completions are not live yet. Set TELEGRAM_BOT_TOKEN + TELEGRAM_OWNER_CHAT_ID (notify) and/or Upstash Redis (durable list) in Vercel.",
       },
       { status: 503 },
     );
@@ -84,20 +95,27 @@ export async function POST(request: Request) {
     );
   }
 
-  const message = formatCompletionTelegramMessage(record, saved.count);
-  const notify = await notifyOwnerTelegram(message);
-  if (!notify.ok) {
-    return NextResponse.json(
-      { error: notify.error },
-      { status: notify.status || 502 },
-    );
+  // Lead is already stored — Telegram is best-effort so a notify blip
+  // never blocks the learner or causes a double-submit retry storm.
+  let notified = false;
+  let notifyError: string | null = null;
+  if (telegramEnvConfigured()) {
+    const message = formatCompletionTelegramMessage(record, saved.count);
+    const notify = await notifyOwnerTelegram(message);
+    notified = notify.ok;
+    if (!notify.ok) notifyError = notify.error;
+  } else {
+    notifyError =
+      "Telegram notify skipped — set TELEGRAM_BOT_TOKEN and TELEGRAM_OWNER_CHAT_ID.";
   }
 
   return NextResponse.json({
     ok: true,
-    message: "You’re counted — we’ll reach out.",
+    message: "You’re counted — we’ll reach out on Telegram and WhatsApp.",
     count: saved.count,
     durable: saved.durable,
+    notified,
+    notifyError,
     id: record.id,
   });
 }

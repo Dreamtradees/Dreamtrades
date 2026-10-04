@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { completionsAccepting } from "@/lib/completions-accepting";
 import { getCompletionStats, redisConfigured } from "@/lib/completions-store";
-import { telegramEnvConfigured } from "@/lib/telegram-notify";
+import {
+  telegramBotConfigured,
+  telegramEnvConfigured,
+} from "@/lib/telegram-notify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,7 +17,9 @@ export async function GET() {
       count: stats.count,
       durable: stats.durable,
       telegramConfigured: telegramEnvConfigured(),
+      telegramBotConfigured: telegramBotConfigured(),
       redisConfigured: redisConfigured(),
+      accepting: completionsAccepting(),
     });
   } catch (err) {
     return NextResponse.json(

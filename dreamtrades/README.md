@@ -18,7 +18,7 @@ This app is ready for Vercel with **Root Directory = `dreamtrades`**.
    - **Build Command:** `npm run build` (default)
    - **Install Command:** `npm install` (default)
    - **Output Directory:** leave default (Next.js handles this)
-4. **Environment variables** (Project → Settings → Environment Variables):
+4. **Environment variables** (Project → Settings → Environment Variables) — add for Production (and Preview if you want):
 
    **Join links (optional):** VIP/WhatsApp/Discord/Instagram URLs ship from `src/lib/site.ts`. Override only if you want to change links without a code deploy:
    - `NEXT_PUBLIC_TELEGRAM_VIP_URL`
@@ -26,31 +26,57 @@ This app is ready for Vercel with **Root Directory = `dreamtrades`**.
    - `NEXT_PUBLIC_DISCORD_URL`
    - `NEXT_PUBLIC_INSTAGRAM_URL`
 
-   **Graduation claims (required for “Count me in”):**
-   - `TELEGRAM_BOT_TOKEN` — bot token from [@BotFather](https://t.me/BotFather)
-   - `TELEGRAM_OWNER_CHAT_ID` — your numeric Telegram user id (the bot DMs you here)
+   **Graduation claims — Telegram notify (required for DMs):**
+   - `TELEGRAM_BOT_TOKEN` — from [@BotFather](https://t.me/BotFather)
+   - `TELEGRAM_OWNER_CHAT_ID` — your numeric Telegram user id (see setup below)
    - `ADMIN_SECRET` — long random string; unlocks `/admin/completions?key=…`
 
-   **Durable graduate count (optional, free tier):**
+   **Durable leads (strongly recommended on Vercel):**
    - `UPSTASH_REDIS_REST_URL`
    - `UPSTASH_REDIS_REST_TOKEN`  
-   Without Upstash, each claim still DMs you on Telegram; the admin counter is in-memory only and can reset on cold starts.
+   Or, if you used Vercel Marketplace / Vercel KV: `KV_REST_API_URL` + `KV_REST_API_TOKEN` (same thing).
 
-5. Click **Deploy**.
+5. Click **Deploy** (or Redeploy after adding env vars).
 6. Optional: Project → **Settings → Domains** → add a custom domain.
-7. Share the starter pack with your community:
+7. Share the starter pack:
 
 ```text
 https://YOUR_DEPLOYMENT_URL/learn
 ```
-
-Example shape after deploy: `https://dreamtrades-….vercel.app/learn`
 
 Admin graduates list:
 
 ```text
 https://YOUR_DEPLOYMENT_URL/admin/completions?key=YOUR_ADMIN_SECRET
 ```
+
+### Upstash free setup (durable count + lead table)
+
+Without Redis, Telegram DMs still work, but the admin list/count can reset on Vercel cold starts. Do this once (≈2 minutes):
+
+1. Create a free account at [upstash.com](https://upstash.com/).
+2. **Create Database** → Redis → pick the free tier → region closest to your Vercel project.
+3. Open the database → **REST API** tab.
+4. Copy:
+   - **UPSTASH_REDIS_REST_URL**
+   - **UPSTASH_REDIS_REST_TOKEN**
+5. Paste both into Vercel → Project → Settings → Environment Variables → Production.
+6. **Redeploy** the project.
+7. Open `/admin/completions?key=…` — Setup should show “Upstash Redis connected”.
+
+Alternative: In Vercel → Storage → create **Upstash Redis** / KV — it usually injects `KV_REST_API_URL` + `KV_REST_API_TOKEN` automatically (DreamTrades accepts those names too).
+
+### Telegram notify setup (one-time)
+
+1. Message [@BotFather](https://t.me/BotFather) → `/newbot` (or reuse a bot) → copy the token into `TELEGRAM_BOT_TOKEN`.
+2. Open your new bot in Telegram and press **Start**.
+3. Get your numeric chat id for `TELEGRAM_OWNER_CHAT_ID`:
+   - Message [@userinfobot](https://t.me/userinfobot) → copy the **Id** number, **or**
+   - With `TELEGRAM_BOT_TOKEN` + `ADMIN_SECRET` already on Vercel, message your bot, then open:
+     `https://YOUR_URL/api/completions/telegram-setup?key=YOUR_ADMIN_SECRET`  
+     and copy your `chatId` from the JSON.
+4. Set `TELEGRAM_OWNER_CHAT_ID` + `ADMIN_SECRET` in Vercel → Redeploy.
+5. Optional smoke test: `POST` the same `telegram-setup` URL (e.g. with curl) — you should get a test DM.
 
 ### CLI (optional)
 
@@ -61,12 +87,11 @@ npx vercel                # preview
 npx vercel --prod         # production
 ```
 
-If the CLI says you are logged out, log in once — config and docs still apply; you can use the dashboard flow above instead.
-
 ## Run locally
 
 ```bash
 cd dreamtrades
+cp .env.example .env.local   # fill secrets
 npm install
 npm run build
 npm run start -- -p 43129 -H 0.0.0.0
@@ -86,28 +111,21 @@ Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
 - `/learn` — seven-step interactive curriculum + advanced live gold chart (**community starter pack**)
 - `/#live-gold` — homepage live XAUUSD TradingView chart (study tool)
 - `/learn#live-gold` — full advanced chart next to the curriculum
-- `/admin/completions?key=…` — private list + graduate count (needs `ADMIN_SECRET`)
+- `/admin/completions?key=…` — private leads table + graduate count (needs `ADMIN_SECRET`)
 - `POST /api/completions` — graduation claim form submit
 - `GET /api/completions/stats` — public graduate count (no contact details)
+- `GET|POST /api/completions/telegram-setup?key=…` — discover chat id / send test DM
 
 ## Graduation claims (how it works)
 
 When a learner ticks every checklist box, the graduation panel shows community QRs **and** a short “get counted” form (name optional, Telegram **and** WhatsApp both required, optional note, consent).
 
 1. They submit → `POST /api/completions` validates the fields.
-2. DreamTrades DMs **you** on Telegram with a neat message (name, @username, WhatsApp, note, timestamp, graduate #).
-3. Contact details are also stored in Upstash Redis when configured — so `/admin/completions` lists them neatly.
-4. The learner sees: **You’re counted — we’ll reach out.**
+2. Lead is stored (Upstash Redis when configured) with name, Telegram, WhatsApp, note, timestamp, id — count increments permanently.
+3. DreamTrades DMs **you** on Telegram with graduate # and contact details (best-effort; a notify blip does not fail the learner’s submit).
+4. The learner sees: **You’re counted — we’ll contact you.**
 
-**Reach out:** open the Telegram DM (or admin list) and message them on Telegram or WhatsApp if one channel doesn’t reply.
-
-### Telegram setup (one-time)
-
-1. Message [@BotFather](https://t.me/BotFather) → `/newbot` (or reuse an existing bot) → copy the token into `TELEGRAM_BOT_TOKEN`.
-2. Start a chat with your bot (press Start).
-3. Get your numeric chat id (`TELEGRAM_OWNER_CHAT_ID`) — e.g. message [@userinfobot](https://t.me/userinfobot), or any “get my id” bot.
-4. Set both vars + `ADMIN_SECRET` in Vercel → Redeploy.
-5. Optional: create a free [Upstash Redis](https://upstash.com/) database → paste REST URL + token for a lasting graduate count.
+**Reach out:** open the Telegram DM (or admin table) and message them on Telegram or WhatsApp.
 
 ## What it teaches
 

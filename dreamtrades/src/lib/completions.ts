@@ -97,15 +97,23 @@ export function formatCompletionTelegramMessage(
   record: CompletionRecord,
   count: number | null,
 ): string {
+  const when = (() => {
+    try {
+      return new Date(record.createdAt).toISOString();
+    } catch {
+      return record.createdAt;
+    }
+  })();
+
   const lines = [
     "✅ DreamTrades checklist complete",
     "",
-    count != null ? `Graduate #${count}` : "Graduate (count not persisted)",
+    count != null ? `Graduate #${count}` : "Graduate (count pending Redis)",
     `Name: ${record.name || "—"}`,
     `Telegram: ${record.telegram || "—"}`,
     `WhatsApp: ${record.whatsapp || "—"}`,
     `Note: ${record.note || "—"}`,
-    `When: ${record.createdAt}`,
+    `When: ${when}`,
     `Id: ${record.id}`,
   ];
   return lines.join("\n");
