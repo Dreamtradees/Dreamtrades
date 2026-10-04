@@ -1,20 +1,35 @@
-# DreamTrades + LJ CIRCLE
+# DreamTrades (priority) + LJ CIRCLE (friend)
 
-| App | Folder | Port | Role |
-| --- | --- | --- | --- |
-| **DreamTrades** | `dreamtrades/` | 43129 | Teaching product — how to trade, not how to take signals |
-| **LJ CIRCLE** | `web/` | 43128 | Friend’s XAUUSD desk + Telegram QR (`@LJwealthLab`) |
+## DreamTrades — teaching site
 
-## DreamTrades
+Standalone education product for the **DreamTrades** group. Teaches how to trade (fundamentals), not how to take signals.
 
 ```bash
-cd dreamtrades && npm install && npm run build && npm run start -- -p 43129 -H 0.0.0.0
+cd dreamtrades
+npm install
+npm run build
+npm run start -- -p 43129 -H 0.0.0.0
 ```
 
-Open http://127.0.0.1:43129 — fundamentals for newbies (markets, long/short, candles, risk, checklist).
+Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
 
-## LJ CIRCLE
+Details: [`dreamtrades/README.md`](dreamtrades/README.md)
 
-Desk only — not the school. Join QR → https://t.me/LJwealthLab
+## LJ CIRCLE (friend’s site — leave as-is)
 
-Not financial advice.
+Attentive XAUUSD desk under `web/` with Telegram QR → [@LJwealthLab](https://t.me/LJwealthLab). Left alone for your friend — not grown with DreamTrades curriculum.
+
+```bash
+cd web
+npm install
+npm run build
+npm run start -- -p 43128 -H 0.0.0.0
+```
+
+Open [http://127.0.0.1:43128](http://127.0.0.1:43128)
+
+## MetaTrader 5 / Telegram bridge
+
+See [`mt5/README.md`](mt5/README.md) and root `npm run dev` (port 43127).
+
+Not financial advice. Markets involve risk.

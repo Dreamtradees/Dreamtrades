@@ -11,9 +11,9 @@
     "start:web": "npm --prefix web run start -- --port 43128",
     "start": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
-    "dev:dreamtrades": "npm --prefix dreamtrades run dev",
+    "dev:dreamtrades": "npm --prefix dreamtrades run dev -- --port 43129 -H 0.0.0.0",
     "build:dreamtrades": "npm --prefix dreamtrades run build",
-    "start:dreamtrades": "npm --prefix dreamtrades run start -- -H 0.0.0.0"
+    "start:dreamtrades": "npm --prefix dreamtrades run start -- -p 43129 -H 0.0.0.0"
   },
   "engines": {
     "node": ">=20"
