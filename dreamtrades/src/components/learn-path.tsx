@@ -141,7 +141,7 @@ export function LearnPath() {
                     Unlock reward
                   </p>
                   <p className="mt-2 font-heading text-lg font-bold tracking-tight text-ink">
-                    Tick every box → Telegram VIP & WhatsApp
+                    Tick every box → Telegram, WhatsApp, Discord & Instagram
                   </p>
                   <div className="mt-3 flex items-baseline justify-between gap-3">
                     <p className="font-mono text-xs font-semibold text-ink">
@@ -199,14 +199,14 @@ export function LearnPath() {
               className="max-w-[16rem] text-right font-mono text-xs leading-relaxed text-mark"
               data-testid="graduation-footer"
             >
-              You graduated — Telegram VIP & WhatsApp are unlocked above.
+              You graduated — community rooms are unlocked above.
             </p>
           ) : (
             <p
               className="unlock-pulse max-w-[18rem] rounded-md border-2 border-mark bg-mark px-3 py-2 text-right font-heading text-sm font-bold leading-snug text-[#041512]"
               data-testid="unlock-footer"
             >
-              Tick every box to unlock Telegram VIP & WhatsApp
+              Tick every box to unlock Telegram, WhatsApp, Discord & Instagram
             </p>
           )}
         </div>
@@ -530,7 +530,7 @@ function UnlockVipBanner({ readyCount, total }: { readyCount: number; total: num
         VIP unlock · almost there
       </p>
       <p className="relative mt-2 font-heading text-xl font-bold tracking-tight md:text-2xl">
-        Tick every box to unlock Telegram VIP & WhatsApp
+        Tick every box to unlock Telegram, WhatsApp, Discord & Instagram
       </p>
       <p className="relative mt-2 max-w-xl text-sm leading-relaxed text-[#f4f7f8]/78 md:text-base">
         Finish the checklist — then your community QRs and join links appear. This is your starter-pack finish line.

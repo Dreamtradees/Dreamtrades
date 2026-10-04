@@ -1,7 +1,12 @@
 "use client";
 
 import { QRCodeSVG } from "qrcode.react";
-import { TELEGRAM_VIP_URL, WHATSAPP_GROUP_URL } from "@/lib/site";
+import {
+  DISCORD_URL,
+  INSTAGRAM_URL,
+  TELEGRAM_VIP_URL,
+  WHATSAPP_GROUP_URL,
+} from "@/lib/site";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +33,20 @@ const CHANNELS: Channel[] = [
     href: WHATSAPP_GROUP_URL,
     emptyLabel: "WhatsApp group link coming soon",
   },
+  {
+    id: "discord",
+    label: "Discord community",
+    hint: "Scan or open Discord — voice, charts, and chat.",
+    href: DISCORD_URL,
+    emptyLabel: "Discord link coming soon",
+  },
+  {
+    id: "instagram",
+    label: "Instagram",
+    hint: "Scan or open Instagram — follow the DreamTrades profile.",
+    href: INSTAGRAM_URL,
+    emptyLabel: "Instagram link coming soon",
+  },
 ];
 
 export function GraduationPanel({ className }: { className?: string }) {
@@ -46,9 +65,10 @@ export function GraduationPanel({ className }: { className?: string }) {
         ready to jump into the field.
       </p>
       <p className="mt-3 text-sm leading-relaxed text-ink/65">
-        Join the DreamTrades rooms below. Same plan you practiced — now with the group beside you.
+        Join DreamTrades below — Telegram VIP, WhatsApp, Discord, and Instagram. Scan the QR or tap
+        the link.
       </p>
-      <div className="mt-6 grid gap-5">
+      <div className="mt-6 grid gap-5 sm:grid-cols-2">
         {CHANNELS.map((channel) => (
           <ChannelCard key={channel.id} channel={channel} />
         ))}
