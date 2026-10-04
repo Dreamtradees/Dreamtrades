@@ -9,11 +9,11 @@
     "dev:web": "npm --prefix web run dev -- --port 43128",
     "build:web": "npm --prefix web run build",
     "start:web": "npm --prefix web run start -- --port 43128",
+    "dev:first-tape": "npm --prefix first-tape run dev -- --port 43129 -H 0.0.0.0",
+    "build:first-tape": "npm --prefix first-tape run build",
+    "start:first-tape": "npm --prefix first-tape run start -- -p 43129 -H 0.0.0.0",
     "start": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "dev:dreamtrades": "npm --prefix dreamtrades run dev -- --port 43129 -H 0.0.0.0",
-    "build:dreamtrades": "npm --prefix dreamtrades run build",
-    "start:dreamtrades": "npm --prefix dreamtrades run start -- -p 43129 -H 0.0.0.0"
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">=20"
