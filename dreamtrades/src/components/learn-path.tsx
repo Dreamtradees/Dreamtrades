@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { GraduationPanel } from "@/components/graduation-panel";
 import { XauusdChart } from "@/components/xauusd-chart";
 import {
   CandlesIllustration,
@@ -24,6 +25,7 @@ export function LearnPath() {
   const [checked, setChecked] = useState<boolean[]>(() => CHECKLIST.map(() => false));
   const activeIndex = LESSONS.findIndex((s) => s.id === active);
   const readyCount = checked.filter(Boolean).length;
+  const checklistComplete = readyCount === CHECKLIST.length;
   const lesson = LESSONS[activeIndex];
 
   function go(delta: number) {
@@ -99,11 +101,37 @@ export function LearnPath() {
             {active === "candles" && <CandleAside />}
             {active === "supply-demand" && <ZoneSketchAside />}
             {active === "risk" && <RiskAside />}
-            {active === "checklist" && (
-              <p className="mt-6 font-mono text-xs text-ink/50">
-                {readyCount}/{CHECKLIST.length} checked
-              </p>
-            )}
+            {active === "checklist" &&
+              (checklistComplete ? (
+                <GraduationPanel />
+              ) : (
+                <div className="mt-6">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="font-mono text-xs text-ink/50">
+                      {readyCount}/{CHECKLIST.length} checked
+                    </p>
+                    <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/40">
+                      Readiness
+                    </p>
+                  </div>
+                  <div
+                    className="mt-2 h-2 overflow-hidden rounded-full bg-ink/10"
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={CHECKLIST.length}
+                    aria-valuenow={readyCount}
+                    aria-label="Checklist readiness"
+                  >
+                    <div
+                      className="h-full rounded-full bg-mark transition-[width] duration-300 ease-out"
+                      style={{ width: `${(readyCount / CHECKLIST.length) * 100}%` }}
+                    />
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-ink/55">
+                    Finish every box — then we unlock your next step with the group.
+                  </p>
+                </div>
+              ))}
           </aside>
         </div>
         <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-ink/10 pt-8">
@@ -129,6 +157,10 @@ export function LearnPath() {
             >
               Next idea
             </button>
+          ) : checklistComplete ? (
+            <p className="max-w-[14rem] text-right font-mono text-xs leading-relaxed text-mark">
+              Checklist complete — join Telegram VIP & WhatsApp above.
+            </p>
           ) : (
             <Link
               href="/"
