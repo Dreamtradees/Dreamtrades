@@ -31,13 +31,14 @@ export function LiveGoldDesk({
           </div>
           {showLearnCta ? (
             <Link
-              href="/learn#live-gold"
+              href="/learn"
+              data-testid="desk-start-learning"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "rounded-md bg-ink px-5 text-[#f4f7f8] hover:bg-[#1c2530]",
               )}
             >
-              Open with the curriculum
+              Start Learning
             </Link>
           ) : (
             <p className="max-w-xs font-mono text-[11px] uppercase tracking-[0.16em] text-ink/45">

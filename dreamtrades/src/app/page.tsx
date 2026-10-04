@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 export default function HomePage() {
   return (
     <main>
-      <SiteHeader tone="dark" />
+      <SiteHeader tone="dark" active="home" />
       <Hero />
       <PathTeaser />
       <LiveGoldDesk variant="overview" showLearnCta />

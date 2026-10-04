@@ -13,7 +13,13 @@ export function PathTeaser() {
             <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-ink md:text-4xl">Skills first. Signals later — if ever.</h2>
             <p className="mt-3 text-ink/65 md:text-lg">Most beginners chase calls. We teach the mechanics underneath so you can read a chart, size risk, and decide for yourself.</p>
           </div>
-          <Link href="/learn" className={cn(buttonVariants({ size: "lg" }), "rounded-md bg-ink px-5 text-[#f4f7f8] hover:bg-[#1c2530]")}>Start the seven lessons</Link>
+          <Link
+            href="/learn"
+            data-testid="path-start-learning"
+            className={cn(buttonVariants({ size: "lg" }), "rounded-md bg-ink px-5 text-[#f4f7f8] hover:bg-[#1c2530]")}
+          >
+            Start Learning
+          </Link>
         </div>
         <div className="mt-12 grid gap-8 md:grid-cols-3 md:gap-10">
           {PATH_PREVIEW.map((item) => (

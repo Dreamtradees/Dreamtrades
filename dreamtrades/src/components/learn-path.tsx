@@ -18,6 +18,12 @@ import {
 import { CHECKLIST, LESSONS, type LessonId } from "@/lib/curriculum";
 import { cn } from "@/lib/utils";
 
+function lessonFromHash(hash: string): LessonId | null {
+  const id = hash.replace(/^#/, "");
+  if (LESSONS.some((lesson) => lesson.id === id)) return id as LessonId;
+  return null;
+}
+
 export function LearnPath() {
   const [active, setActive] = useState<LessonId>("trade");
   const [side, setSide] = useState<"long" | "short">("long");
@@ -28,6 +34,36 @@ export function LearnPath() {
   const checklistComplete = readyCount === CHECKLIST.length;
   const lesson = LESSONS[activeIndex];
   const wasComplete = useRef(false);
+
+  useEffect(() => {
+    function applyLocation() {
+      if (typeof window === "undefined") return;
+      const hash = window.location.hash;
+      const lessonId = lessonFromHash(hash);
+      if (lessonId) {
+        setActive(lessonId);
+        requestAnimationFrame(() => {
+          document.getElementById("learn-path")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+        return;
+      }
+      if (hash === "#learn-path") {
+        requestAnimationFrame(() => {
+          document.getElementById("learn-path")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      }
+    }
+
+    applyLocation();
+    window.addEventListener("hashchange", applyLocation);
+    return () => window.removeEventListener("hashchange", applyLocation);
+  }, []);
 
   useEffect(() => {
     if (checklistComplete && active === "checklist" && !wasComplete.current) {
@@ -52,13 +88,13 @@ export function LearnPath() {
   }
 
   return (
-    <div className="pb-8">
+    <div className="pb-8" data-testid="learn-path">
       <div className="mx-auto max-w-6xl px-5 md:px-8">
         <div className="max-w-2xl">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-mark">Curriculum · fundamentals</p>
-          <h2 className="mt-3 font-heading text-4xl font-bold tracking-tight text-ink md:text-5xl">Trading, in plain English</h2>
+          <h1 className="mt-3 font-heading text-4xl font-bold tracking-tight text-ink md:text-5xl">Trading, in plain English</h1>
           <p className="mt-4 text-ink/65 md:text-lg">
-            Seven ideas with pictures. No unexplained jargon. Built so you can trade with a plan — not copy someone else&apos;s call.
+            Seven ideas with pictures — then a checklist before you click. No unexplained jargon. Built so you can trade with a plan — not copy someone else&apos;s call.
           </p>
         </div>
         <nav aria-label="Lesson steps" className="mt-10 flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

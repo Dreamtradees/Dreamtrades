@@ -28,8 +28,19 @@ export function Hero() {
           Build judgment before you risk a dollar — so you trade with a plan, not a tip feed.
         </p>
         <div className="animate-rise-late mt-10 flex flex-wrap gap-3">
-          <Link href="/learn" className={cn(buttonVariants({ size: "lg" }), "rounded-md bg-mark px-6 text-[#041512] hover:bg-[#14b8a0]")}>Open the curriculum</Link>
-          <Link href="/#path" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-md border-[#f4f7f8]/30 bg-transparent px-6 text-[#f4f7f8] hover:bg-[#f4f7f8]/10 hover:text-[#f4f7f8]")}>See the path</Link>
+          <Link
+            href="/learn"
+            data-testid="hero-start-learning"
+            className={cn(buttonVariants({ size: "lg" }), "rounded-md bg-mark px-6 text-[#041512] hover:bg-[#14b8a0]")}
+          >
+            Start Learning
+          </Link>
+          <Link
+            href="/#path"
+            className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-md border-[#f4f7f8]/30 bg-transparent px-6 text-[#f4f7f8] hover:bg-[#f4f7f8]/10 hover:text-[#f4f7f8]")}
+          >
+            See the path
+          </Link>
         </div>
       </div>
     </section>
