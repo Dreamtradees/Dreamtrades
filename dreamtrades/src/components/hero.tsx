@@ -11,13 +11,13 @@ export function Hero() {
       <div className="pointer-events-none absolute -right-16 bottom-0 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,#e85d4c33,transparent_70%)] blur-2xl" />
       <svg className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] w-full opacity-80" viewBox="0 0 1440 420" preserveAspectRatio="none" aria-hidden>
         <defs>
-          <linearGradient id="tape" x1="0" y1="0" x2="1" y2="0">
+          <linearGradient id="dreamChart" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#0f9f8a" stopOpacity="0.15" />
             <stop offset="55%" stopColor="#0f9f8a" stopOpacity="0.9" />
             <stop offset="100%" stopColor="#e85d4c" stopOpacity="0.55" />
           </linearGradient>
         </defs>
-        <path d="M0 280 C 180 250, 260 190, 420 210 C 600 235, 700 120, 860 140 C 1020 160, 1120 90, 1260 110 C 1340 120, 1400 150, 1440 160 L 1440 420 L 0 420 Z" fill="url(#tape)" opacity="0.22" />
+        <path d="M0 280 C 180 250, 260 190, 420 210 C 600 235, 700 120, 860 140 C 1020 160, 1120 90, 1260 110 C 1340 120, 1400 150, 1440 160 L 1440 420 L 0 420 Z" fill="url(#dreamChart)" opacity="0.22" />
         <path d="M0 270 C 180 240, 260 180, 420 200 C 600 225, 700 110, 860 130 C 1020 150, 1120 80, 1260 100 C 1340 110, 1400 140, 1440 150" fill="none" stroke="#0f9f8a" strokeWidth="2.5" className="chart-line" />
       </svg>
       <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-center px-5 pb-28 pt-28 md:px-8 md:pb-32 md:pt-32">
