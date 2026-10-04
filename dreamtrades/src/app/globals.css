@@ -121,3 +121,49 @@
 .unlock-pulse {
   animation: unlock-attention 2.8s ease-in-out infinite;
 }
+
+/* Tester: full-bleed IG photo hero crossfade + subtle ken burns */
+@keyframes ig-hero-crossfade {
+  0%,
+  28% {
+    opacity: 1;
+  }
+  36%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ig-hero-kenburns {
+  0% {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
+}
+.ig-hero-slide {
+  opacity: 0;
+  animation: ig-hero-crossfade 21s ease-in-out infinite;
+}
+.ig-hero-slide-1 {
+  opacity: 1;
+  animation-delay: 0s;
+}
+.ig-hero-slide-2 {
+  animation-delay: 7s;
+}
+.ig-hero-slide-3 {
+  animation-delay: 14s;
+}
+.ig-hero-kenburns {
+  animation: ig-hero-kenburns 21s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ig-hero-slide,
+  .ig-hero-kenburns {
+    animation: none;
+  }
+  .ig-hero-slide-1 {
+    opacity: 1;
+  }
+}

@@ -1,11 +1,37 @@
+import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-export function Hero() {
+/**
+ * TESTER FIRST — Instagram / Threads photo hero.
+ * Set to `false` (or delete `/public/ig-test`) to revert to the abstract chart hero.
+ * Photos: public @zhabii7_fx media via Threads CDN (same Meta account as Instagram).
+ */
+const SHOW_IG_HERO_TEST = true;
+
+const IG_HERO_PHOTOS = [
+  {
+    src: "/ig-test/03-post.jpg",
+    alt: "Zhabii on a superbike — @zhabii7_fx",
+    position: "object-[center_22%]",
+  },
+  {
+    src: "/ig-test/04-post.jpg",
+    alt: "Trading desk charts — @zhabii7_fx",
+    position: "object-[center_35%]",
+  },
+  {
+    src: "/ig-test/01-profile.jpg",
+    alt: "Zhabii — @zhabii7_fx profile",
+    position: "object-[center_30%]",
+  },
+] as const;
+
+function AbstractHeroBackdrop() {
   return (
-    <section className="relative min-h-[100svh] overflow-hidden bg-ink text-[#f4f7f8]">
+    <>
       <div className="pointer-events-none absolute inset-0 hero-grid opacity-70" />
       <div className="pointer-events-none absolute -left-24 top-16 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,#0f9f8a55,transparent_68%)] blur-2xl attention-orb" />
       <div className="pointer-events-none absolute -right-16 bottom-0 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,#e85d4c33,transparent_70%)] blur-2xl" />
@@ -20,9 +46,57 @@ export function Hero() {
         <path d="M0 280 C 180 250, 260 190, 420 210 C 600 235, 700 120, 860 140 C 1020 160, 1120 90, 1260 110 C 1340 120, 1400 150, 1440 160 L 1440 420 L 0 420 Z" fill="url(#dreamChart)" opacity="0.22" />
         <path d="M0 270 C 180 240, 260 180, 420 200 C 600 225, 700 110, 860 130 C 1020 150, 1120 80, 1260 100 C 1340 110, 1400 140, 1440 150" fill="none" stroke="#0f9f8a" strokeWidth="2.5" className="chart-line" />
       </svg>
+    </>
+  );
+}
+
+function IgPhotoHeroBackdrop() {
+  return (
+    <>
+      <div className="absolute inset-0" aria-hidden>
+        {IG_HERO_PHOTOS.map((photo, index) => (
+          <div
+            key={photo.src}
+            className={cn("absolute inset-0 ig-hero-slide", `ig-hero-slide-${index + 1}`)}
+          >
+            <Image
+              src={photo.src}
+              alt=""
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              className={cn("object-cover", photo.position, "ig-hero-kenburns")}
+            />
+          </div>
+        ))}
+      </div>
+      {/* Readability plane only — not a card, badge, or inset media frame */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,rgba(8,12,16,0.88)_0%,rgba(8,12,16,0.72)_38%,rgba(8,12,16,0.35)_68%,rgba(8,12,16,0.55)_100%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,rgba(8,12,16,0.75),transparent)]"
+        aria-hidden
+      />
+      <span className="sr-only">
+        Background photos from @zhabii7_fx on Instagram / Threads
+      </span>
+    </>
+  );
+}
+
+export function Hero() {
+  return (
+    <section className="relative min-h-[100svh] overflow-hidden bg-ink text-[#f4f7f8]">
+      {SHOW_IG_HERO_TEST ? <IgPhotoHeroBackdrop /> : <AbstractHeroBackdrop />}
       <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-center px-5 pb-28 pt-28 md:px-8 md:pb-32 md:pt-32">
-        <p className="animate-rise font-heading text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">{BRAND_NAME}</p>
-        <h1 className="animate-rise-delay mt-6 max-w-2xl font-heading text-2xl font-semibold tracking-tight text-[#f4f7f8]/92 sm:text-3xl md:text-4xl">{BRAND_TAGLINE}</h1>
+        <p className="animate-rise font-heading text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
+          {BRAND_NAME}
+        </p>
+        <h1 className="animate-rise-delay mt-6 max-w-2xl font-heading text-2xl font-semibold tracking-tight text-[#f4f7f8]/92 sm:text-3xl md:text-4xl">
+          {BRAND_TAGLINE}
+        </h1>
         <p className="animate-rise-late mt-5 max-w-xl text-base leading-relaxed text-[#f4f7f8]/68 md:text-lg">
           Seven plain-English lessons for newbies — including supply & demand.
           Build judgment before you risk a dollar — so you trade with a plan, not a tip feed.
