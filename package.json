@@ -2,17 +2,17 @@
   "name": "telegram-cursor-bridge",
   "version": "1.0.0",
   "private": true,
-  "description": "Connect Telegram to Cursor Cloud Agents \u2014 chat with agents from your phone",
+  "description": "Connect Telegram to Cursor Cloud Agents — chat with agents from your phone",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "dev:web": "npm --prefix web run dev -- --port 43128",
     "build:web": "npm --prefix web run build",
-    "start:web": "npm --prefix web run start -- --port 43128",
-    "dev:first-tape": "npm --prefix first-tape run dev -- --port 43129 -H 0.0.0.0",
-    "build:first-tape": "npm --prefix first-tape run build",
-    "start:first-tape": "npm --prefix first-tape run start -- -p 43129 -H 0.0.0.0",
+    "dev:dreamtrades": "npm --prefix dreamtrades run dev",
+    "build:dreamtrades": "npm --prefix dreamtrades run build",
+    "start:dreamtrades": "npm --prefix dreamtrades run start -- -H 0.0.0.0",
     "start": "tsx src/index.ts",
+    "start:web": "npm --prefix web run start -- --port 43128",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
