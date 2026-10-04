@@ -1,4 +1,4 @@
 export const BRAND_NAME = "DreamTrades";
-export const BRAND_TAGLINE = "We teach you to trade — not to copy signals.";
-export const BRAND_DESCRIPTION =
-  "A clear fundamentals path for new traders: markets, long vs short, candles, risk, and a before-you-trade checklist.";
+export const BRAND_TAGLINE = "Learn how to trade — not how to take signals.";
+export const BRAND_BLURB =
+  "Simple fundamentals for newbies: direction, pairs, candles, supply & demand, risk, and a checklist before you click.";

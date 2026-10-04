@@ -1,21 +1,18 @@
-import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/site";
+import Link from "next/link";
+import { BRAND_NAME } from "@/lib/site";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-ink/10 px-5 py-10 md:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <footer className="border-t border-ink/10">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-10 md:flex-row md:items-center md:justify-between md:px-8">
         <div>
-          <p className="font-heading text-xl font-bold tracking-tight text-ink">
-            {BRAND_NAME}
-          </p>
-          <p className="mt-1 max-w-md text-sm text-muted-foreground">
-            {BRAND_TAGLINE} Education only — not financial advice. Markets involve
-            risk of loss.
-          </p>
+          <p className="font-heading text-lg font-bold tracking-tight text-ink">{BRAND_NAME}</p>
+          <p className="mt-1 text-sm text-ink/55">Teaching product for the DreamTrades group. Not financial advice.</p>
         </div>
-        <p className="font-mono text-xs text-muted-foreground">
-          Standalone teaching product · not LJ CIRCLE
-        </p>
+        <div className="flex gap-5 text-sm text-ink/60">
+          <Link href="/learn" className="hover:text-ink">Curriculum</Link>
+          <Link href="/#path" className="hover:text-ink">Path</Link>
+        </div>
       </div>
     </footer>
   );

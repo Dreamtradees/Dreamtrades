@@ -1,16 +1,10 @@
 # DreamTrades
 
-Standalone teaching website for new traders. **We teach you to trade — not to copy signals.**
+Standalone teaching site for the **DreamTrades** trading group.
 
-This is **not** LJ CIRCLE. LJ CIRCLE remains the trading desk at `../web` (port **43128**). DreamTrades is education-only on port **43129**.
+**Positioning:** teach how to actually trade — not how to take signals. Plain-English fundamentals for newbies.
 
-## What you learn
-
-1. **Markets** — pairs, price, volatility, sessions
-2. **Long / Short** — interactive direction demo
-3. **Candles** — OHLC reading
-4. **Risk** — size from account risk %, not hope
-5. **Checklist** — before-you-trade readiness gate
+This app is separate from **LJ CIRCLE** (`web/`), which remains the attentive XAUUSD desk + Telegram join experience.
 
 ## Run locally
 
@@ -21,12 +15,27 @@ npm run build
 npm run start -- -p 43129 -H 0.0.0.0
 ```
 
+Or from the repo root:
+
+```bash
+npm run start:dreamtrades
+```
+
 Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
 
-From repo root: `npm run start:dreamtrades`
+## Routes
 
-## Stack
+- `/` — DreamTrades brand landing + why this path exists
+- `/learn` — seven-step interactive curriculum (trade, long/short, pairs, candles, supply & demand, risk, checklist)
 
-Next.js · TypeScript · Tailwind CSS · shadcn/ui
+## What it teaches
 
-Education only — not financial advice. Markets involve risk of loss.
+1. What a trade is (entry, exit, risk — not a tip feed)
+2. Long vs short with an interactive demo
+3. How pairs like XAUUSD and EURUSD are quoted
+4. Candlestick basics (OHLC)
+5. Supply & demand — buyers lift, sellers press, simple zones
+6. Risk: stop loss, position size, survivable money
+7. A before-you-click checklist
+
+Not financial advice. Markets involve risk.
