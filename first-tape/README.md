@@ -1,8 +1,8 @@
-# DreamTrades
+# First Tape
 
 Standalone teaching website for new traders. **We teach you to trade — not to copy signals.**
 
-This is **not** LJ CIRCLE. LJ CIRCLE remains the trading desk at `../web` (port **43128**). DreamTrades is education-only on port **43129**.
+This is **not** LJ CIRCLE. LJ CIRCLE remains the trading desk at `../web` (port **43128**). First Tape is education-only on port **43129**.
 
 ## What you learn
 
@@ -15,7 +15,7 @@ This is **not** LJ CIRCLE. LJ CIRCLE remains the trading desk at `../web` (port 
 ## Run locally
 
 ```bash
-cd dreamtrades
+cd first-tape
 npm install
 npm run build
 npm run start -- -p 43129 -H 0.0.0.0
@@ -23,7 +23,7 @@ npm run start -- -p 43129 -H 0.0.0.0
 
 Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
 
-From repo root: `npm run start:dreamtrades`
+From repo root: `npm run start:first-tape`
 
 ## Stack
 
