@@ -3,6 +3,7 @@ import { Hero } from "@/components/hero";
 import { Ticker } from "@/components/ticker";
 import { MarketDesk } from "@/components/market-desk";
 import { XauusdScalpSignals } from "@/components/xauusd-scalp-signals";
+import { LearnTeaser } from "@/components/learn-teaser";
 import { Practice } from "@/components/practice";
 import { Join } from "@/components/join";
 import { SiteFooter } from "@/components/site-footer";
@@ -15,6 +16,7 @@ export default function HomePage() {
       <Ticker />
       <MarketDesk chartVariant="full" chartHeight={500} />
       <XauusdScalpSignals />
+      <LearnTeaser />
       <Practice />
       <Join />
       <SiteFooter />
