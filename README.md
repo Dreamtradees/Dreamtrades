@@ -1,6 +1,29 @@
-# LJ CIRCLE
+# LJ CIRCLE + DreamTrades
 
-Attentive trading website for **XAUUSD** and majors — live prices, TradingView charts, Telegram join QR, plus an optional MetaTrader 5 toolkit and Telegram ↔ Cursor bridge.
+Monorepo with two separate frontends:
+
+| App | Folder | Port | Role |
+| --- | --- | --- | --- |
+| **LJ CIRCLE** | `web/` | 43128 | Attentive XAUUSD desk + Telegram join QR (`@LJwealthLab`) |
+| **DreamTrades** | `dreamtrades/` | 43129 | Teaching product — how to trade, not how to take signals |
+
+Plus an optional MetaTrader 5 toolkit and Telegram ↔ Cursor bridge.
+
+## DreamTrades (teaching site)
+
+```bash
+cd dreamtrades
+npm install
+npm run build
+npm run start -- -p 43129 -H 0.0.0.0
+```
+
+Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
+
+- `/` — DreamTrades brand landing
+- `/learn` — six-step fundamentals curriculum for newbies
+
+See [`dreamtrades/README.md`](dreamtrades/README.md).
 
 ## LJ CIRCLE website
 

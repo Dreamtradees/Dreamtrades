@@ -8,6 +8,9 @@
     "dev": "tsx watch src/index.ts",
     "dev:web": "npm --prefix web run dev -- --port 43128",
     "build:web": "npm --prefix web run build",
+    "dev:dreamtrades": "npm --prefix dreamtrades run dev",
+    "build:dreamtrades": "npm --prefix dreamtrades run build",
+    "start:dreamtrades": "npm --prefix dreamtrades run start -- -H 0.0.0.0",
     "start": "tsx src/index.ts",
     "start:web": "npm --prefix web run start -- --port 43128",
     "typecheck": "tsc --noEmit"
