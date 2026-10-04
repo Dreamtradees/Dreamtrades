@@ -12,11 +12,10 @@ export const TELEGRAM_VIP_URL_CONSTANT = "https://t.me/+BMI1xqg1TDwyYmQ8";
 export const WHATSAPP_GROUP_URL_CONSTANT =
   "https://chat.whatsapp.com/JP4a2T2bpi17mdneoLVoUN?mode=gi_t";
 
-/** Discord invite — set when you paste the live link. */
-export const DISCORD_URL_CONSTANT = "";
+export const DISCORD_URL_CONSTANT = "https://discord.gg/GYNqdFz6g";
 
-/** Instagram profile — set when you paste the live link. */
-export const INSTAGRAM_URL_CONSTANT = "";
+export const INSTAGRAM_URL_CONSTANT =
+  "https://www.instagram.com/zhabii7_fx/";
 
 function publicUrl(value: string | undefined, fallback: string) {
   const trimmed = value?.trim();
