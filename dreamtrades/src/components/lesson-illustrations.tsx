@@ -100,52 +100,86 @@ export function TradeIllustration() {
   );
 }
 
-/** Lesson 02 — long vs short paths */
+/** Rising candlesticks for the long path demo (y lower = price higher). */
+const LONG_PATH_CANDLES = [
+  { x: 40, o: 132, h: 124, l: 140, c: 128 },
+  { x: 58, o: 128, h: 118, l: 136, c: 122 },
+  { x: 76, o: 122, h: 114, l: 130, c: 126 }, // small red pullback
+  { x: 94, o: 126, h: 108, l: 132, c: 112 },
+  { x: 112, o: 112, h: 96, l: 118, c: 100 },
+  { x: 130, o: 100, h: 88, l: 108, c: 92 },
+  { x: 148, o: 92, h: 84, l: 100, c: 96 }, // red
+  { x: 166, o: 96, h: 74, l: 102, c: 78 },
+  { x: 184, o: 78, h: 62, l: 86, c: 66 },
+  { x: 202, o: 66, h: 52, l: 74, c: 56 },
+  { x: 220, o: 56, h: 48, l: 64, c: 60 }, // red
+  { x: 238, o: 60, h: 42, l: 66, c: 46 },
+  { x: 256, o: 46, h: 34, l: 52, c: 38 },
+  { x: 274, o: 38, h: 28, l: 46, c: 32 },
+  { x: 292, o: 32, h: 22, l: 40, c: 26 },
+  { x: 310, o: 26, h: 18, l: 34, c: 22 },
+] as const;
+
+/** Falling candlesticks for the short path demo. */
+const SHORT_PATH_CANDLES = [
+  { x: 40, o: 28, h: 20, l: 36, c: 32 },
+  { x: 58, o: 32, h: 24, l: 42, c: 38 },
+  { x: 76, o: 38, h: 30, l: 46, c: 34 }, // small green bounce
+  { x: 94, o: 34, h: 28, l: 52, c: 48 },
+  { x: 112, o: 48, h: 40, l: 64, c: 60 },
+  { x: 130, o: 60, h: 52, l: 74, c: 70 },
+  { x: 148, o: 70, h: 58, l: 76, c: 64 }, // green
+  { x: 166, o: 64, h: 58, l: 86, c: 82 },
+  { x: 184, o: 82, h: 74, l: 98, c: 94 },
+  { x: 202, o: 94, h: 86, l: 110, c: 106 },
+  { x: 220, o: 106, h: 96, l: 112, c: 100 }, // green
+  { x: 238, o: 100, h: 94, l: 120, c: 116 },
+  { x: 256, o: 116, h: 108, l: 132, c: 128 },
+  { x: 274, o: 128, h: 120, l: 142, c: 138 },
+  { x: 292, o: 138, h: 130, l: 148, c: 144 },
+  { x: 310, o: 144, h: 136, l: 152, c: 148 },
+] as const;
+
+/** Lesson 02 — long vs short paths (candlestick chart, same style as S&D) */
 export function DirectionIllustration({ side }: { side: "long" | "short" }) {
   const long = side === "long";
   return (
     <div className="mt-8">
       <Caption>Picture · {long ? "long" : "short"} path</Caption>
-      <Frame viewBox="0 0 360 180" label={long ? "Rising price helps a long trade" : "Falling price helps a short trade"}>
-        <line x1="32" y1="148" x2="328" y2="148" stroke="#11161d22" strokeWidth="1" />
+      <Frame
+        viewBox="0 0 360 180"
+        label={
+          long
+            ? "Rising green candlesticks help a long trade"
+            : "Falling red candlesticks help a short trade"
+        }
+      >
+        <line x1="24" y1="158" x2="336" y2="158" stroke="#11161d18" strokeWidth="1" />
+        <CandleSeries candles={long ? LONG_PATH_CANDLES : SHORT_PATH_CANDLES} w={10} />
         {long ? (
           <>
-            <path
-              d="M40 130 C 90 125, 130 95, 180 70 C 230 45, 280 35, 320 22"
-              fill="none"
-              stroke={mark}
-              strokeWidth="2.5"
-              className="chart-line"
-            />
-            <circle cx="80" cy="122" r="5" fill={flare} />
-            <text x="90" y="116" fontSize="11" fill={ink} fontFamily="monospace">
+            <circle cx="76" cy="126" r="5" fill={flare} />
+            <text x="86" y="148" fontSize="11" fill={ink} fontFamily="monospace">
               buy here
             </text>
-            <circle cx="300" cy="28" r="5" fill={mark} />
-            <text x="210" y="24" fontSize="11" fill={mark} fontFamily="monospace">
+            <circle cx="310" cy="22" r="5" fill={mark} />
+            <text x="218" y="48" fontSize="11" fill={mark} fontFamily="monospace">
               price up → profit
             </text>
           </>
         ) : (
           <>
-            <path
-              d="M40 40 C 90 45, 130 75, 180 100 C 230 125, 280 135, 320 148"
-              fill="none"
-              stroke={flare}
-              strokeWidth="2.5"
-              className="chart-line"
-            />
-            <circle cx="80" cy="48" r="5" fill={flare} />
-            <text x="90" y="42" fontSize="11" fill={ink} fontFamily="monospace">
+            <circle cx="76" cy="34" r="5" fill={flare} />
+            <text x="86" y="56" fontSize="11" fill={ink} fontFamily="monospace">
               sell here
             </text>
-            <circle cx="300" cy="142" r="5" fill={mark} />
-            <text x="200" y="168" fontSize="11" fill={mark} fontFamily="monospace">
+            <circle cx="310" cy="148" r="5" fill={mark} />
+            <text x="188" y="172" fontSize="11" fill={mark} fontFamily="monospace">
               price down → profit
             </text>
           </>
         )}
-        <text x="32" y="22" fontSize="12" fill={long ? mark : flare} fontFamily="monospace">
+        <text x="24" y="16" fontSize="12" fill={long ? mark : flare} fontFamily="monospace">
           {long ? "LONG = buy first, hope higher" : "SHORT = sell first, hope lower"}
         </text>
       </Frame>
