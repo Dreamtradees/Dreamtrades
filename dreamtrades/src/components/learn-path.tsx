@@ -129,10 +129,10 @@ export function LearnPath() {
                 <div className="mt-6">
                   <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-mark">Next step</p>
                   <p className="mt-3 font-heading text-xl font-semibold tracking-tight text-ink">
-                    You unlocked the VIP rooms
+                    You unlocked the community rooms
                   </p>
                   <p className="mt-3 text-sm leading-relaxed text-ink/65">
-                    Congrats copy, QR codes, and join links are in the lesson column — Telegram VIP and WhatsApp.
+                    Congrats, QR codes, and join links are in the lesson column — Telegram, WhatsApp, Discord, and Instagram.
                   </p>
                 </div>
               ) : (
