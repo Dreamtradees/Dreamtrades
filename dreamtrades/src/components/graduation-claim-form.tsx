@@ -22,12 +22,45 @@ export function GraduationClaimForm({ className }: { className?: string }) {
     event.preventDefault();
     if (state.status === "submitting" || state.status === "done") return;
 
+    const telegramTrimmed = telegram.trim();
+    const whatsappTrimmed = whatsapp.trim();
+
+    if (!telegramTrimmed) {
+      setState({
+        status: "error",
+        message: "Add your Telegram @username so we can reach you.",
+      });
+      return;
+    }
+
+    if (!whatsappTrimmed) {
+      setState({
+        status: "error",
+        message: "Add your WhatsApp number so we can reach you.",
+      });
+      return;
+    }
+
+    if (!consent) {
+      setState({
+        status: "error",
+        message: "Please confirm we can reach out to you.",
+      });
+      return;
+    }
+
     setState({ status: "submitting" });
     try {
       const res = await fetch("/api/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, telegram, whatsapp, note, consent }),
+        body: JSON.stringify({
+          name,
+          telegram: telegramTrimmed,
+          whatsapp: whatsappTrimmed,
+          note,
+          consent,
+        }),
       });
       const data = (await res.json().catch(() => null)) as
         | { error?: string; count?: number; message?: string }
@@ -68,7 +101,7 @@ export function GraduationClaimForm({ className }: { className?: string }) {
           You’re counted — we’ll reach out.
         </p>
         <p className="mt-2 text-sm leading-relaxed text-ink/65">
-          Join the rooms above while you wait. We’ll contact you on Telegram or WhatsApp.
+          Join the rooms above while you wait. We’ll contact you on Telegram and WhatsApp.
           {state.count != null ? ` You’re graduate #${state.count}.` : ""}
         </p>
       </div>
@@ -92,8 +125,8 @@ export function GraduationClaimForm({ className }: { className?: string }) {
         Tell us how to reach you
       </p>
       <p className="mt-2 text-sm leading-relaxed text-ink/65">
-        Finish line claim — name optional. Add Telegram <span className="font-medium text-ink">or</span>{" "}
-        WhatsApp (at least one).
+        Finish line claim — name optional. Telegram <span className="font-medium text-ink">and</span>{" "}
+        WhatsApp are both required so we can reach you on either channel.
       </p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -116,12 +149,13 @@ export function GraduationClaimForm({ className }: { className?: string }) {
 
         <label className="block">
           <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/50">
-            Telegram @username
+            Telegram @username <span className="normal-case tracking-normal">(required)</span>
           </span>
           <input
             type="text"
             name="telegram"
             autoComplete="username"
+            required
             value={telegram}
             onChange={(e) => setTelegram(e.target.value)}
             maxLength={64}
@@ -133,12 +167,13 @@ export function GraduationClaimForm({ className }: { className?: string }) {
 
         <label className="block">
           <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/50">
-            WhatsApp number
+            WhatsApp number <span className="normal-case tracking-normal">(required)</span>
           </span>
           <input
             type="tel"
             name="whatsapp"
             autoComplete="tel"
+            required
             value={whatsapp}
             onChange={(e) => setWhatsapp(e.target.value)}
             maxLength={32}

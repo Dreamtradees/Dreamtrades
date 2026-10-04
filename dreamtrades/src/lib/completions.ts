@@ -54,21 +54,28 @@ export function validateCompletionInput(input: CompletionInput): CompletionValid
   const telegram = normalizeTelegram(telegramRaw);
   const whatsapp = normalizeWhatsapp(whatsappRaw);
 
-  if (!telegram && !whatsapp) {
+  if (!telegram) {
     return {
       ok: false,
-      error: "Add a Telegram @username or a WhatsApp number so we can reach you.",
+      error: "Add your Telegram @username so we can reach you.",
     };
   }
 
-  if (telegram && !/^[A-Za-z][A-Za-z0-9_]{3,31}$/.test(telegram)) {
+  if (!whatsapp) {
+    return {
+      ok: false,
+      error: "Add your WhatsApp number so we can reach you.",
+    };
+  }
+
+  if (!/^[A-Za-z][A-Za-z0-9_]{3,31}$/.test(telegram)) {
     return {
       ok: false,
       error: "Telegram username looks off — use letters, numbers, underscore (4–32 chars).",
     };
   }
 
-  if (whatsapp && !/^\+?\d{7,15}$/.test(whatsapp)) {
+  if (!/^\+?\d{7,15}$/.test(whatsapp)) {
     return {
       ok: false,
       error: "WhatsApp number looks off — use digits with optional leading +.",
@@ -79,7 +86,7 @@ export function validateCompletionInput(input: CompletionInput): CompletionValid
     ok: true,
     value: {
       name,
-      telegram: telegram ? `@${telegram}` : "",
+      telegram: `@${telegram}`,
       whatsapp,
       note,
     },

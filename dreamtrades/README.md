@@ -92,14 +92,14 @@ Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
 
 ## Graduation claims (how it works)
 
-When a learner ticks every checklist box, the graduation panel shows community QRs **and** a short “get counted” form (name optional, Telegram **or** WhatsApp required, optional note, consent).
+When a learner ticks every checklist box, the graduation panel shows community QRs **and** a short “get counted” form (name optional, Telegram **and** WhatsApp both required, optional note, consent).
 
 1. They submit → `POST /api/completions` validates the fields.
-2. DreamTrades DMs **you** on Telegram with a neat message (name, @username / WhatsApp, note, timestamp, graduate #).
+2. DreamTrades DMs **you** on Telegram with a neat message (name, @username, WhatsApp, note, timestamp, graduate #).
 3. Contact details are also stored in Upstash Redis when configured — so `/admin/completions` lists them neatly.
 4. The learner sees: **You’re counted — we’ll reach out.**
 
-**Reach out:** open the Telegram DM (or admin list) and message them on Telegram/WhatsApp.
+**Reach out:** open the Telegram DM (or admin list) and message them on Telegram or WhatsApp if one channel doesn’t reply.
 
 ### Telegram setup (one-time)
 
