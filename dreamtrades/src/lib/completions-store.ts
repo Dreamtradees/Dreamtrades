@@ -55,10 +55,11 @@ function loadFileIntoMemory(): void {
   if (!fileStoreAllowed()) return;
 
   const filePath = fileStorePath();
-  if (!existsSync(filePath)) return;
+  if (!existsSync(/* turbopackIgnore: true */ filePath)) return;
 
   try {
-    const raw = readFileSync(filePath, "utf8");
+    // Local/dev only — ignore for Turbopack tracing (not used on Vercel with Redis).
+    const raw = readFileSync(/* turbopackIgnore: true */ filePath, "utf8");
     const parsed = JSON.parse(raw) as {
       count?: number;
       items?: CompletionRecord[];
@@ -77,9 +78,9 @@ function persistMemoryToFile(): void {
   const mem = memoryStore();
   const filePath = fileStorePath();
   try {
-    mkdirSync(path.dirname(filePath), { recursive: true });
+    mkdirSync(/* turbopackIgnore: true */ path.dirname(filePath), { recursive: true });
     writeFileSync(
-      filePath,
+      /* turbopackIgnore: true */ filePath,
       JSON.stringify({ count: mem.count, items: mem.items }, null, 2),
       "utf8",
     );
