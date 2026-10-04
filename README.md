@@ -1,20 +1,20 @@
-# LJ CIRCLE + First Tape
+# DreamTrades + LJ CIRCLE
 
 | App | Folder | Port | Role |
 | --- | --- | --- | --- |
-| **LJ CIRCLE** | `web/` | 43128 | XAUUSD desk + Telegram QR (`@LJwealthLab`) |
-| **First Tape** | `first-tape/` | 43129 | Teach how to trade — not copy signals |
+| **DreamTrades** | `dreamtrades/` | 43129 | Teaching product — how to trade, not how to take signals |
+| **LJ CIRCLE** | `web/` | 43128 | Friend’s XAUUSD desk + Telegram QR (`@LJwealthLab`) |
 
-## First Tape
+## DreamTrades
+
 ```bash
-cd first-tape && npm install && npm run build && npm run start -- -p 43129 -H 0.0.0.0
+cd dreamtrades && npm install && npm run build && npm run start -- -p 43129 -H 0.0.0.0
 ```
-http://127.0.0.1:43129
+
+Open http://127.0.0.1:43129 — fundamentals for newbies (markets, long/short, candles, risk, checklist).
 
 ## LJ CIRCLE
-```bash
-cd web && npm install && npm run build && npm run start -- -p 43128 -H 0.0.0.0
-```
-http://127.0.0.1:43128 — desk only, no Learn path.
+
+Desk only — not the school. Join QR → https://t.me/LJwealthLab
 
 Not financial advice.
