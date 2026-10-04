@@ -42,7 +42,7 @@ export const LESSONS = [
     title: "Why price rises or falls",
     rememberTitle: "Demand lifts. Supply presses down.",
     rememberBody:
-      "When buyers want it more, price rises. When sellers want out more, price falls. Zones mark where that fight was loud before.",
+      "Mark zones in four pictures: find the impulse → mark the base → extend the band → wait for the retest. Reaction is a lesson — not a guarantee.",
   },
   {
     id: "risk",

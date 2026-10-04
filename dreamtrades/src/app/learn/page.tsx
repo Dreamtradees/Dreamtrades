@@ -29,9 +29,9 @@ export default function LearnPage() {
             Fundamentals before you risk a dollar
           </h1>
           <p className="animate-rise-late mt-4 max-w-2xl text-[#f4f7f8]/72 md:text-lg">
-            Seven short lessons. Interactive demos for long/short and supply
-            & demand. A checklist you can tick. Built to teach judgment — not
-            signal-following.
+            Seven short lessons with step-by-step pictures — including how to
+            mark supply & demand zones. Interactive demos. A checklist you can
+            tick. Built to teach judgment — not signal-following.
           </p>
           <div className="animate-rise-late mt-8 flex flex-wrap gap-3">
             <Link href="#learn-path" className={cn(buttonVariants({ size: "lg" }), "rounded-md bg-mark px-5 text-[#041512] hover:bg-[#14b8a0]")}>
