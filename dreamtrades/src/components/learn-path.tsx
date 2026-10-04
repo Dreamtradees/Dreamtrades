@@ -159,7 +159,7 @@ export function LearnPath() {
             </button>
           ) : checklistComplete ? (
             <p className="max-w-[14rem] text-right font-mono text-xs leading-relaxed text-mark">
-              Checklist complete — join Telegram VIP & WhatsApp above.
+              Checklist complete — join Telegram VIP & WhatsApp in the readiness panel.
             </p>
           ) : (
             <Link
