@@ -18,29 +18,7 @@ This app is ready for Vercel with **Root Directory = `dreamtrades`**.
    - **Build Command:** `npm run build` (default)
    - **Install Command:** `npm install` (default)
    - **Output Directory:** leave default (Next.js handles this)
-4. **Environment variables** (Project → Settings → Environment Variables) — add for **Production** (and Preview if you want), then **Redeploy**.
-
-### Required Vercel env vars (graduation claims + Telegram notify)
-
-Without these, live `/learn` claim submits return **503** and you will not get DMs.
-
-| Variable | Required? | What it does | How to get it |
-|---|---|---|---|
-| `TELEGRAM_BOT_TOKEN` | **Yes** (for DMs) | Bot that messages you when a client finishes the checklist | [@BotFather](https://t.me/BotFather) → `/newbot` → copy token |
-| `TELEGRAM_OWNER_CHAT_ID` | **Yes** (for DMs) | Your numeric Telegram user id (the chat the bot DMs) | See [Telegram notify setup](#telegram-notify-setup-one-time) below |
-| `ADMIN_SECRET` | **Yes** (for admin) | Unlocks `/admin/completions?key=…` and setup helpers | `openssl rand -hex 24` (or any long random string) |
-| `UPSTASH_REDIS_REST_URL` | **Strongly recommended** | Durable lead list + running graduate count | Free Upstash Redis — see below |
-| `UPSTASH_REDIS_REST_TOKEN` | **Strongly recommended** | Auth for Upstash REST | Same Upstash database → REST API tab |
-
-**Aliases accepted** (Vercel Marketplace / Vercel KV): `KV_REST_API_URL` + `KV_REST_API_TOKEN` instead of the `UPSTASH_*` names.
-
-**Optional public join-link overrides** (defaults live in `src/lib/site.ts`):
-
-- `NEXT_PUBLIC_TELEGRAM_VIP_URL`
-- `NEXT_PUBLIC_WHATSAPP_GROUP_URL`
-- `NEXT_PUBLIC_DISCORD_URL`
-- `NEXT_PUBLIC_INSTAGRAM_URL`
-
+4. **Environment variables** — see [Set env vars on Vercel (checklist notify + leads)](#set-env-vars-on-vercel-checklist-notify--leads) below. Add for **Production** and **Preview**, then **Redeploy**.
 5. Click **Deploy** (or **Redeploy** after adding/changing env vars — env changes do not apply until redeploy).
 6. Optional: Project → **Settings → Domains** → add a custom domain.
 7. Share the starter pack:
@@ -62,6 +40,46 @@ https://YOUR_DEPLOYMENT_URL/api/completions/stats
 ```
 
 You want `"accepting": true`, `"telegramConfigured": true`, and preferably `"redisConfigured": true` / `"durable": true`.
+
+### Set env vars on Vercel (checklist notify + leads)
+
+For the live project ([dreamtrades.vercel.app](https://dreamtrades.vercel.app)), Root Directory is already `dreamtrades/`. Without the vars below, `/learn` claim submits return **503** and you will not get Telegram DMs.
+
+1. Open [Vercel Dashboard](https://vercel.com/dashboard) → project **Dreamtrades** (or whatever you named the import of `Dreamtradees/Dreamtrades`).
+2. Go to **Settings → Environment Variables**.
+3. Add each variable below. For every row, enable **Production** and **Preview** (Development optional). Leave **Sensitive** on if offered.
+4. Click **Save** after each (or bulk-add if your UI allows).
+5. Go to **Deployments** → ⋮ on the latest Production deployment → **Redeploy** (do **not** skip the build cache if unsure — a normal Redeploy is fine). Env changes do nothing until a new deployment picks them up.
+6. Verify: open [https://dreamtrades.vercel.app/api/completions/stats](https://dreamtrades.vercel.app/api/completions/stats) — target JSON flags:
+
+```json
+{
+  "accepting": true,
+  "telegramConfigured": true,
+  "telegramBotConfigured": true,
+  "redisConfigured": true,
+  "durable": true
+}
+```
+
+| Variable | Required? | How to get the value |
+|---|---|---|
+| `TELEGRAM_BOT_TOKEN` | **Yes** (for DMs) | Telegram → [@BotFather](https://t.me/BotFather) → `/newbot` (or `/token` on an existing bot) → paste the token. Then open your bot and press **Start** once. |
+| `TELEGRAM_OWNER_CHAT_ID` | **Yes** (for DMs) | Easiest: message [@userinfobot](https://t.me/userinfobot) → copy the numeric **Id**. Or: set `TELEGRAM_BOT_TOKEN` + `ADMIN_SECRET`, Redeploy, message your bot, then open `/api/completions/telegram-setup?key=YOUR_ADMIN_SECRET` and copy `chatId`. |
+| `ADMIN_SECRET` | **Yes** (for admin) | Generate once: `openssl rand -hex 24`. Paste the hex string. Unlock admin at `/admin/completions?key=…`. If this value was ever pasted into chat/docs, **rotate** it (new random) and update Vercel. |
+| `UPSTASH_REDIS_REST_URL` | **Strongly recommended** | [upstash.com](https://upstash.com/) → Create Redis (free) → database → **REST API** tab → copy URL. |
+| `UPSTASH_REDIS_REST_TOKEN` | **Strongly recommended** | Same Upstash **REST API** tab → copy token. |
+
+**Aliases accepted** (Vercel Marketplace / Vercel KV): `KV_REST_API_URL` + `KV_REST_API_TOKEN` instead of the `UPSTASH_*` names.
+
+**Suggested order:** create BotFather token + `ADMIN_SECRET` first → Redeploy → discover `TELEGRAM_OWNER_CHAT_ID` → add Upstash URL/token → Redeploy again → confirm `/api/completions/stats`.
+
+**Optional public join-link overrides** (defaults live in `src/lib/site.ts`):
+
+- `NEXT_PUBLIC_TELEGRAM_VIP_URL`
+- `NEXT_PUBLIC_WHATSAPP_GROUP_URL`
+- `NEXT_PUBLIC_DISCORD_URL`
+- `NEXT_PUBLIC_INSTAGRAM_URL`
 
 ### Upstash free setup (durable count + lead table)
 
@@ -109,10 +127,16 @@ These are for local testing only. On Vercel you need real Telegram + Upstash env
 
 ```bash
 cd dreamtrades
-npx vercel login          # once
-npx vercel                # preview
-npx vercel --prod         # production
+npx vercel login          # once (browser)
+npx vercel link           # link to the existing Dreamtrades project (Root Directory = dreamtrades)
+npx vercel env add TELEGRAM_BOT_TOKEN production
+npx vercel env add TELEGRAM_BOT_TOKEN preview
+# repeat for TELEGRAM_OWNER_CHAT_ID, ADMIN_SECRET,
+# UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
+npx vercel --prod         # redeploy so new env vars apply
 ```
+
+Each `vercel env add` prompts for the secret value interactively (do not commit secrets). Dashboard steps above are usually faster.
 
 ## Run locally
 
