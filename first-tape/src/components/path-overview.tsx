@@ -15,7 +15,7 @@ export function PathOverview() {
           Five fundamentals. No signal copying.
         </h2>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-          DreamTrades is a teaching product. You build judgment — entries, exits,
+          First Tape is a teaching product. You build judgment — entries, exits,
           and risk — instead of waiting for someone else to tell you what to click.
         </p>
         <ol className="mt-12 grid gap-8 md:grid-cols-5 md:gap-5">
