@@ -267,34 +267,127 @@ const ZONE_STEPS = [
   },
 ] as const;
 
+/** One real-looking candle: open/high/low/close as SVG y (lower y = higher price). */
+function Candle({
+  x,
+  open,
+  high,
+  low,
+  close,
+  w = 9,
+}: {
+  x: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  w?: number;
+}) {
+  const up = close < open;
+  const color = up ? mark : flare;
+  const bodyTop = Math.min(open, close);
+  const bodyH = Math.max(Math.abs(close - open), 2.5);
+  return (
+    <g>
+      <line x1={x} y1={high} x2={x} y2={low} stroke={color} strokeWidth="1.6" />
+      <rect x={x - w / 2} y={bodyTop} width={w} height={bodyH} fill={color} rx="0.5" />
+    </g>
+  );
+}
+
+function CandleSeries({
+  candles,
+  w = 9,
+}: {
+  candles: ReadonlyArray<{ x: number; o: number; h: number; l: number; c: number }>;
+  w?: number;
+}) {
+  return (
+    <>
+      {candles.map((c) => (
+        <Candle key={c.x} x={c.x} open={c.o} high={c.h} low={c.l} close={c.c} w={w} />
+      ))}
+    </>
+  );
+}
+
+/** Shared demand-zone candle story (base → impulse → optional pullback/retest). */
+const DEMAND_BASE = [
+  { x: 36, o: 108, h: 100, l: 118, c: 112 },
+  { x: 52, o: 112, h: 102, l: 120, c: 106 },
+  { x: 68, o: 106, h: 98, l: 116, c: 110 },
+  { x: 84, o: 110, h: 100, l: 118, c: 104 },
+  { x: 100, o: 104, h: 96, l: 114, c: 108 },
+  { x: 116, o: 108, h: 100, l: 116, c: 102 },
+] as const;
+
+const DEMAND_IMPULSE = [
+  { x: 132, o: 102, h: 78, l: 106, c: 82 },
+  { x: 148, o: 82, h: 58, l: 88, c: 62 },
+  { x: 164, o: 62, h: 42, l: 70, c: 46 },
+  { x: 180, o: 46, h: 30, l: 52, c: 34 },
+] as const;
+
+const DEMAND_AFTER_EXTEND = [
+  { x: 196, o: 34, h: 26, l: 42, c: 38 },
+  { x: 212, o: 38, h: 32, l: 48, c: 44 },
+] as const;
+
+const DEMAND_PULLBACK_RETEST = [
+  { x: 196, o: 34, h: 28, l: 48, c: 44 },
+  { x: 212, o: 44, h: 38, l: 62, c: 58 },
+  { x: 228, o: 58, h: 52, l: 78, c: 74 },
+  { x: 244, o: 74, h: 68, l: 96, c: 92 },
+  { x: 260, o: 92, h: 86, l: 112, c: 106 }, // into demand
+  { x: 276, o: 106, h: 88, l: 112, c: 92 }, // bounce candle
+  { x: 292, o: 92, h: 70, l: 98, c: 74 },
+  { x: 308, o: 74, h: 54, l: 82, c: 58 },
+] as const;
+
+const SUPPLY_STORY = [
+  { x: 36, o: 42, h: 34, l: 52, c: 48 },
+  { x: 52, o: 48, h: 36, l: 54, c: 40 },
+  { x: 68, o: 40, h: 32, l: 50, c: 46 },
+  { x: 84, o: 46, h: 34, l: 52, c: 38 },
+  { x: 100, o: 38, h: 30, l: 48, c: 44 },
+  { x: 116, o: 44, h: 32, l: 50, c: 36 }, // base near highs
+  { x: 132, o: 36, h: 32, l: 62, c: 58 }, // impulse down starts
+  { x: 148, o: 58, h: 54, l: 84, c: 80 },
+  { x: 164, o: 80, h: 74, l: 104, c: 98 },
+  { x: 180, o: 98, h: 92, l: 118, c: 112 },
+  { x: 196, o: 112, h: 100, l: 118, c: 104 },
+  { x: 212, o: 104, h: 88, l: 110, c: 92 },
+  { x: 228, o: 92, h: 70, l: 98, c: 74 },
+  { x: 244, o: 74, h: 52, l: 80, c: 56 },
+  { x: 260, o: 56, h: 34, l: 62, c: 40 }, // retest supply
+  { x: 276, o: 40, h: 36, l: 68, c: 64 }, // rejection
+  { x: 292, o: 64, h: 58, l: 90, c: 86 },
+  { x: 308, o: 86, h: 80, l: 112, c: 106 },
+] as const;
+
 /** Lesson 05 — supply & demand zone marking (numbered steps) */
 export function ZoneMarkingSteps() {
   return (
     <div className="mt-10">
       <Caption>How to mark a zone · 4 steps</Caption>
       <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/65">
-        Zones are places price left in a hurry. Mark them with pictures — then wait. Below is a demand-zone
-        example (same idea upside-down for supply).
+        Zones are places price left in a hurry. Mark them on a candlestick chart — then wait. Below is a
+        demand-zone example (same idea upside-down for supply).
       </p>
 
       <div className="mt-6 grid gap-6">
         {/* Step 1 */}
         <div>
           <StepHeading n="1" title="Find the impulse" />
-          <Frame viewBox="0 0 360 140" label="Step 1: sharp upward impulse move on a chart">
-            <line x1="24" y1="118" x2="336" y2="118" stroke="#11161d18" strokeWidth="1" />
-            <path
-              d="M28 100 C 70 98, 100 96, 130 92 L 140 88 L 200 40 L 260 28 L 320 22"
-              fill="none"
-              stroke={ink}
-              strokeWidth="2.2"
-            />
-            <path d="M140 88 L 200 40" stroke={mark} strokeWidth="4" strokeLinecap="round" />
-            <text x="168" y="58" fontSize="11" fill={mark} fontFamily="monospace" fontWeight="700">
-              IMPULSE ↑
+          <Frame viewBox="0 0 360 150" label="Step 1: candlestick chart showing a sharp upward impulse of green candles">
+            <line x1="24" y1="128" x2="336" y2="128" stroke="#11161d18" strokeWidth="1" />
+            <CandleSeries candles={[...DEMAND_BASE, ...DEMAND_IMPULSE]} />
+            <text x="24" y="22" fontSize="11" fill={mute} fontFamily="monospace">
+              Sharp green run = buyers showed up
             </text>
-            <text x="24" y="24" fontSize="11" fill={mute} fontFamily="monospace">
-              Sharp move = interest showed up
+            <path d="M128 70 L176 40" stroke={mark} strokeWidth="2.2" strokeLinecap="round" />
+            <text x="180" y="38" fontSize="11" fill={mark} fontFamily="monospace" fontWeight="700">
+              IMPULSE ↑
             </text>
           </Frame>
           <p className="mt-2 text-sm text-ink/65">{ZONE_STEPS[0].body}</p>
@@ -303,25 +396,16 @@ export function ZoneMarkingSteps() {
         {/* Step 2 */}
         <div>
           <StepHeading n="2" title="Mark the base / origin" />
-          <Frame viewBox="0 0 360 150" label="Step 2: mark the base consolidation before the impulse">
-            <line x1="24" y1="128" x2="336" y2="128" stroke="#11161d18" strokeWidth="1" />
-            <rect x="70" y="88" width="72" height="28" fill={softMark} stroke={mark} strokeWidth="1.5" />
-            <text x="78" y="106" fontSize="10" fill={mark} fontFamily="monospace">
-              BASE
-            </text>
-            <path
-              d="M28 110 C 50 108, 60 100, 70 98 L 100 96 L 140 94 L 150 90 L 210 42 L 270 30 L 330 24"
-              fill="none"
-              stroke={ink}
-              strokeWidth="2.2"
-            />
-            <circle cx="105" cy="102" r="4" fill={mark} />
-            <text x="24" y="24" fontSize="11" fill={mute} fontFamily="monospace">
+          <Frame viewBox="0 0 360 160" label="Step 2: candlestick chart with base consolidation marked before the impulse">
+            <line x1="24" y1="136" x2="336" y2="136" stroke="#11161d18" strokeWidth="1" />
+            <rect x="28" y="94" width="100" height="28" fill={softMark} stroke={mark} strokeWidth="1.5" />
+            <CandleSeries candles={[...DEMAND_BASE, ...DEMAND_IMPULSE]} />
+            <text x="24" y="22" fontSize="11" fill={mute} fontFamily="monospace">
               Origin of the move = the zone
             </text>
-            <path d="M106 80 L106 88" stroke={mark} strokeWidth="1.5" />
-            <text x="112" y="78" fontSize="10" fill={mark} fontFamily="monospace">
-              mark this box
+            <path d="M78 78 L78 94" stroke={mark} strokeWidth="1.5" />
+            <text x="40" y="74" fontSize="10" fill={mark} fontFamily="monospace" fontWeight="700">
+              BASE · mark this box
             </text>
           </Frame>
           <p className="mt-2 text-sm text-ink/65">{ZONE_STEPS[1].body}</p>
@@ -330,20 +414,24 @@ export function ZoneMarkingSteps() {
         {/* Step 3 */}
         <div>
           <StepHeading n="3" title="Extend the zone" />
-          <Frame viewBox="0 0 360 150" label="Step 3: extend the demand zone forward across the chart">
-            <line x1="24" y1="128" x2="336" y2="128" stroke="#11161d18" strokeWidth="1" />
-            <rect x="70" y="88" width="250" height="28" fill={softMark} stroke={mark} strokeWidth="1.5" strokeDasharray="5 3" />
-            <text x="200" y="106" fontSize="10" fill={mark} fontFamily="monospace">
-              DEMAND ZONE →
-            </text>
-            <path
-              d="M28 110 C 50 108, 60 100, 70 98 L 100 96 L 140 94 L 150 90 L 210 42 L 270 30 L 300 36"
-              fill="none"
-              stroke={ink}
-              strokeWidth="2.2"
+          <Frame viewBox="0 0 360 160" label="Step 3: demand zone band extended across candlestick chart">
+            <line x1="24" y1="136" x2="336" y2="136" stroke="#11161d18" strokeWidth="1" />
+            <rect
+              x="28"
+              y="94"
+              width="292"
+              height="28"
+              fill={softMark}
+              stroke={mark}
+              strokeWidth="1.5"
+              strokeDasharray="5 3"
             />
-            <text x="24" y="24" fontSize="11" fill={mute} fontFamily="monospace">
+            <CandleSeries candles={[...DEMAND_BASE, ...DEMAND_IMPULSE, ...DEMAND_AFTER_EXTEND]} />
+            <text x="24" y="22" fontSize="11" fill={mute} fontFamily="monospace">
               Stretch the band to the right
+            </text>
+            <text x="230" y="88" fontSize="10" fill={mark} fontFamily="monospace" fontWeight="700">
+              DEMAND ZONE →
             </text>
           </Frame>
           <p className="mt-2 text-sm text-ink/65">{ZONE_STEPS[2].body}</p>
@@ -352,27 +440,23 @@ export function ZoneMarkingSteps() {
         {/* Step 4 */}
         <div>
           <StepHeading n="4" title="Wait for the retest" />
-          <Frame viewBox="0 0 360 160" label="Step 4: price returns to retest the demand zone">
-            <line x1="24" y1="136" x2="336" y2="136" stroke="#11161d18" strokeWidth="1" />
-            <rect x="70" y="96" width="250" height="28" fill={softMark} stroke={mark} strokeWidth="1.5" />
-            <text x="80" y="114" fontSize="10" fill={mark} fontFamily="monospace">
-              DEMAND
-            </text>
-            <path
-              d="M28 118 C 50 116, 70 106, 100 104 L 140 102 L 160 96 L 210 48 L 250 36 L 280 50 L 300 100 L 310 108 L 330 70"
-              fill="none"
-              stroke={ink}
-              strokeWidth="2.2"
+          <Frame viewBox="0 0 360 170" label="Step 4: candlesticks pull back to retest the demand zone then bounce">
+            <line x1="24" y1="146" x2="336" y2="146" stroke="#11161d18" strokeWidth="1" />
+            <rect x="28" y="94" width="292" height="28" fill={softMark} stroke={mark} strokeWidth="1.5" />
+            <CandleSeries
+              candles={[...DEMAND_BASE, ...DEMAND_IMPULSE, ...DEMAND_PULLBACK_RETEST]}
             />
-            <circle cx="305" cy="106" r="5" fill={flare} />
-            <text x="230" y="90" fontSize="11" fill={flare} fontFamily="monospace" fontWeight="700">
-              RETEST
-            </text>
-            <text x="24" y="24" fontSize="11" fill={mute} fontFamily="monospace">
+            <text x="24" y="22" fontSize="11" fill={mute} fontFamily="monospace">
               Price comes back — watch the reaction
             </text>
-            <path d="M320 70 L328 55" stroke={mark} strokeWidth="2" />
-            <text x="280" y="48" fontSize="10" fill={mark} fontFamily="monospace">
+            <text x="36" y="88" fontSize="10" fill={mark} fontFamily="monospace" fontWeight="700">
+              DEMAND
+            </text>
+            <text x="248" y="84" fontSize="11" fill={flare} fontFamily="monospace" fontWeight="700">
+              RETEST
+            </text>
+            <path d="M276 88 L276 94" stroke={flare} strokeWidth="1.5" />
+            <text x="288" y="52" fontSize="10" fill={mark} fontFamily="monospace">
               bounce?
             </text>
           </Frame>
@@ -383,22 +467,16 @@ export function ZoneMarkingSteps() {
       {/* Supply mirror note */}
       <div className="mt-8">
         <Caption>Supply zone · same steps, flipped</Caption>
-        <Frame viewBox="0 0 360 140" label="Supply zone: impulse down from a base near the highs">
-          <rect x="70" y="24" width="250" height="26" fill={softFlare} stroke={flare} strokeWidth="1.5" />
-          <text x="80" y="41" fontSize="10" fill={flare} fontFamily="monospace">
+        <Frame viewBox="0 0 360 160" label="Supply zone on candlesticks: impulse down from a base near the highs, then retest">
+          <rect x="68" y="28" width="252" height="26" fill={softFlare} stroke={flare} strokeWidth="1.5" />
+          <text x="78" y="45" fontSize="10" fill={flare} fontFamily="monospace" fontWeight="700">
             SUPPLY ZONE
           </text>
-          <path
-            d="M28 40 C 50 38, 70 36, 100 38 L 140 42 L 160 48 L 210 100 L 250 112 L 280 100 L 300 48 L 320 40"
-            fill="none"
-            stroke={ink}
-            strokeWidth="2.2"
-          />
-          <circle cx="300" cy="48" r="5" fill={flare} />
-          <text x="220" y="70" fontSize="11" fill={flare} fontFamily="monospace">
+          <CandleSeries candles={SUPPLY_STORY} />
+          <text x="248" y="72" fontSize="11" fill={flare} fontFamily="monospace">
             retest → drop?
           </text>
-          <text x="24" y="128" fontSize="11" fill={mute} fontFamily="monospace">
+          <text x="24" y="148" fontSize="11" fill={mute} fontFamily="monospace">
             Impulse down → mark high base → extend → wait
           </text>
         </Frame>
@@ -418,31 +496,47 @@ function StepHeading({ n, title }: { n: string; title: string }) {
 
 /** Compact aside sketch for S&D remember column */
 export function ZoneSketchAside() {
+  const asideCandles = [
+    { x: 28, o: 118, h: 108, l: 128, c: 122 },
+    { x: 44, o: 122, h: 112, l: 132, c: 116 },
+    { x: 60, o: 116, h: 106, l: 126, c: 120 },
+    { x: 76, o: 120, h: 110, l: 128, c: 114 },
+    { x: 92, o: 114, h: 88, l: 120, c: 92 }, // leave demand
+    { x: 108, o: 92, h: 68, l: 98, c: 72 },
+    { x: 124, o: 72, h: 48, l: 80, c: 52 },
+    { x: 140, o: 52, h: 36, l: 58, c: 40 },
+    { x: 156, o: 40, h: 32, l: 50, c: 46 }, // base / supply origin
+    { x: 172, o: 46, h: 34, l: 54, c: 38 },
+    { x: 188, o: 38, h: 32, l: 58, c: 54 }, // leave supply
+    { x: 204, o: 54, h: 48, l: 78, c: 74 },
+    { x: 220, o: 74, h: 68, l: 98, c: 94 },
+    { x: 236, o: 94, h: 88, l: 118, c: 112 }, // into demand
+    { x: 252, o: 112, h: 90, l: 120, c: 96 }, // bounce
+  ] as const;
+
   return (
     <div className="mt-8">
       <Caption>Chart sketch · zones</Caption>
-      <svg viewBox="0 0 280 170" className="mt-3 w-full max-w-sm" role="img" aria-label="Simple chart with a demand zone bounce and a supply zone drop">
+      <svg
+        viewBox="0 0 280 170"
+        className="mt-3 w-full max-w-sm"
+        role="img"
+        aria-label="Candlestick chart with a demand zone bounce and a supply zone drop"
+      >
         <rect width="280" height="170" fill={sheet} />
         <rect x="16" y="28" width="248" height="28" fill={softFlare} />
         <text x="24" y="46" fontSize="10" fill={flare} fontFamily="monospace">
           SUPPLY ZONE
         </text>
-        <rect x="16" y="118" width="248" height="28" fill={softMark} />
-        <text x="24" y="136" fontSize="10" fill={mark} fontFamily="monospace">
+        <rect x="16" y="110" width="248" height="28" fill={softMark} />
+        <text x="24" y="128" fontSize="10" fill={mark} fontFamily="monospace">
           DEMAND ZONE
         </text>
-        <path
-          d="M24 124 C 50 122, 70 118, 90 90 S 130 48, 160 40 S 200 38, 220 42 S 250 78, 264 102"
-          fill="none"
-          stroke={ink}
-          strokeWidth="2.2"
-        />
-        <circle cx="90" cy="120" r="4" fill={mark} />
-        <circle cx="220" cy="42" r="4" fill={flare} />
-        <text x="98" y="114" fontSize="10" fill={mark} fontFamily="monospace">
+        <CandleSeries candles={asideCandles} w={8} />
+        <text x="248" y="88" fontSize="10" fill={mark} fontFamily="monospace">
           bounce
         </text>
-        <text x="226" y="38" fontSize="10" fill={flare} fontFamily="monospace">
+        <text x="196" y="24" fontSize="10" fill={flare} fontFamily="monospace">
           drop
         </text>
       </svg>
