@@ -5,17 +5,12 @@ export const BRAND_BLURB =
 
 /**
  * Community join links shown after the learn checklist is complete.
- * Prefer env overrides; fall back to the named constants below (fill these in
- * when real DreamTrades invite URLs are available).
- *
- * SWAP ME: paste the real Telegram VIP invite URL here when ready.
+ * Prefer env overrides; fall back to the named constants below.
  */
-export const TELEGRAM_VIP_URL_CONSTANT = "";
+export const TELEGRAM_VIP_URL_CONSTANT = "https://t.me/+BMI1xqg1TDwyYmQ8";
 
-/**
- * SWAP ME: paste the real WhatsApp group invite URL here when ready.
- */
-export const WHATSAPP_GROUP_URL_CONSTANT = "";
+export const WHATSAPP_GROUP_URL_CONSTANT =
+  "https://chat.whatsapp.com/JP4a2T2bpi17mdneoLVoUN?mode=gi_t";
 
 export const TELEGRAM_VIP_URL =
   process.env.NEXT_PUBLIC_TELEGRAM_VIP_URL?.trim() || TELEGRAM_VIP_URL_CONSTANT;
