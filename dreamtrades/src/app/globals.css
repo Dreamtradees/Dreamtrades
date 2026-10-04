@@ -105,3 +105,19 @@
   animation: grid-drift 28s linear infinite;
 }
 .attention-orb { animation: pulse-soft 5.2s ease-in-out infinite; }
+
+@keyframes unlock-attention {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--mark) 0%, transparent);
+    transform: translateY(0);
+  }
+  50% {
+    box-shadow: 0 10px 28px -12px color-mix(in srgb, var(--mark) 55%, transparent);
+    transform: translateY(-1px);
+  }
+}
+
+.unlock-pulse {
+  animation: unlock-attention 2.8s ease-in-out infinite;
+}

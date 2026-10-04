@@ -136,17 +136,23 @@ export function LearnPath() {
                   </p>
                 </div>
               ) : (
-                <div className="mt-6">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <p className="font-mono text-xs text-ink/50">
+                <div className="unlock-pulse mt-6 rounded-md border-2 border-mark/50 bg-[color-mix(in_srgb,#0f9f8a_12%,white)] p-4">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-mark">
+                    Unlock reward
+                  </p>
+                  <p className="mt-2 font-heading text-lg font-bold tracking-tight text-ink">
+                    Tick every box → Telegram VIP & WhatsApp
+                  </p>
+                  <div className="mt-3 flex items-baseline justify-between gap-3">
+                    <p className="font-mono text-xs font-semibold text-ink">
                       {readyCount}/{CHECKLIST.length} checked
                     </p>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/40">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-mark">
                       Readiness
                     </p>
                   </div>
                   <div
-                    className="mt-2 h-2 overflow-hidden rounded-full bg-ink/10"
+                    className="mt-2 h-2.5 overflow-hidden rounded-full bg-ink/10"
                     role="progressbar"
                     aria-valuemin={0}
                     aria-valuemax={CHECKLIST.length}
@@ -158,8 +164,8 @@ export function LearnPath() {
                       style={{ width: `${(readyCount / CHECKLIST.length) * 100}%` }}
                     />
                   </div>
-                  <p className="mt-3 text-sm leading-relaxed text-ink/55">
-                    Finish every box — then we unlock your next step with the group.
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-ink/70">
+                    Finish every box — QR codes and join links unlock instantly.
                   </p>
                 </div>
               ))}
@@ -196,8 +202,11 @@ export function LearnPath() {
               You graduated — Telegram VIP & WhatsApp are unlocked above.
             </p>
           ) : (
-            <p className="max-w-[14rem] text-right font-mono text-xs leading-relaxed text-ink/45">
-              Tick every box to unlock Telegram VIP & WhatsApp.
+            <p
+              className="unlock-pulse max-w-[18rem] rounded-md border-2 border-mark bg-mark px-3 py-2 text-right font-heading text-sm font-bold leading-snug text-[#041512]"
+              data-testid="unlock-footer"
+            >
+              Tick every box to unlock Telegram VIP & WhatsApp
             </p>
           )}
         </div>
@@ -507,6 +516,52 @@ function RiskAside() {
   );
 }
 
+function UnlockVipBanner({ readyCount, total }: { readyCount: number; total: number }) {
+  return (
+    <div
+      className="unlock-pulse relative overflow-hidden rounded-md border-2 border-mark bg-[linear-gradient(135deg,#041512_0%,#0a3d35_48%,#0f9f8a_140%)] px-5 py-5 text-[#f4f7f8] shadow-[0_12px_40px_-16px_rgba(15,159,138,0.65)] md:px-6 md:py-6"
+      role="status"
+    >
+      <div
+        className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-[radial-gradient(circle,#14b8a066,transparent_70%)]"
+        aria-hidden
+      />
+      <p className="relative font-mono text-[11px] uppercase tracking-[0.22em] text-[#9be7d8]">
+        VIP unlock · almost there
+      </p>
+      <p className="relative mt-2 font-heading text-xl font-bold tracking-tight md:text-2xl">
+        Tick every box to unlock Telegram VIP & WhatsApp
+      </p>
+      <p className="relative mt-2 max-w-xl text-sm leading-relaxed text-[#f4f7f8]/78 md:text-base">
+        Finish the checklist — then your community QRs and join links appear. This is your starter-pack finish line.
+      </p>
+      <div className="relative mt-4 flex flex-wrap items-center gap-3">
+        <span className="rounded-sm bg-[#f4f7f8] px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-ink">
+          {readyCount}/{total} checked
+        </span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#9be7d8]">
+          {total - readyCount === 0
+            ? "Unlocked"
+            : `${total - readyCount} left to unlock`}
+        </span>
+      </div>
+      <div
+        className="relative mt-4 h-2.5 overflow-hidden rounded-full bg-black/30"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-valuenow={readyCount}
+        aria-label="Checklist progress toward VIP unlock"
+      >
+        <div
+          className="h-full rounded-full bg-[#f4f7f8] transition-[width] duration-300 ease-out"
+          style={{ width: `${(readyCount / total) * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function ChecklistStep({
   checked,
   onToggle,
@@ -524,11 +579,23 @@ function ChecklistStep({
       <p className="mt-4 text-lg leading-relaxed text-ink/75">
         Tick every box. If you cannot — sit out. Sitting out is a trading skill.
       </p>
+      {!complete && (
+        <div className="mt-6">
+          <UnlockVipBanner readyCount={readyCount} total={CHECKLIST.length} />
+        </div>
+      )}
       <ChecklistIllustration />
       <ul className="mt-8 space-y-3">
         {CHECKLIST.map((item, index) => (
           <li key={item}>
-            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-ink/10 bg-white/50 px-4 py-3 transition-colors hover:border-mark/40">
+            <label
+              className={cn(
+                "flex cursor-pointer items-start gap-3 rounded-md border px-4 py-3 transition-colors",
+                checked[index]
+                  ? "border-mark/50 bg-[color-mix(in_srgb,#0f9f8a_10%,white)]"
+                  : "border-ink/10 bg-white/50 hover:border-mark/40",
+              )}
+            >
               <input
                 type="checkbox"
                 checked={checked[index]}
