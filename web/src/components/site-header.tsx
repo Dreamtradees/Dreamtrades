@@ -14,13 +14,7 @@ export function SiteHeader() {
         </Link>
         <nav className="flex items-center gap-2 md:gap-3">
           <Link
-            href="/learn"
-            className="hidden px-3 py-2 text-sm font-medium text-[#f4f7fb]/75 transition-colors hover:text-[#f4f7fb] sm:inline"
-          >
-            Learn
-          </Link>
-          <Link
-            href="/#xauusd"
+            href="#xauusd"
             className="hidden px-3 py-2 text-sm font-medium text-[#f4f7fb]/75 transition-colors hover:text-[#f4f7fb] sm:inline"
           >
             XAUUSD

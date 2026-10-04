@@ -1,18 +1,16 @@
-# LJ CIRCLE + First Tape
+# DreamTrades + LJ CIRCLE
 
-Monorepo with two separate frontends:
+Two separate frontends:
 
 | App | Folder | Port | Role |
 | --- | --- | --- | --- |
-| **LJ CIRCLE** | `web/` | 43128 | Attentive XAUUSD desk + Telegram join QR (`@LJwealthLab`) |
-| **First Tape** | `first-tape/` | 43129 | Teaching product — how to trade, not how to take signals |
+| **DreamTrades** | `dreamtrades/` | 43129 | Teaching product — how to trade, not how to take signals |
+| **LJ CIRCLE** | `web/` | 43128 | Friend’s attentive XAUUSD desk + Telegram join QR (`@LJwealthLab`) |
 
-Plus an optional MetaTrader 5 toolkit and Telegram ↔ Cursor bridge.
-
-## First Tape (teaching site)
+## DreamTrades (teaching site)
 
 ```bash
-cd first-tape
+cd dreamtrades
 npm install
 npm run build
 npm run start -- -p 43129 -H 0.0.0.0
@@ -20,12 +18,12 @@ npm run start -- -p 43129 -H 0.0.0.0
 
 Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
 
-- Brand-first landing: learn to trade, not copy signals
-- Fundamentals path: markets → long/short → candles → risk → checklist
+- `/` — DreamTrades brand landing
+- `/learn` — six-step fundamentals curriculum for newbies
 
-See [`first-tape/README.md`](first-tape/README.md).
+See [`dreamtrades/README.md`](dreamtrades/README.md).
 
-## LJ CIRCLE website
+## LJ CIRCLE (desk — not the school)
 
 ```bash
 cd web
@@ -36,24 +34,10 @@ npm run start -- -p 43128 -H 0.0.0.0
 
 Open [http://127.0.0.1:43128](http://127.0.0.1:43128)
 
-- `/` — brand landing, live XAUUSD desk, scalp panel, Telegram QR
-- `/watch/xauusd` — full gold & forex desk with TradingView
-- `/#join` — scan QR → Telegram channel [@LJwealthLab](https://t.me/LJwealthLab)
+Join QR → [@LJwealthLab](https://t.me/LJwealthLab) via `web/src/lib/site.ts`.
 
-Telegram channel URL is set in `web/src/lib/site.ts` (or `NEXT_PUBLIC_TELEGRAM_GROUP_URL`).
+## MetaTrader 5 / Telegram bridge
 
-## MetaTrader 5
-
-See [`mt5/README.md`](mt5/README.md) for the steady-passive EA and XAUUSD scalp indicator.
-
-## Telegram ↔ Cursor bridge
-
-```bash
-npm install
-cp .env.example .env
-npm run dev
-```
-
-Dashboard: [http://127.0.0.1:43127](http://127.0.0.1:43127)
+See [`mt5/README.md`](mt5/README.md). Bridge: `npm run dev` → port 43127.
 
 Not financial advice. Markets involve risk.
