@@ -13,19 +13,24 @@ const SHOW_IG_HERO_TEST = true;
 
 const IG_HERO_PHOTOS = [
   {
+    src: "/ig-test/06-porsche.jpg",
+    alt: "Zhabii with a black Porsche — @zhabii7_fx",
+    position: "object-[center_40%]",
+  },
+  {
     src: "/ig-test/03-post.jpg",
     alt: "Zhabii on a superbike — @zhabii7_fx",
     position: "object-[center_22%]",
   },
   {
+    src: "/ig-test/07-spa-portrait.jpg",
+    alt: "Zhabii — spa portrait @zhabii7_fx",
+    position: "object-[center_28%]",
+  },
+  {
     src: "/ig-test/04-post.jpg",
     alt: "Trading desk charts — @zhabii7_fx",
     position: "object-[center_35%]",
-  },
-  {
-    src: "/ig-test/01-profile.jpg",
-    alt: "Zhabii — @zhabii7_fx profile",
-    position: "object-[center_30%]",
   },
 ] as const;
 
@@ -65,18 +70,19 @@ function IgPhotoHeroBackdrop() {
               fill
               priority={index === 0}
               sizes="100vw"
-              className={cn("object-cover", photo.position, "ig-hero-kenburns")}
+              quality={92}
+              className={cn("object-cover", photo.position)}
             />
           </div>
         ))}
       </div>
-      {/* Readability plane only — not a card, badge, or inset media frame */}
+      {/* Light readability plane only — keep photos visible, not muddy */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,rgba(8,12,16,0.88)_0%,rgba(8,12,16,0.72)_38%,rgba(8,12,16,0.35)_68%,rgba(8,12,16,0.55)_100%)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,rgba(8,12,16,0.55)_0%,rgba(8,12,16,0.28)_36%,rgba(8,12,16,0.08)_66%,rgba(8,12,16,0.22)_100%)]"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,rgba(8,12,16,0.75),transparent)]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-[linear-gradient(to_top,rgba(8,12,16,0.45),transparent)]"
         aria-hidden
       />
       <span className="sr-only">

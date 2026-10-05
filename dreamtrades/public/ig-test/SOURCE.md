@@ -6,8 +6,12 @@ Instagram web login-walled direct scraping; images pulled from public Threads CD
 Toggle: set `SHOW_IG_HERO_TEST = false` in `src/components/hero.tsx` (or remove this folder) to revert.
 
 ## Files
-- `01-profile.jpg` (320x320, 18136 bytes) — zhabii7_fx's profile picture
-- `02-post.jpg` (720x1280, 151426 bytes) — post media
-- `03-post.jpg` (720x960, 114321 bytes) — post media
-- `04-post.jpg` (720x960, 90007 bytes) — post media
-- `05-post.jpg` (720x960, 124124 bytes) — post media
+- `01-profile.jpg` (320x320) — profile picture (legacy; too soft for full-bleed hero)
+- `02-post.jpg` (720x1280) — post media
+- `03-post.jpg` (720x960) — superbike (hero rotation)
+- `04-post.jpg` (720x960) — trading desk (hero rotation)
+- `05-post.jpg` (720x960) — post media
+- `06-porsche.jpg` (720x900) — standing next to black Porsche, Dubai skyline (hero rotation)
+- `07-spa-portrait.jpg` (3024x4032) — sharp spa portrait (hero rotation; clarity upgrade)
+- `08-villa-pool.jpg` (3072x4096) — villa pool full-res
+- `09-training.jpg` (3024x4032) — training full-res
