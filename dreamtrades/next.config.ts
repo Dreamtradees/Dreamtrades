@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   compress: true,
+  // Allow sharper hero photos (Next 16 defaults qualities to [75] and clamps)
+  images: {
+    qualities: [75, 90, 92, 100],
+  },
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
