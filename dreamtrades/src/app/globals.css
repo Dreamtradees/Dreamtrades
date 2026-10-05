@@ -81,30 +81,9 @@
   from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes sweep {
-  from { stroke-dashoffset: 420; }
-  to { stroke-dashoffset: 0; }
-}
-@keyframes grid-drift {
-  from { background-position: 0 0; }
-  to { background-position: 48px 48px; }
-}
-@keyframes pulse-soft {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.04); }
-}
 .animate-rise { animation: rise-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .animate-rise-delay { animation: rise-in 1000ms 140ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .animate-rise-late { animation: rise-in 1100ms 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-.chart-line { stroke-dasharray: 420; animation: sweep 2.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.hero-grid {
-  background-image:
-    linear-gradient(rgba(244, 247, 248, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(244, 247, 248, 0.05) 1px, transparent 1px);
-  background-size: 48px 48px;
-  animation: grid-drift 28s linear infinite;
-}
-.attention-orb { animation: pulse-soft 5.2s ease-in-out infinite; }
 
 @keyframes unlock-attention {
   0%,
@@ -122,7 +101,7 @@
   animation: unlock-attention 2.8s ease-in-out infinite;
 }
 
-/* Tester: full-bleed IG photo hero crossfade (no ken burns — keeps photos sharp) */
+/* Full-bleed photo hero crossfade (no ken burns — keeps photos sharp) */
 @keyframes ig-hero-crossfade {
   0%,
   20% {

@@ -4,14 +4,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-/**
- * TESTER FIRST — Instagram / Threads photo hero.
- * Set to `false` (or delete `/public/ig-test`) to revert to the abstract chart hero.
- * Photos: public @zhabii7_fx media via Threads CDN (same Meta account as Instagram).
- */
-const SHOW_IG_HERO_TEST = true;
-
-const IG_HERO_PHOTOS = [
+/** Official homepage hero photos from public @zhabii7_fx Instagram / Threads media. */
+const HERO_PHOTOS = [
   {
     src: "/ig-test/06-porsche.jpg",
     alt: "Zhabii with a black Porsche — @zhabii7_fx",
@@ -34,32 +28,11 @@ const IG_HERO_PHOTOS = [
   },
 ] as const;
 
-function AbstractHeroBackdrop() {
-  return (
-    <>
-      <div className="pointer-events-none absolute inset-0 hero-grid opacity-70" />
-      <div className="pointer-events-none absolute -left-24 top-16 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,#0f9f8a55,transparent_68%)] blur-2xl attention-orb" />
-      <div className="pointer-events-none absolute -right-16 bottom-0 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,#e85d4c33,transparent_70%)] blur-2xl" />
-      <svg className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] w-full opacity-80" viewBox="0 0 1440 420" preserveAspectRatio="none" aria-hidden>
-        <defs>
-          <linearGradient id="dreamChart" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#0f9f8a" stopOpacity="0.15" />
-            <stop offset="55%" stopColor="#0f9f8a" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#e85d4c" stopOpacity="0.55" />
-          </linearGradient>
-        </defs>
-        <path d="M0 280 C 180 250, 260 190, 420 210 C 600 235, 700 120, 860 140 C 1020 160, 1120 90, 1260 110 C 1340 120, 1400 150, 1440 160 L 1440 420 L 0 420 Z" fill="url(#dreamChart)" opacity="0.22" />
-        <path d="M0 270 C 180 240, 260 180, 420 200 C 600 225, 700 110, 860 130 C 1020 150, 1120 80, 1260 100 C 1340 110, 1400 140, 1440 150" fill="none" stroke="#0f9f8a" strokeWidth="2.5" className="chart-line" />
-      </svg>
-    </>
-  );
-}
-
-function IgPhotoHeroBackdrop() {
+function PhotoHeroBackdrop() {
   return (
     <>
       <div className="absolute inset-0" aria-hidden>
-        {IG_HERO_PHOTOS.map((photo, index) => (
+        {HERO_PHOTOS.map((photo, index) => (
           <div
             key={photo.src}
             className={cn("absolute inset-0 ig-hero-slide", `ig-hero-slide-${index + 1}`)}
@@ -95,7 +68,7 @@ function IgPhotoHeroBackdrop() {
 export function Hero() {
   return (
     <section className="relative min-h-[100svh] overflow-hidden bg-ink text-[#f4f7f8]">
-      {SHOW_IG_HERO_TEST ? <IgPhotoHeroBackdrop /> : <AbstractHeroBackdrop />}
+      <PhotoHeroBackdrop />
       <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-center px-5 pb-28 pt-28 md:px-8 md:pb-32 md:pt-32">
         <p className="animate-rise max-w-full font-heading text-[clamp(2rem,8.4vw,5.5rem)] font-extrabold tracking-tighter sm:text-6xl sm:tracking-tight md:text-7xl lg:text-8xl">
           {BRAND_NAME}

@@ -1,9 +1,9 @@
-# Instagram / Threads photo test assets
+# Homepage hero photo assets
 
-Tester-only assets from public @zhabii7_fx Threads profile (Meta account linked to Instagram https://www.instagram.com/zhabii7_fx/).
+Official DreamTrades homepage hero photos from public @zhabii7_fx Threads profile (Meta account linked to Instagram https://www.instagram.com/zhabii7_fx/).
 Instagram web login-walled direct scraping; images pulled from public Threads CDN for the same handle.
 
-Toggle: set `SHOW_IG_HERO_TEST = false` in `src/components/hero.tsx` (or remove this folder) to revert.
+Asset paths stay under `/ig-test/` for stability; used by `src/components/hero.tsx`.
 
 ## Files
 - `01-profile.jpg` (320x320) — profile picture (legacy; too soft for full-bleed hero)
