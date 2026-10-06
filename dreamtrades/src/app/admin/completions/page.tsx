@@ -18,7 +18,7 @@ import { BRAND_NAME } from "@/lib/site";
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ key?: string }>;
+  searchParams: Promise<{ key?: string; ref?: string }>;
 };
 
 function authOk(key: string | undefined): boolean {
@@ -59,6 +59,7 @@ function notifyLabel(item: CompletionRecord): { text: string; ok: boolean | null
 export default async function AdminCompletionsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const key = params.key?.trim();
+  const refFilter = (params.ref || "").trim().toLowerCase();
   const authorized = authOk(key);
 
   let items: CompletionRecord[] = [];
@@ -66,14 +67,19 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
   let durable = false;
   let backend: StoreBackend = "memory";
   let loadError: string | null = null;
+  let affiliateLeadCount = 0;
 
   if (authorized) {
     try {
-      const data = await listCompletions(100);
-      items = data.items;
+      const data = await listCompletions(200);
       count = data.count;
       durable = data.durable;
       backend = data.backend;
+      items = data.items;
+      if (refFilter) {
+        items = items.filter((item) => (item.ref || "") === refFilter);
+        affiliateLeadCount = items.length;
+      }
     } catch (err) {
       loadError = err instanceof Error ? err.message : "Failed to load completions";
     }
@@ -147,17 +153,45 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
                   {count}
                 </p>
                 <p className="mt-2 text-sm text-ink/60">{backendLabel(backend, durable)}</p>
+                {refFilter ? (
+                  <p className="mt-2 text-sm font-medium text-ink">
+                    Showing {affiliateLeadCount} for{" "}
+                    <span className="font-mono text-mark">ref={refFilter}</span>
+                  </p>
+                ) : null}
               </div>
               <div className="rounded-md border border-ink/10 bg-white/70 p-5 sm:col-span-2">
                 <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/45">
-                  How notifications arrive
+                  Affiliates + notifications
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-ink/65">
-                  Each successful claim stores name, Telegram, WhatsApp, note, and timestamp, then
-                  DMs you on Telegram with graduate # and contact details. A Telegram blip never
-                  drops the lead — check the Notify column if a DM failed. Open that DM (or this
-                  table) and message them on Telegram or WhatsApp.
+                  Each claim stores name, Telegram, WhatsApp, affiliate <span className="font-mono text-[12px]">ref</span>, and timestamp, then DMs you on Telegram. Filter this table with{" "}
+                  <span className="font-mono text-[12px]">&amp;ref=partner</span>. Partner share links:{" "}
+                  <span className="font-mono text-[12px]">/with/SLUG</span> · their CRM:{" "}
+                  <span className="font-mono text-[12px]">/partners/SLUG?key=…</span>
                 </p>
+                {key ? (
+                  <p className="mt-3 text-xs text-ink/50">
+                    Example filter:{" "}
+                    <Link
+                      href={`/admin/completions?key=${encodeURIComponent(key)}&ref=partner`}
+                      className="font-mono text-mark underline-offset-2 hover:underline"
+                    >
+                      ?key=…&amp;ref=partner
+                    </Link>
+                    {refFilter ? (
+                      <>
+                        {" · "}
+                        <Link
+                          href={`/admin/completions?key=${encodeURIComponent(key)}`}
+                          className="text-mark underline-offset-2 hover:underline"
+                        >
+                          Clear filter
+                        </Link>
+                      </>
+                    ) : null}
+                  </p>
+                ) : null}
               </div>
             </div>
 
@@ -193,6 +227,7 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
                     <tr className="border-b border-ink/10 font-mono text-[10px] uppercase tracking-[0.14em] text-ink/45">
                       <th className="px-4 py-3 font-medium"># / When</th>
                       <th className="px-4 py-3 font-medium">Name</th>
+                      <th className="px-4 py-3 font-medium">Affiliate</th>
                       <th className="px-4 py-3 font-medium">Telegram</th>
                       <th className="px-4 py-3 font-medium">WhatsApp</th>
                       <th className="px-4 py-3 font-medium">Note</th>
@@ -218,6 +253,9 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
                           </td>
                           <td className="px-4 py-3 font-medium text-ink">
                             {item.name || "—"}
+                          </td>
+                          <td className="px-4 py-3 font-mono text-[12px] text-ink/70">
+                            {item.ref ? item.ref : "organic"}
                           </td>
                           <td className="px-4 py-3 text-ink/80">{item.telegram || "—"}</td>
                           <td className="px-4 py-3 text-ink/80">{item.whatsapp || "—"}</td>

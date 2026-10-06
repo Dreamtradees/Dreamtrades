@@ -1,9 +1,13 @@
+import { resolveAffiliateRef } from "@/lib/affiliates";
+
 export type CompletionRecord = {
   id: string;
   name: string;
   telegram: string;
   whatsapp: string;
   note: string;
+  /** Affiliate / partner slug from ?ref= (empty if organic). Optional on older records. */
+  ref?: string;
   createdAt: string;
   /** Whether the owner Telegram DM succeeded after save. */
   notified?: boolean;
@@ -17,6 +21,7 @@ export type CompletionInput = {
   whatsapp?: unknown;
   note?: unknown;
   consent?: unknown;
+  ref?: unknown;
 };
 
 export type CompletionValidation =
@@ -49,6 +54,7 @@ export function validateCompletionInput(input: CompletionInput): CompletionValid
   const telegramRaw = asTrimmedString(input.telegram, MAX_TELEGRAM);
   const whatsappRaw = asTrimmedString(input.whatsapp, MAX_WHATSAPP);
   const note = asTrimmedString(input.note, MAX_NOTE);
+  const ref = resolveAffiliateRef(input.ref);
   const consent = input.consent === true;
 
   if (!consent) {
@@ -93,6 +99,7 @@ export function validateCompletionInput(input: CompletionInput): CompletionValid
       telegram: `@${telegram}`,
       whatsapp,
       note,
+      ref,
     },
   };
 }
@@ -116,6 +123,7 @@ export function formatCompletionTelegramMessage(
     `Name: ${record.name || "—"}`,
     `Telegram: ${record.telegram || "—"}`,
     `WhatsApp: ${record.whatsapp || "—"}`,
+    `Affiliate: ${record.ref ? record.ref : "organic"}`,
     `Note: ${record.note || "—"}`,
     `When: ${when}`,
     `Lead id: ${record.id}`,

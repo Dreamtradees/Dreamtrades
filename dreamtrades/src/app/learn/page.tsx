@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AffiliateRefCapture } from "@/components/affiliate-ref-capture";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { LearnPath } from "@/components/learn-path";
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function LearnPage() {
   return (
     <main className="min-h-screen">
+      <AffiliateRefCapture />
       <SiteHeader tone="light" active="learn" />
       <section id="learn-path" className="scroll-mt-4 pb-4 pt-6 md:pt-10">
         <LearnPath />

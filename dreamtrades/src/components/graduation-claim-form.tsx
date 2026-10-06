@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { buttonVariants } from "@/components/ui/button";
+import { readStoredAffiliateRef } from "@/components/affiliate-ref-capture";
+import { normalizeAffiliateSlug } from "@/lib/affiliates";
 import { cn } from "@/lib/utils";
 
 type SubmitState =
@@ -9,6 +11,14 @@ type SubmitState =
   | { status: "submitting" }
   | { status: "done"; count: number | null }
   | { status: "error"; message: string };
+
+function currentAffiliateRef(): string {
+  if (typeof window === "undefined") return "";
+  const fromQuery = normalizeAffiliateSlug(
+    new URLSearchParams(window.location.search).get("ref") ?? "",
+  );
+  return fromQuery || readStoredAffiliateRef();
+}
 
 export function GraduationClaimForm({ className }: { className?: string }) {
   const [name, setName] = useState("");
@@ -60,6 +70,7 @@ export function GraduationClaimForm({ className }: { className?: string }) {
           whatsapp: whatsappTrimmed,
           note,
           consent,
+          ref: currentAffiliateRef(),
         }),
       });
       const data = (await res.json().catch(() => null)) as
