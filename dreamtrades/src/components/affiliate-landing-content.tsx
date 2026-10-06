@@ -8,27 +8,27 @@ import { buttonVariants } from "@/components/ui/button";
 import { DEFAULT_LOCALE, getAffiliateCopy } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-/** Public @sarah.aboutaleb Instagram photos for Sara face landing hero. */
+/** Public @sarah.aboutaleb Instagram photos — professional, covered-up only. */
 const SARA_HERO_PHOTOS = [
   {
-    src: "/sara/01-night-portrait.jpg",
-    alt: "Sarah Aboutaleb evening portrait — @sarah.aboutaleb",
+    src: "/sara/05-blazer-portrait.jpg",
+    alt: "Sarah Aboutaleb in a black blazer — @sarah.aboutaleb",
+    position: "object-[center_18%]",
+  },
+  {
+    src: "/sara/06-blazer-stairs.jpg",
+    alt: "Sarah Aboutaleb on a marble staircase in a black blazer — @sarah.aboutaleb",
     position: "object-[center_22%]",
   },
   {
-    src: "/sara/02-gym-portrait.jpg",
-    alt: "Sarah Aboutaleb — @sarah.aboutaleb",
-    position: "object-[center_28%]",
+    src: "/sara/07-denim-portrait.jpg",
+    alt: "Sarah Aboutaleb in a pearl denim set — @sarah.aboutaleb",
+    position: "object-[center_20%]",
   },
   {
-    src: "/sara/03-ferrari.jpg",
-    alt: "Sarah Aboutaleb in Ferrari — @sarah.aboutaleb",
-    position: "object-[center_35%]",
-  },
-  {
-    src: "/sara/04-closeup.jpg",
-    alt: "Sarah Aboutaleb portrait — @sarah.aboutaleb",
-    position: "object-[center_30%]",
+    src: "/sara/08-denim-lookback.jpg",
+    alt: "Sarah Aboutaleb look-back in pearl denim — @sarah.aboutaleb",
+    position: "object-[center_24%]",
   },
 ] as const;
 
