@@ -166,7 +166,7 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-ink/65">
                   Each claim stores name, Telegram, WhatsApp, affiliate <span className="font-mono text-[12px]">ref</span>, and timestamp, then DMs you on Telegram. Filter this table with{" "}
-                  <span className="font-mono text-[12px]">&amp;ref=partner</span>. Partner share links:{" "}
+                  <span className="font-mono text-[12px]">&amp;ref=sara</span>. Partner share links:{" "}
                   <span className="font-mono text-[12px]">/with/SLUG</span> · their CRM:{" "}
                   <span className="font-mono text-[12px]">/partners/SLUG?key=…</span>
                 </p>
@@ -174,10 +174,10 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
                   <p className="mt-3 text-xs text-ink/50">
                     Example filter:{" "}
                     <Link
-                      href={`/admin/completions?key=${encodeURIComponent(key)}&ref=partner`}
+                      href={`/admin/completions?key=${encodeURIComponent(key)}&ref=sara`}
                       className="font-mono text-mark underline-offset-2 hover:underline"
                     >
-                      ?key=…&amp;ref=partner
+                      ?key=…&amp;ref=sara
                     </Link>
                     {refFilter ? (
                       <>

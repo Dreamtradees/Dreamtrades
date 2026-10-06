@@ -5,7 +5,7 @@
  * Share link:  https://dreamtrades.vercel.app/with/SLUG
  * Her CRM:     https://dreamtrades.vercel.app/partners/SLUG?key=HER_PORTAL_SECRET
  *
- * Portal secrets: set AFFILIATE_<SLUG>_SECRET in Vercel (e.g. AFFILIATE_PARTNER_SECRET),
+ * Portal secrets: set AFFILIATE_<SLUG>_SECRET in Vercel (e.g. AFFILIATE_SARA_SECRET),
  * or fall back to ADMIN_SECRET for owner testing only.
  */
 
@@ -21,10 +21,10 @@ export type Affiliate = {
 /** Registered partners — edit/add as affiliates join. */
 export const AFFILIATES: Affiliate[] = [
   {
-    slug: "partner",
-    name: "Launch Partner",
+    slug: "sara",
+    name: "SARA TRADING FX",
     blurb:
-      "Learn how to trade with DreamTrades — fundamentals first, then join the VIP room when you graduate.",
+      "Invited by SARA TRADING FX. Learn how to trade with DreamTrades — fundamentals first, then join the VIP room when you graduate.",
   },
 ];
 

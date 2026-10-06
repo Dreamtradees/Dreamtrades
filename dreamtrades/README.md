@@ -217,9 +217,9 @@ Not financial advice. Markets involve risk.
 Best first step for a new affiliate — already in the app:
 
 1. Add her in `src/lib/affiliates.ts` (slug + name + blurb).
-2. She shares: `https://dreamtrades.vercel.app/with/HER_SLUG`
-3. Her lead table: `https://dreamtrades.vercel.app/partners/HER_SLUG?key=HER_SECRET`
-4. Set Vercel env `AFFILIATE_HER_SLUG_SECRET` (hyphens → underscores) for Production + Preview, then Redeploy.
-5. Your admin filter: `/admin/completions?key=ADMIN_SECRET&ref=HER_SLUG`
+2. She shares: `https://dreamtrades.vercel.app/with/sara` (SARA TRADING FX)
+3. Her lead table: `https://dreamtrades.vercel.app/partners/sara?key=HER_SECRET`
+4. Set Vercel env `AFFILIATE_SARA_SECRET` for Production + Preview, then Redeploy.
+5. Your admin filter: `/admin/completions?key=ADMIN_SECRET&ref=sara`
 
 Claims store `ref`; Telegram DMs include the affiliate code.
