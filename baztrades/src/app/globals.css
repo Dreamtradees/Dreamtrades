@@ -1,0 +1,161 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Sora", ui-sans-serif, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-heading: "Archivo Black", ui-sans-serif, sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-sheet: var(--sheet);
+  --color-mark: var(--mark);
+  --color-flare: var(--flare);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+:root {
+  /* Baz Trades — gold floor on warm slate (distinct from Baz Trades teal) */
+  --ink: #14110f;
+  --sheet: #f3efe6;
+  --mark: #c9a227;
+  --flare: #e11d48;
+  --background: #f3efe6;
+  --foreground: #14110f;
+  --card: #faf7f0;
+  --card-foreground: #14110f;
+  --popover: #faf7f0;
+  --popover-foreground: #14110f;
+  --primary: #14110f;
+  --primary-foreground: #faf7f0;
+  --secondary: #e6e0d2;
+  --secondary-foreground: #14110f;
+  --muted: #e6e0d2;
+  --muted-foreground: #5c5348;
+  --accent: #c9a227;
+  --accent-foreground: #1a1408;
+  --destructive: #b42318;
+  --border: color-mix(in srgb, #14110f 12%, transparent);
+  --input: color-mix(in srgb, #14110f 14%, transparent);
+  --ring: #c9a227;
+  --radius: 0.35rem;
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(900px 520px at 12% -8%, #f0e4b8 0%, transparent 55%),
+      radial-gradient(780px 460px at 100% 0%, #e8ddd0 0%, transparent 50%),
+      linear-gradient(168deg, #f7f3ea 0%, #efe9dc 48%, #e5ddd0 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  ::selection { background: color-mix(in srgb, var(--mark) 40%, white); }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise { animation: rise-in 850ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-rise-delay { animation: rise-in 950ms 120ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-rise-late { animation: rise-in 1050ms 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes unlock-attention {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--mark) 0%, transparent);
+    transform: translateY(0);
+  }
+  50% {
+    box-shadow: 0 12px 32px -12px color-mix(in srgb, var(--mark) 60%, transparent);
+    transform: translateY(-2px);
+  }
+}
+.unlock-pulse { animation: unlock-attention 2.2s ease-in-out infinite; }
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.baz-ticker {
+  animation: ticker-scroll 28s linear infinite;
+}
+
+@keyframes candle-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.9; }
+}
+.baz-candle { animation: candle-pulse 3.6s ease-in-out infinite; }
+.baz-candle-2 { animation: candle-pulse 3.6s 0.6s ease-in-out infinite; }
+.baz-candle-3 { animation: candle-pulse 3.6s 1.2s ease-in-out infinite; }
+
+@keyframes gold-sweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.baz-gold-text {
+  background: linear-gradient(105deg, #f5e6a8 0%, #c9a227 28%, #fff3c4 52%, #a8841a 78%, #f5e6a8 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gold-sweep 8s linear infinite;
+}
+
+@keyframes line-draw {
+  from { stroke-dashoffset: 420; }
+  to { stroke-dashoffset: 0; }
+}
+.baz-price-line {
+  stroke-dasharray: 420;
+  animation: line-draw 2.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-rise-delay,
+  .animate-rise-late,
+  .unlock-pulse,
+  .baz-ticker,
+  .baz-candle,
+  .baz-candle-2,
+  .baz-candle-3,
+  .baz-gold-text,
+  .baz-price-line {
+    animation: none !important;
+  }
+  .baz-gold-text {
+    color: #c9a227;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+  }
+  .baz-price-line {
+    stroke-dasharray: none;
+  }
+}

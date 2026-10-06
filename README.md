@@ -1,29 +1,34 @@
-# DreamTrades
+# Trading education sites
 
-Teaching site for **DreamTrades** — how to trade, not how to take signals.
+| App | Folder | Local port | Notes |
+| --- | --- | --- | --- |
+| **DreamTrades** | `dreamtrades/` | 43217 | Teal photo hero · live at dreamtrades.vercel.app |
+| **Baz Trades** | `baztrades/` | 43321 | Gold-floor hero · learn path + leads |
 
-| App | Folder | Port |
-| --- | --- | --- |
-| **DreamTrades** | `dreamtrades/` | 43129 |
+Both teach fundamentals (not signal-copying): lessons → checklist → claim seat.
 
-## Deploy (Vercel)
+## Baz Trades (local)
 
-Import this repo on Vercel and set **Root Directory** to `dreamtrades`. Join links ship from `dreamtrades/src/lib/site.ts`. For the post-checklist **“Count me in”** form, set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_CHAT_ID`, and `ADMIN_SECRET`, plus Upstash Redis (`UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`) so graduate leads persist. After deploy, share **`https://YOUR_URL/learn`**. Step-by-step: [`dreamtrades/README.md`](dreamtrades/README.md).
+```bash
+cd baztrades
+npm install
+COMPLETIONS_ALLOW_MEMORY=1 TELEGRAM_NOTIFY_MOCK=1 npm run dev
+```
 
-## Run
+Open [http://127.0.0.1:43321](http://127.0.0.1:43321) · curriculum: [/learn](http://127.0.0.1:43321/learn)
+
+## DreamTrades (local)
 
 ```bash
 cd dreamtrades
 npm install
-npm run build
-npm run start -- -p 43129 -H 0.0.0.0
+npm run dev
 ```
 
-Open [http://127.0.0.1:43129](http://127.0.0.1:43129)
+Open [http://127.0.0.1:43217](http://127.0.0.1:43217)
 
-- Curriculum: [/learn](http://127.0.0.1:43129/learn)
-- Live XAUUSD desk: [/#live-gold](http://127.0.0.1:43129/#live-gold) · [/learn#live-gold](http://127.0.0.1:43129/learn#live-gold)
+## Deploy
 
-Includes: markets, long/short, pairs, candles, supply & demand, risk, checklist, and a live TradingView XAUUSD chart for study.
+Import this repo on Vercel twice (or two projects), with **Root Directory** set to `dreamtrades` or `baztrades`. See each folder’s README for env vars (Telegram + Upstash + admin).
 
 Not financial advice. Markets involve risk.
