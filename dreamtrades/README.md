@@ -228,3 +228,16 @@ Same app, Sara-branded host. Optional later: buy `saratradingfx.com` and point D
 4. Set Vercel env `AFFILIATE_SARA_SECRET` + `AFFILIATE_SARA_ADMIN_SECRET`, Redeploy
 
 Only leads with `ref=sara` appear on Sara’s admin. Your DreamTrades checklist clients stay on your admin only.
+
+### Sara community links (her rooms)
+
+Set on Vercel (Production + Preview) then Redeploy — or paste into `affiliates.ts` → `community`:
+
+```text
+NEXT_PUBLIC_SARA_TELEGRAM_VIP_URL=
+NEXT_PUBLIC_SARA_WHATSAPP_GROUP_URL=
+NEXT_PUBLIC_SARA_DISCORD_URL=
+NEXT_PUBLIC_SARA_INSTAGRAM_URL=
+```
+
+Her graduates only see **her** QRs — never DreamTrades VIP/WhatsApp.

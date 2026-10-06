@@ -9,6 +9,13 @@
  * Portal secrets: set AFFILIATE_<SLUG>_SECRET in Vercel (e.g. AFFILIATE_SARA_SECRET).
  */
 
+export type AffiliateCommunity = {
+  telegramVip?: string;
+  whatsapp?: string;
+  discord?: string;
+  instagram?: string;
+};
+
 export type Affiliate = {
   /** URL-safe code used in ?ref= and /with/[slug] */
   slug: string;
@@ -26,6 +33,12 @@ export type Affiliate = {
   footerNote: string;
   /** When true, AFFILIATE_<SLUG>_ADMIN_SECRET opens /admin/completions for HER attributed leads only. */
   teamAdmin?: boolean;
+  /**
+   * Her community join links (graduation QRs).
+   * Prefer NEXT_PUBLIC_<SLUG>_TELEGRAM_VIP_URL etc. env overrides when set.
+   * Never falls back to DreamTrades rooms — empty means “coming soon”.
+   */
+  community?: AffiliateCommunity;
 };
 
 /** Registered partners — edit/add as affiliates join. */
@@ -40,6 +53,13 @@ export const AFFILIATES: Affiliate[] = [
     ctaLabel: "Start the path",
     footerNote: "Education for the SARA TRADING FX group. Not financial advice.",
     teamAdmin: true,
+    // Paste Sara’s real invites here (or set NEXT_PUBLIC_SARA_* env on Vercel)
+    community: {
+      telegramVip: "",
+      whatsapp: "",
+      discord: "",
+      instagram: "",
+    },
   },
 ];
 
@@ -65,6 +85,48 @@ export function resolveAffiliateRef(raw: unknown): string {
 
 export function affiliateDisplayName(slug: string): string {
   return getAffiliate(slug)?.name ?? slug;
+}
+
+function envCommunityUrl(slug: string, channel: string): string {
+  const key = `NEXT_PUBLIC_${slug.replace(/-/g, "_").toUpperCase()}_${channel}`;
+  const value = process.env[key]?.trim();
+  return value || "";
+}
+
+function pickUrl(...candidates: Array<string | undefined>): string {
+  for (const c of candidates) {
+    const t = c?.trim();
+    if (t) return t;
+  }
+  return "";
+}
+
+/**
+ * Community links for an affiliate face brand.
+ * Env overrides win; never falls back to DreamTrades owner rooms.
+ */
+export function resolveAffiliateCommunity(slug: string): Required<AffiliateCommunity> {
+  const normalized = normalizeAffiliateSlug(slug);
+  const affiliate = normalized ? getAffiliate(normalized) : undefined;
+  const c = affiliate?.community;
+  return {
+    telegramVip: pickUrl(
+      normalized ? envCommunityUrl(normalized, "TELEGRAM_VIP_URL") : "",
+      c?.telegramVip,
+    ),
+    whatsapp: pickUrl(
+      normalized ? envCommunityUrl(normalized, "WHATSAPP_GROUP_URL") : "",
+      c?.whatsapp,
+    ),
+    discord: pickUrl(
+      normalized ? envCommunityUrl(normalized, "DISCORD_URL") : "",
+      c?.discord,
+    ),
+    instagram: pickUrl(
+      normalized ? envCommunityUrl(normalized, "INSTAGRAM_URL") : "",
+      c?.instagram,
+    ),
+  };
 }
 
 /**
