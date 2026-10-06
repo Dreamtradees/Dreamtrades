@@ -214,12 +214,17 @@ Not financial advice. Markets involve risk.
 
 ## Affiliates (partner CRM slice)
 
-Best first step for a new affiliate — already in the app:
+**SARA TRADING FX** face site (share this — not dreamtrades in the URL):
 
-1. Add her in `src/lib/affiliates.ts` (slug + name + blurb).
-2. She shares: `https://dreamtrades.vercel.app/with/sara` (SARA TRADING FX)
-3. Her lead table: `https://dreamtrades.vercel.app/partners/sara?key=HER_SECRET`
-4. Set Vercel env `AFFILIATE_SARA_SECRET` for Production + Preview, then Redeploy.
-5. Your admin filter: `/admin/completions?key=ADMIN_SECRET&ref=sara`
+```text
+https://saratradingfx.vercel.app
+```
+
+Same app, Sara-branded host. Optional later: buy `saratradingfx.com` and point DNS to Vercel (middleware already allows that host).
+
+1. She shares: `https://saratradingfx.vercel.app` (or `/with/sara` on DreamTrades)
+2. Her lead table: `https://dreamtrades.vercel.app/partners/sara?key=HER_SECRET`
+3. Team admin (all leads): `/admin/completions?key=AFFILIATE_SARA_ADMIN_SECRET`
+4. Set Vercel env `AFFILIATE_SARA_SECRET` + `AFFILIATE_SARA_ADMIN_SECRET`, Redeploy
 
 Claims store `ref`; Telegram DMs include the affiliate code.
