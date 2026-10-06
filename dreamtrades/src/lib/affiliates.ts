@@ -24,6 +24,8 @@ export type Affiliate = {
   ctaLabel: string;
   /** Footer line (no DreamTrades mention) */
   footerNote: string;
+  /** When true, AFFILIATE_<SLUG>_ADMIN_SECRET opens /admin/completions (all leads). */
+  teamAdmin?: boolean;
 };
 
 /** Registered partners — edit/add as affiliates join. */
@@ -37,6 +39,7 @@ export const AFFILIATES: Affiliate[] = [
       "Seven plain-English lessons, a hard checklist, then your seat with SARA TRADING FX. Built for newbies who want judgment, not tip spam.",
     ctaLabel: "Start with Sara",
     footerNote: "Education for the SARA TRADING FX group. Not financial advice.",
+    teamAdmin: true,
   },
 ];
 

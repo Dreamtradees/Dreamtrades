@@ -12,6 +12,7 @@ import {
   saveCompletion,
   updateCompletionNotifyStatus,
 } from "@/lib/completions-store";
+import { adminAccessAuthorized } from "@/lib/admin-auth";
 import {
   notifyOwnerTelegram,
   telegramBotConfigured,
@@ -23,11 +24,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function adminAuthorized(request: Request): boolean {
-  const secret = process.env.ADMIN_SECRET?.trim();
-  if (!secret) return false;
   const url = new URL(request.url);
   const key = url.searchParams.get("key")?.trim();
-  return Boolean(key && key === secret);
+  return adminAccessAuthorized(key);
 }
 
 /** Admin list: GET /api/completions?key=ADMIN_SECRET */

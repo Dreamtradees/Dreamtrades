@@ -9,6 +9,7 @@ import {
   getAffiliate,
   normalizeAffiliateSlug,
 } from "@/lib/affiliates";
+import { affiliateAdminSecretEnvKey } from "@/lib/admin-auth";
 import type { CompletionRecord } from "@/lib/completions";
 import { listCompletions } from "@/lib/completions-store";
 import { BRAND_NAME } from "@/lib/site";
@@ -53,8 +54,11 @@ export default async function PartnerPortalPage({ params, searchParams }: PagePr
   const { key } = await searchParams;
   const authorized = affiliatePortalAuthorized(slug, key);
   const name = affiliateDisplayName(slug);
-  const registered = Boolean(getAffiliate(slug));
+  const affiliate = getAffiliate(slug);
+  const registered = Boolean(affiliate);
   const sharePath = `/with/${encodeURIComponent(slug)}`;
+  const teamAdmin = Boolean(affiliate?.teamAdmin);
+  const adminEnvHint = affiliateAdminSecretEnvKey(slug);
 
   let items: CompletionRecord[] = [];
   let loadError: string | null = null;
@@ -134,6 +138,14 @@ export default async function PartnerPortalPage({ params, searchParams }: PagePr
                 >
                   Open landing →
                 </Link>
+                {teamAdmin ? (
+                  <p className="mt-4 border-t border-ink/10 pt-3 text-sm text-ink/65">
+                    Team admin (all leads): use your private{" "}
+                    <span className="font-mono text-[11px]">/admin/completions?key=…</span> link
+                    with <span className="font-mono text-[11px]">{adminEnvHint}</span> — separate
+                    from this partner-only CRM key.
+                  </p>
+                ) : null}
               </div>
             </div>
 

@@ -13,6 +13,8 @@ import {
   telegramEnvConfigured,
   telegramNotifyMock,
 } from "@/lib/telegram-notify";
+import { affiliateDisplayName } from "@/lib/affiliates";
+import { adminAccessAuthorized, teamAdminActorSlug } from "@/lib/admin-auth";
 import { BRAND_NAME } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -20,12 +22,6 @@ export const dynamic = "force-dynamic";
 type PageProps = {
   searchParams: Promise<{ key?: string; ref?: string }>;
 };
-
-function authOk(key: string | undefined): boolean {
-  const secret = process.env.ADMIN_SECRET?.trim();
-  if (!secret || !key) return false;
-  return key === secret;
-}
 
 function formatWhen(iso: string): string {
   try {
@@ -60,7 +56,9 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
   const params = await searchParams;
   const key = params.key?.trim();
   const refFilter = (params.ref || "").trim().toLowerCase();
-  const authorized = authOk(key);
+  const authorized = adminAccessAuthorized(key);
+  const teamActor = authorized ? teamAdminActorSlug(key) : null;
+  const teamActorName = teamActor ? affiliateDisplayName(teamActor) : null;
 
   let items: CompletionRecord[] = [];
   let count = 0;
@@ -101,14 +99,20 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
       <main className="mx-auto max-w-5xl px-5 py-12 md:px-8">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-mark">Admin</p>
         <h1 className="mt-3 font-heading text-3xl font-bold tracking-tight text-ink md:text-4xl">
-          Checklist graduates
+          {teamActorName ? `${teamActorName} — all leads` : "Checklist graduates"}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/65">
-          Private lead list for {BRAND_NAME}. Open with{" "}
-          <code className="rounded bg-ink/5 px-1.5 py-0.5 font-mono text-[12px]">
-            /admin/completions?key=YOUR_ADMIN_SECRET
-          </code>
-          .
+          {teamActorName ? (
+            <>Team admin view — every graduate across the funnel, not just one affiliate code.</>
+          ) : (
+            <>
+              Private lead list for {BRAND_NAME}. Open with{" "}
+              <code className="rounded bg-ink/5 px-1.5 py-0.5 font-mono text-[12px]">
+                /admin/completions?key=YOUR_ADMIN_SECRET
+              </code>
+              .
+            </>
+          )}
         </p>
 
         {!authorized ? (
