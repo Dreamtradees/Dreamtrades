@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import {
   AFFILIATE_REF_STORAGE_KEY,
@@ -41,6 +41,17 @@ function resolveAffiliate(initialRef?: string): Affiliate | null {
   return slug ? getAffiliate(slug) ?? null : null;
 }
 
+function scrollToLearnPath(event: MouseEvent<HTMLAnchorElement>) {
+  if (typeof window === "undefined") return;
+  if (!window.location.pathname.startsWith("/learn")) return;
+  event.preventDefault();
+  const el = document.getElementById("learn-path");
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#learn-path`);
+  }
+}
+
 /**
  * When a face-brand affiliate ref is active, chrome shows her brand
  * (header/footer) instead of DreamTrades.
@@ -63,13 +74,20 @@ export function AffiliateFaceShell({
   const dark = tone === "dark";
   const brand = affiliate?.name ?? BRAND_NAME;
   const homeHref = affiliate ? `/with/${affiliate.slug}` : "/";
-  const learnHref = affiliate
+  const curriculumHref = affiliate
     ? active === "learn"
       ? "#learn-path"
-      : `/learn?ref=${encodeURIComponent(affiliate.slug)}`
+      : `/learn?ref=${encodeURIComponent(affiliate.slug)}#learn-path`
     : active === "learn"
       ? "#learn-path"
-      : "/learn";
+      : "/learn#learn-path";
+  const startHref = affiliate
+    ? active === "learn"
+      ? "#trade"
+      : `/learn?ref=${encodeURIComponent(affiliate.slug)}#trade`
+    : active === "learn"
+      ? "#trade"
+      : "/learn#trade";
   const ctaLabel = affiliate?.ctaLabel ?? "Start Learning";
   const footerNote =
     affiliate?.footerNote ??
@@ -96,11 +114,8 @@ export function AffiliateFaceShell({
           </Link>
           <nav className="flex items-center gap-2 md:gap-3">
             <Link
-              href={
-                affiliate
-                  ? `/learn?ref=${encodeURIComponent(affiliate.slug)}`
-                  : "/learn"
-              }
+              href={curriculumHref}
+              onClick={active === "learn" ? scrollToLearnPath : undefined}
               className={cn(
                 "hidden px-3 py-2 text-sm font-medium transition-colors sm:inline",
                 dark
@@ -108,10 +123,23 @@ export function AffiliateFaceShell({
                   : "text-ink/65 hover:text-ink",
                 active === "learn" && (dark ? "text-[#f4f7f8]" : "text-ink"),
               )}
+              data-testid="nav-curriculum"
             >
               Curriculum
             </Link>
-            {!affiliate ? (
+            {affiliate ? (
+              <Link
+                href={`/with/${affiliate.slug}#how`}
+                className={cn(
+                  "hidden px-3 py-2 text-sm font-medium transition-colors md:inline",
+                  dark
+                    ? "text-[#f4f7f8]/75 hover:text-[#f4f7f8]"
+                    : "text-ink/65 hover:text-ink",
+                )}
+              >
+                How it works
+              </Link>
+            ) : (
               <>
                 <Link
                   href={active === "learn" ? "#live-gold" : "/#live-gold"}
@@ -136,9 +164,9 @@ export function AffiliateFaceShell({
                   Why this
                 </Link>
               </>
-            ) : null}
+            )}
             <Link
-              href={learnHref}
+              href={startHref}
               data-testid="start-learning"
               className={cn(
                 buttonVariants({ size: "lg" }),
@@ -163,47 +191,23 @@ export function AffiliateFaceShell({
               {brand}
             </p>
             <p className="mt-1 text-sm text-ink/55">{footerNote}</p>
-            <p className="mt-2 text-sm text-ink/50">
-              {affiliate ? (
-                <Link
-                  href={`/learn?ref=${encodeURIComponent(affiliate.slug)}`}
-                  className="text-ink/70 underline decoration-ink/25 underline-offset-4 hover:text-ink"
-                >
-                  Start the curriculum
-                </Link>
-              ) : (
-                <>
-                  Share this starter pack with the crew:{" "}
-                  <Link
-                    href="/learn"
-                    className="text-ink/70 underline decoration-ink/25 underline-offset-4 hover:text-ink"
-                  >
-                    /learn
-                  </Link>
-                </>
-              )}
-            </p>
           </div>
-          <div className="flex gap-5 text-sm text-ink/60">
+          <div className="flex flex-wrap gap-5 text-sm text-ink/60">
+            {affiliate ? (
+              <Link href={`/with/${affiliate.slug}#how`} className="hover:text-ink">
+                How it works
+              </Link>
+            ) : null}
             <Link
-              href={
-                affiliate
-                  ? `/learn?ref=${encodeURIComponent(affiliate.slug)}`
-                  : "/learn"
-              }
+              href={curriculumHref}
+              onClick={active === "learn" ? scrollToLearnPath : undefined}
               className="hover:text-ink"
             >
               Curriculum
             </Link>
-            {affiliate ? (
-              <Link href={`/with/${affiliate.slug}`} className="hover:text-ink">
-                Home
-              </Link>
-            ) : (
-              <Link href="/#path" className="hover:text-ink">
-                Path
-              </Link>
-            )}
+            <Link href={homeHref} className="hover:text-ink">
+              Home
+            </Link>
           </div>
         </div>
       </footer>
