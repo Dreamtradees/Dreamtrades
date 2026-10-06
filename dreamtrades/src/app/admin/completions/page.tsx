@@ -14,7 +14,11 @@ import {
   telegramNotifyMock,
 } from "@/lib/telegram-notify";
 import { affiliateDisplayName } from "@/lib/affiliates";
-import { adminAccessAuthorized, teamAdminActorSlug } from "@/lib/admin-auth";
+import {
+  adminAccessAuthorized,
+  filterLeadsForTeamAdmin,
+  teamAdminActorSlug,
+} from "@/lib/admin-auth";
 import { BRAND_NAME } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -70,13 +74,15 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
   if (authorized) {
     try {
       const data = await listCompletions(200);
-      count = data.count;
       durable = data.durable;
       backend = data.backend;
-      items = data.items;
+      items = filterLeadsForTeamAdmin(data.items, teamActor);
+      // Owner sees platform total; team admin sees only their visible book
+      count = teamActor ? items.length : data.count;
       if (refFilter) {
         items = items.filter((item) => (item.ref || "") === refFilter);
         affiliateLeadCount = items.length;
+        if (teamActor) count = items.length;
       }
     } catch (err) {
       loadError = err instanceof Error ? err.message : "Failed to load completions";
@@ -103,7 +109,10 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/65">
           {teamActorName ? (
-            <>Team admin view — every graduate across the funnel, not just one affiliate code.</>
+            <>
+              Team admin view — graduates from when you started with the team. Pre-existing owner
+              leads stay on the owner list only.
+            </>
           ) : (
             <>
               Private lead list for {BRAND_NAME}. Open with{" "}

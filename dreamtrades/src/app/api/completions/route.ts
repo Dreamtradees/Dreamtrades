@@ -12,7 +12,7 @@ import {
   saveCompletion,
   updateCompletionNotifyStatus,
 } from "@/lib/completions-store";
-import { adminAccessAuthorized } from "@/lib/admin-auth";
+import { adminAccessAuthorized, filterLeadsForTeamAdmin, teamAdminActorSlug } from "@/lib/admin-auth";
 import {
   notifyOwnerTelegram,
   telegramBotConfigured,
@@ -29,19 +29,25 @@ function adminAuthorized(request: Request): boolean {
   return adminAccessAuthorized(key);
 }
 
-/** Admin list: GET /api/completions?key=ADMIN_SECRET */
+/** Admin list: GET /api/completions?key=ADMIN_SECRET (or team admin secret) */
 export async function GET(request: Request) {
   if (!adminAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const data = await listCompletions(100);
+    const url = new URL(request.url);
+    const key = url.searchParams.get("key")?.trim();
+    const teamActor = teamAdminActorSlug(key);
+    const data = await listCompletions(200);
+    const items = filterLeadsForTeamAdmin(data.items, teamActor);
+    const count = teamActor ? items.length : data.count;
     return NextResponse.json({
-      count: data.count,
+      count,
       durable: data.durable,
       backend: data.backend,
-      items: data.items,
+      items,
+      teamAdmin: Boolean(teamActor),
       telegramConfigured: telegramEnvConfigured(),
       telegramBotConfigured: telegramBotConfigured(),
       telegramMock: telegramNotifyMock(),

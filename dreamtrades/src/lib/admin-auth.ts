@@ -1,4 +1,5 @@
-import { AFFILIATES, normalizeAffiliateSlug } from "@/lib/affiliates";
+import { AFFILIATES, getAffiliate, normalizeAffiliateSlug } from "@/lib/affiliates";
+import type { CompletionRecord } from "@/lib/completions";
 
 /** Env var for a face-brand team admin (sees all leads on /admin/completions). */
 export function affiliateAdminSecretEnvKey(slug: string): string {
@@ -43,4 +44,22 @@ export function teamAdminActorSlug(key: string | undefined): string | null {
     if (teamSecret && k === teamSecret) return affiliate.slug;
   }
   return null;
+}
+
+/**
+ * Team admins only see leads from their start date onward (owner keeps full history).
+ */
+export function filterLeadsForTeamAdmin(
+  items: CompletionRecord[],
+  teamSlug: string | null,
+): CompletionRecord[] {
+  if (!teamSlug) return items;
+  const since = getAffiliate(teamSlug)?.teamAdminSince?.trim();
+  if (!since) return items;
+  const sinceMs = Date.parse(since);
+  if (Number.isNaN(sinceMs)) return items;
+  return items.filter((item) => {
+    const t = Date.parse(item.createdAt);
+    return !Number.isNaN(t) && t >= sinceMs;
+  });
 }
