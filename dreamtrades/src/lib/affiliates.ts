@@ -33,11 +33,11 @@ export const AFFILIATES: Affiliate[] = [
   {
     slug: "sara",
     name: "SARA TRADING FX",
-    eyebrow: "Sara’s trading group · fundamentals first",
-    tagline: "Learn how to trade with the Sara crew — not how to chase signals.",
+    eyebrow: "Private trading education · XAUUSD & FX",
+    tagline: "Stop chasing signals. Learn to trade with judgment.",
     blurb:
-      "Seven plain-English lessons, a hard checklist, then your seat with SARA TRADING FX. Built for newbies who want judgment, not tip spam.",
-    ctaLabel: "Start with Sara",
+      "A clear path from zero to first checklist — then your seat with Sara’s group. No tip spam. No noise. Just the skills that keep accounts alive.",
+    ctaLabel: "Start the path",
     footerNote: "Education for the SARA TRADING FX group. Not financial advice.",
     teamAdmin: true,
   },

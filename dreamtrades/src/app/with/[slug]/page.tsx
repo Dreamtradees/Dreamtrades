@@ -20,10 +20,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const affiliate = slug ? getAffiliate(slug) : undefined;
   const name = affiliate?.name ?? (slug ? affiliateDisplayName(slug) : "Partner");
   return {
-    title: `${name} — Learn how to trade`,
+    title: `${name} — Stop chasing signals`,
     description:
-      affiliate?.blurb ??
-      `${name}: fundamentals first, then join the crew when you graduate.`,
+      affiliate?.tagline ??
+      `${name}: learn to trade with judgment — not tip spam.`,
   };
 }
 
