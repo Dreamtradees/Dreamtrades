@@ -1,11 +1,36 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { LanguagePicker } from "@/components/language-picker";
 import { useLocale } from "@/components/locale-provider";
 import { buttonVariants } from "@/components/ui/button";
 import { DEFAULT_LOCALE, getAffiliateCopy } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+
+/** Public @sarah.aboutaleb Instagram photos for Sara face landing hero. */
+const SARA_HERO_PHOTOS = [
+  {
+    src: "/sara/01-night-portrait.jpg",
+    alt: "Sarah Aboutaleb evening portrait — @sarah.aboutaleb",
+    position: "object-[center_22%]",
+  },
+  {
+    src: "/sara/02-gym-portrait.jpg",
+    alt: "Sarah Aboutaleb — @sarah.aboutaleb",
+    position: "object-[center_28%]",
+  },
+  {
+    src: "/sara/03-ferrari.jpg",
+    alt: "Sarah Aboutaleb in Ferrari — @sarah.aboutaleb",
+    position: "object-[center_35%]",
+  },
+  {
+    src: "/sara/04-closeup.jpg",
+    alt: "Sarah Aboutaleb portrait — @sarah.aboutaleb",
+    position: "object-[center_30%]",
+  },
+] as const;
 
 type Props = {
   slug: string;
@@ -32,6 +57,47 @@ function withLang(href: string, locale: string): string {
   return `${base}${sep}lang=${locale}${hash}`;
 }
 
+function SaraPhotoHeroBackdrop() {
+  return (
+    <>
+      <div className="absolute inset-0" aria-hidden>
+        {SARA_HERO_PHOTOS.map((photo, index) => (
+          <div
+            key={photo.src}
+            className={cn("absolute inset-0 ig-hero-slide", `ig-hero-slide-${index + 1}`)}
+          >
+            <Image
+              src={photo.src}
+              alt=""
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              quality={92}
+              className={cn("object-cover", photo.position)}
+            />
+          </div>
+        ))}
+      </div>
+      {/* Dark/teal readability plane — photos stay visible, brand text readable */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(105deg,rgba(8,12,16,0.72)_0%,rgba(8,18,20,0.48)_38%,rgba(8,16,18,0.22)_68%,rgba(8,12,16,0.42)_100%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(720px_420px_at_18%_-6%,rgba(15,159,138,0.28)_0%,transparent_55%)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,rgba(8,12,16,0.55),transparent)]"
+        aria-hidden
+      />
+      <span className="sr-only">
+        Background photos from @sarah.aboutaleb on Instagram
+      </span>
+    </>
+  );
+}
+
 export function AffiliateLandingContent({
   slug,
   name,
@@ -46,6 +112,7 @@ export function AffiliateLandingContent({
   const learnHref = withLang(learnHrefBase, locale);
   const curriculumHref = withLang(curriculumHrefBase, locale);
   const homeHref = withLang(homeHrefBase, locale);
+  const showSaraPhotos = slug === "sara";
 
   return (
     <>
@@ -87,14 +154,18 @@ export function AffiliateLandingContent({
       </header>
 
       <section className="relative min-h-[100svh] overflow-hidden bg-ink text-[#f4f7f8]">
-        <div
-          className="pointer-events-none absolute inset-0"
-          aria-hidden
-          style={{
-            backgroundImage:
-              "radial-gradient(900px 520px at 18% -8%, rgba(15,159,138,0.38) 0%, transparent 55%), radial-gradient(720px 420px at 95% 15%, rgba(232,93,76,0.2) 0%, transparent 50%), linear-gradient(165deg, #11161d 0%, #0c1016 55%, #151c24 100%)",
-          }}
-        />
+        {showSaraPhotos ? (
+          <SaraPhotoHeroBackdrop />
+        ) : (
+          <div
+            className="pointer-events-none absolute inset-0"
+            aria-hidden
+            style={{
+              backgroundImage:
+                "radial-gradient(900px 520px at 18% -8%, rgba(15,159,138,0.38) 0%, transparent 55%), radial-gradient(720px 420px at 95% 15%, rgba(232,93,76,0.2) 0%, transparent 50%), linear-gradient(165deg, #11161d 0%, #0c1016 55%, #151c24 100%)",
+            }}
+          />
+        )}
         <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-center px-5 pb-24 pt-28 md:px-8 md:pb-28 md:pt-32">
           <p className="animate-rise font-mono text-xs uppercase tracking-[0.28em] text-mark">
             {copy.eyebrow}

@@ -237,7 +237,7 @@ Set on Vercel (Production + Preview) then Redeploy — or paste into `affiliates
 NEXT_PUBLIC_SARA_TELEGRAM_VIP_URL=
 NEXT_PUBLIC_SARA_WHATSAPP_GROUP_URL=
 NEXT_PUBLIC_SARA_DISCORD_URL=
-NEXT_PUBLIC_SARA_INSTAGRAM_URL=
+NEXT_PUBLIC_SARA_INSTAGRAM_URL=https://www.instagram.com/sarah.aboutaleb/
 ```
 
 Her graduates only see **her** QRs — never DreamTrades VIP/WhatsApp.

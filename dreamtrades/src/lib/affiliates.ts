@@ -58,7 +58,7 @@ export const AFFILIATES: Affiliate[] = [
       telegramVip: "",
       whatsapp: "",
       discord: "",
-      instagram: "",
+      instagram: "https://www.instagram.com/sarah.aboutaleb/",
     },
   },
 ];
