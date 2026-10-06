@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
+import { LanguagePicker } from "@/components/language-picker";
+import { LocaleProvider, useLocaleOptional } from "@/components/locale-provider";
 import { buttonVariants } from "@/components/ui/button";
 import {
   AFFILIATE_REF_STORAGE_KEY,
@@ -9,6 +11,7 @@ import {
   normalizeAffiliateSlug,
   type Affiliate,
 } from "@/lib/affiliates";
+import { getAffiliateCopy, normalizeLocale, type Locale } from "@/lib/i18n";
 import { BRAND_NAME } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +20,7 @@ type Props = {
   active?: "home" | "learn";
   /** Server-known ref from ?ref= (preferred on first paint). */
   initialRef?: string;
+  initialLocale?: Locale;
   children: ReactNode;
 };
 
@@ -52,16 +56,13 @@ function scrollToLearnPath(event: MouseEvent<HTMLAnchorElement>) {
   }
 }
 
-/**
- * When a face-brand affiliate ref is active, chrome shows her brand
- * (header/footer) instead of DreamTrades.
- */
-export function AffiliateFaceShell({
+function AffiliateFaceChrome({
   tone = "light",
   active,
   initialRef,
   children,
-}: Props) {
+}: Omit<Props, "initialLocale">) {
+  const { locale, messages } = useLocaleOptional();
   const [affiliate, setAffiliate] = useState<Affiliate | null>(() => {
     const slug = normalizeAffiliateSlug(initialRef ?? "");
     return slug ? getAffiliate(slug) ?? null : null;
@@ -88,9 +89,19 @@ export function AffiliateFaceShell({
     : active === "learn"
       ? "#trade"
       : "/learn#trade";
-  const ctaLabel = affiliate?.ctaLabel ?? "Start Learning";
+
+  const copy = affiliate
+    ? getAffiliateCopy(locale, affiliate.slug, {
+        eyebrow: affiliate.eyebrow,
+        tagline: affiliate.tagline,
+        blurb: affiliate.blurb,
+        ctaLabel: affiliate.ctaLabel,
+        footerNote: affiliate.footerNote,
+      })
+    : null;
+  const ctaLabel = copy?.ctaLabel ?? messages.nav.startLearning;
   const footerNote =
-    affiliate?.footerNote ??
+    copy?.footerNote ??
     "Teaching product for the DreamTrades group. Not financial advice.";
 
   return (
@@ -102,7 +113,7 @@ export function AffiliateFaceShell({
             : "relative z-20 border-b border-ink/10 bg-sheet/80 backdrop-blur-sm",
         )}
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 md:px-8">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-5 md:px-8">
           <Link
             href={homeHref}
             className={cn(
@@ -112,7 +123,8 @@ export function AffiliateFaceShell({
           >
             {brand}
           </Link>
-          <nav className="flex items-center gap-2 md:gap-3">
+          <nav className="flex items-center gap-1.5 md:gap-3">
+            <LanguagePicker tone={dark ? "dark" : "light"} className="me-1" />
             <Link
               href={curriculumHref}
               onClick={active === "learn" ? scrollToLearnPath : undefined}
@@ -125,7 +137,7 @@ export function AffiliateFaceShell({
               )}
               data-testid="nav-curriculum"
             >
-              Curriculum
+              {messages.nav.curriculum}
             </Link>
             {affiliate ? (
               <Link
@@ -137,7 +149,7 @@ export function AffiliateFaceShell({
                     : "text-ink/65 hover:text-ink",
                 )}
               >
-                How it works
+                {messages.nav.howItWorks}
               </Link>
             ) : (
               <>
@@ -150,7 +162,7 @@ export function AffiliateFaceShell({
                       : "text-ink/65 hover:text-ink",
                   )}
                 >
-                  Live gold
+                  {messages.nav.liveGold}
                 </Link>
                 <Link
                   href="/#path"
@@ -161,7 +173,7 @@ export function AffiliateFaceShell({
                       : "text-ink/65 hover:text-ink",
                   )}
                 >
-                  Why this
+                  {messages.nav.whyThis}
                 </Link>
               </>
             )}
@@ -192,10 +204,11 @@ export function AffiliateFaceShell({
             </p>
             <p className="mt-1 text-sm text-ink/55">{footerNote}</p>
           </div>
-          <div className="flex flex-wrap gap-5 text-sm text-ink/60">
+          <div className="flex flex-wrap items-center gap-5 text-sm text-ink/60">
+            <LanguagePicker tone="light" />
             {affiliate ? (
               <Link href={`/with/${affiliate.slug}#how`} className="hover:text-ink">
-                How it works
+                {messages.nav.howItWorks}
               </Link>
             ) : null}
             <Link
@@ -203,14 +216,34 @@ export function AffiliateFaceShell({
               onClick={active === "learn" ? scrollToLearnPath : undefined}
               className="hover:text-ink"
             >
-              Curriculum
+              {messages.nav.curriculum}
             </Link>
             <Link href={homeHref} className="hover:text-ink">
-              Home
+              {messages.nav.home}
             </Link>
           </div>
         </div>
       </footer>
     </>
+  );
+}
+
+/**
+ * When a face-brand affiliate ref is active, chrome shows her brand
+ * (header/footer) instead of DreamTrades.
+ */
+export function AffiliateFaceShell({
+  tone = "light",
+  active,
+  initialRef,
+  initialLocale,
+  children,
+}: Props) {
+  return (
+    <LocaleProvider initialLocale={normalizeLocale(initialLocale) ?? undefined}>
+      <AffiliateFaceChrome tone={tone} active={active} initialRef={initialRef}>
+        {children}
+      </AffiliateFaceChrome>
+    </LocaleProvider>
   );
 }

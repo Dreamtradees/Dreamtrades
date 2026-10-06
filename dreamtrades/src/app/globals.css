@@ -74,6 +74,14 @@
     background-attachment: fixed;
     min-height: 100vh;
   }
+  /* Arabic RTL — Noto Sans Arabic for readable body + headings */
+  html[dir="rtl"] {
+    --font-sans: "Noto Sans Arabic", "Figtree", ui-sans-serif, sans-serif;
+    --font-heading: "Noto Sans Arabic", "Syne", ui-sans-serif, sans-serif;
+  }
+  html[dir="rtl"] body {
+    font-feature-settings: "kern" 1;
+  }
   ::selection { background: color-mix(in srgb, var(--mark) 32%, white); }
 }
 
