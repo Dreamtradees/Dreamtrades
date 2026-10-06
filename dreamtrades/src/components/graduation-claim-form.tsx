@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { readStoredAffiliateRef } from "@/components/affiliate-ref-capture";
-import { normalizeAffiliateSlug } from "@/lib/affiliates";
+import { getAffiliate, normalizeAffiliateSlug } from "@/lib/affiliates";
 import { cn } from "@/lib/utils";
 
 type SubmitState =
@@ -18,6 +18,11 @@ function currentAffiliateRef(): string {
     new URLSearchParams(window.location.search).get("ref") ?? "",
   );
   return fromQuery || readStoredAffiliateRef();
+}
+
+function faceBrandName(): string {
+  const slug = currentAffiliateRef();
+  return getAffiliate(slug)?.name ?? "DreamTrades";
 }
 
 export function GraduationClaimForm({ className }: { className?: string }) {
@@ -114,8 +119,8 @@ export function GraduationClaimForm({ className }: { className?: string }) {
           You’re counted — we’ll contact you.
         </p>
         <p className="mt-2 text-sm leading-relaxed text-ink/65">
-          A DreamTrades mentor will reach out on Telegram and WhatsApp using the details you shared.
-          Join the rooms above while you wait
+          The {faceBrandName()} team will reach out on Telegram and WhatsApp using the details you
+          shared. Join the rooms above while you wait
           {state.count != null ? ` — you’re graduate #${state.count}` : ""}.
         </p>
       </div>
@@ -223,7 +228,7 @@ export function GraduationClaimForm({ className }: { className?: string }) {
           data-testid="claim-consent"
         />
         <span className="text-sm leading-relaxed text-ink/70">
-          It’s OK to contact me on the details I shared about DreamTrades.
+          It’s OK to contact me on the details I shared about {faceBrandName()}.
         </span>
       </label>
 

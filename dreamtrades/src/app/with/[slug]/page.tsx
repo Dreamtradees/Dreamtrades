@@ -2,15 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { AffiliateRefCapture } from "@/components/affiliate-ref-capture";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 import { buttonVariants } from "@/components/ui/button";
 import {
   affiliateDisplayName,
   getAffiliate,
   normalizeAffiliateSlug,
 } from "@/lib/affiliates";
-import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 type PageProps = {
@@ -20,16 +17,18 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug: raw } = await params;
   const slug = normalizeAffiliateSlug(raw);
-  const name = slug ? affiliateDisplayName(slug) : "Partner";
+  const affiliate = slug ? getAffiliate(slug) : undefined;
+  const name = affiliate?.name ?? (slug ? affiliateDisplayName(slug) : "Partner");
   return {
-    title: `${name} × ${BRAND_NAME}`,
-    description: `${BRAND_TAGLINE} Start with ${name}.`,
+    title: `${name} — Learn how to trade`,
+    description:
+      affiliate?.blurb ??
+      `${name}: fundamentals first, then join the crew when you graduate.`,
   };
 }
 
 /**
- * Affiliate landing — she shares /with/her-slug
- * Captures ref, then sends people into /learn.
+ * Face-brand affiliate landing — her name is hero-level; DreamTrades stays invisible.
  */
 export default async function AffiliateLandingPage({ params }: PageProps) {
   const { slug: raw } = await params;
@@ -37,41 +36,68 @@ export default async function AffiliateLandingPage({ params }: PageProps) {
   if (!slug) notFound();
 
   const affiliate = getAffiliate(slug);
-  const name = affiliate?.name ?? slug;
+  const name = affiliate?.name ?? slug.toUpperCase();
+  const eyebrow = affiliate?.eyebrow ?? `${name} · trading group`;
+  const tagline =
+    affiliate?.tagline ?? "Learn how to trade — not how to take signals.";
   const blurb =
     affiliate?.blurb ??
-    `Invited by ${name}. Learn trading fundamentals with ${BRAND_NAME} — then claim your seat when you graduate.`;
+    `Seven plain-English lessons with ${name}. Checklist, then your seat with the crew.`;
+  const ctaLabel = affiliate?.ctaLabel ?? "Start Learning";
+  const footerNote =
+    affiliate?.footerNote ?? `Education for ${name}. Not financial advice.`;
   const learnHref = `/learn?ref=${encodeURIComponent(slug)}`;
+  const homeHref = `/with/${encodeURIComponent(slug)}`;
 
   return (
     <main className="min-h-screen">
-      {/* Force store this landing slug even if URL has no ?ref= */}
       <AffiliateRefCapture />
       <script
         dangerouslySetInnerHTML={{
           __html: `try{sessionStorage.setItem("dreamtrades_affiliate_ref",${JSON.stringify(slug)})}catch(e){}`,
         }}
       />
-      <SiteHeader tone="dark" />
+
+      <header className="absolute inset-x-0 top-0 z-20">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 md:px-8">
+          <Link
+            href={homeHref}
+            className="font-heading text-lg font-bold tracking-tight text-[#f4f7f8] md:text-xl"
+          >
+            {name}
+          </Link>
+          <Link
+            href={learnHref}
+            className={cn(
+              buttonVariants({ size: "lg" }),
+              "rounded-md bg-mark px-4 text-[#041512] hover:bg-[#14b8a0]",
+            )}
+            data-testid="start-learning"
+          >
+            {ctaLabel}
+          </Link>
+        </div>
+      </header>
+
       <section className="relative min-h-[100svh] overflow-hidden bg-ink text-[#f4f7f8]">
         <div
           className="pointer-events-none absolute inset-0"
           aria-hidden
           style={{
             backgroundImage:
-              "radial-gradient(900px 520px at 20% -10%, rgba(15,159,138,0.35) 0%, transparent 55%), radial-gradient(700px 400px at 100% 20%, rgba(232,93,76,0.18) 0%, transparent 50%)",
+              "radial-gradient(900px 520px at 18% -8%, rgba(15,159,138,0.38) 0%, transparent 55%), radial-gradient(720px 420px at 95% 15%, rgba(232,93,76,0.2) 0%, transparent 50%), linear-gradient(165deg, #11161d 0%, #0c1016 55%, #151c24 100%)",
           }}
         />
-        <div className="relative mx-auto flex min-h-[100svh] max-w-3xl flex-col justify-center px-5 pb-24 pt-28 md:px-8">
+        <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-center px-5 pb-24 pt-28 md:px-8 md:pb-28 md:pt-32">
           <p className="animate-rise font-mono text-xs uppercase tracking-[0.22em] text-mark">
-            Invited by {name}
+            {eyebrow}
           </p>
-          <h1 className="animate-rise mt-5 font-heading text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-            {BRAND_NAME}
+          <p className="animate-rise mt-5 max-w-full font-heading text-[clamp(2.1rem,8vw,5.25rem)] font-extrabold tracking-tighter sm:tracking-tight">
+            {name}
+          </p>
+          <h1 className="animate-rise-delay mt-6 max-w-2xl font-heading text-2xl font-semibold tracking-tight text-[#f4f7f8]/92 sm:text-3xl md:text-4xl">
+            {tagline}
           </h1>
-          <p className="animate-rise-delay mt-6 text-xl font-medium text-[#f4f7f8]/90 md:text-2xl">
-            {BRAND_TAGLINE}
-          </p>
           <p className="animate-rise-late mt-5 max-w-xl text-base leading-relaxed text-[#f4f7f8]/65 md:text-lg">
             {blurb}
           </p>
@@ -84,24 +110,35 @@ export default async function AffiliateLandingPage({ params }: PageProps) {
               )}
               data-testid="affiliate-start-learning"
             >
-              Start Learning
+              {ctaLabel}
             </Link>
             <Link
-              href={`/?ref=${encodeURIComponent(slug)}`}
+              href={`${learnHref}#checklist`}
               className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }),
                 "rounded-md border-[#f4f7f8]/30 bg-transparent px-6 text-[#f4f7f8] hover:bg-[#f4f7f8]/10 hover:text-[#f4f7f8]",
               )}
             >
-              See DreamTrades
+              See the path
             </Link>
           </div>
-          <p className="mt-8 font-mono text-[11px] uppercase tracking-[0.16em] text-[#f4f7f8]/40">
-            Partner code · {slug}
-          </p>
         </div>
       </section>
-      <SiteFooter />
+
+      <footer className="border-t border-ink/10 bg-sheet">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-10 md:flex-row md:items-center md:justify-between md:px-8">
+          <div>
+            <p className="font-heading text-lg font-bold tracking-tight text-ink">{name}</p>
+            <p className="mt-1 text-sm text-ink/55">{footerNote}</p>
+          </div>
+          <Link
+            href={learnHref}
+            className="text-sm font-medium text-ink/65 hover:text-ink"
+          >
+            Curriculum
+          </Link>
+        </div>
+      </footer>
     </main>
   );
 }

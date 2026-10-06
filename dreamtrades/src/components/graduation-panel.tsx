@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import { readStoredAffiliateRef } from "@/components/affiliate-ref-capture";
 import { GraduationClaimForm } from "@/components/graduation-claim-form";
+import { getAffiliate, normalizeAffiliateSlug } from "@/lib/affiliates";
 import {
   DISCORD_URL,
   INSTAGRAM_URL,
@@ -44,13 +47,25 @@ const CHANNELS: Channel[] = [
   {
     id: "instagram",
     label: "Instagram",
-    hint: "Scan or open Instagram — follow the DreamTrades profile.",
+    hint: "Scan or open Instagram — follow the crew.",
     href: INSTAGRAM_URL,
     emptyLabel: "Instagram link coming soon",
   },
 ];
 
 export function GraduationPanel({ className }: { className?: string }) {
+  const [crewName, setCrewName] = useState("the crew");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const fromQuery = normalizeAffiliateSlug(
+      new URLSearchParams(window.location.search).get("ref") ?? "",
+    );
+    const slug = fromQuery || readStoredAffiliateRef();
+    const name = getAffiliate(slug)?.name;
+    if (name) setCrewName(name);
+  }, []);
+
   return (
     <div
       id="graduation-panel"
@@ -66,7 +81,7 @@ export function GraduationPanel({ className }: { className?: string }) {
         ready to jump into the field.
       </p>
       <p className="mt-3 text-sm leading-relaxed text-ink/65">
-        Join DreamTrades below — Telegram VIP, WhatsApp, Discord, and Instagram. Scan the QR or tap
+        Join {crewName} below — Telegram VIP, WhatsApp, Discord, and Instagram. Scan the QR or tap
         the link. Then claim your spot so we can count you and reach out.
       </p>
       <div className="mt-6 grid gap-5 sm:grid-cols-2">
