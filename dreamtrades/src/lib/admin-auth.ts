@@ -1,7 +1,7 @@
-import { AFFILIATES, getAffiliate, normalizeAffiliateSlug } from "@/lib/affiliates";
+import { AFFILIATES, normalizeAffiliateSlug } from "@/lib/affiliates";
 import type { CompletionRecord } from "@/lib/completions";
 
-/** Env var for a face-brand team admin (sees all leads on /admin/completions). */
+/** Env var for a face-brand team admin (her attributed leads on /admin/completions). */
 export function affiliateAdminSecretEnvKey(slug: string): string {
   const normalized = normalizeAffiliateSlug(slug);
   return `AFFILIATE_${normalized.replace(/-/g, "_").toUpperCase()}_ADMIN_SECRET`;
@@ -47,19 +47,13 @@ export function teamAdminActorSlug(key: string | undefined): string | null {
 }
 
 /**
- * Team admins only see leads from their start date onward (owner keeps full history).
+ * Team admins only see leads attributed to their affiliate code.
+ * Owner checklist / organic clients never appear on her admin.
  */
 export function filterLeadsForTeamAdmin(
   items: CompletionRecord[],
   teamSlug: string | null,
 ): CompletionRecord[] {
   if (!teamSlug) return items;
-  const since = getAffiliate(teamSlug)?.teamAdminSince?.trim();
-  if (!since) return items;
-  const sinceMs = Date.parse(since);
-  if (Number.isNaN(sinceMs)) return items;
-  return items.filter((item) => {
-    const t = Date.parse(item.createdAt);
-    return !Number.isNaN(t) && t >= sinceMs;
-  });
+  return items.filter((item) => (item.ref || "") === teamSlug);
 }

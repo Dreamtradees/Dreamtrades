@@ -105,13 +105,13 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
       <main className="mx-auto max-w-5xl px-5 py-12 md:px-8">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-mark">Admin</p>
         <h1 className="mt-3 font-heading text-3xl font-bold tracking-tight text-ink md:text-4xl">
-          {teamActorName ? `${teamActorName} — all leads` : "Checklist graduates"}
+          {teamActorName ? `${teamActorName} — your leads` : "Checklist graduates"}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/65">
           {teamActorName ? (
             <>
-              Team admin view — graduates from when you started with the team. Pre-existing owner
-              leads stay on the owner list only.
+              Your leads only — graduates who came through your {teamActorName} link. Owner /
+              DreamTrades checklist clients never appear here.
             </>
           ) : (
             <>

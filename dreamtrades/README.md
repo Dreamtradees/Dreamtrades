@@ -224,7 +224,7 @@ Same app, Sara-branded host. Optional later: buy `saratradingfx.com` and point D
 
 1. She shares: `https://saratradingfx.vercel.app` (or `/with/sara` on DreamTrades)
 2. Her lead table: `https://dreamtrades.vercel.app/partners/sara?key=HER_SECRET`
-3. Team admin (all leads): `/admin/completions?key=AFFILIATE_SARA_ADMIN_SECRET`
+3. Team admin (her leads only): `/admin/completions?key=AFFILIATE_SARA_ADMIN_SECRET` — never owner clients
 4. Set Vercel env `AFFILIATE_SARA_SECRET` + `AFFILIATE_SARA_ADMIN_SECRET`, Redeploy
 
-Claims store `ref`; Telegram DMs include the affiliate code.
+Only leads with `ref=sara` appear on Sara’s admin. Your DreamTrades checklist clients stay on your admin only.

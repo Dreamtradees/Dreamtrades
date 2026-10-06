@@ -140,10 +140,10 @@ export default async function PartnerPortalPage({ params, searchParams }: PagePr
                 </Link>
                 {teamAdmin ? (
                   <p className="mt-4 border-t border-ink/10 pt-3 text-sm text-ink/65">
-                    Team admin (all leads): use your private{" "}
-                    <span className="font-mono text-[11px]">/admin/completions?key=…</span> link
-                    with <span className="font-mono text-[11px]">{adminEnvHint}</span> — separate
-                    from this partner-only CRM key.
+                    Team admin (your leads only): use{" "}
+                    <span className="font-mono text-[11px]">/admin/completions?key=…</span> with{" "}
+                    <span className="font-mono text-[11px]">{adminEnvHint}</span> — never shows
+                    owner / DreamTrades checklist clients.
                   </p>
                 ) : null}
               </div>

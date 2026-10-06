@@ -24,13 +24,8 @@ export type Affiliate = {
   ctaLabel: string;
   /** Footer line (no DreamTrades mention) */
   footerNote: string;
-  /** When true, AFFILIATE_<SLUG>_ADMIN_SECRET opens /admin/completions (all leads). */
+  /** When true, AFFILIATE_<SLUG>_ADMIN_SECRET opens /admin/completions for HER attributed leads only. */
   teamAdmin?: boolean;
-  /**
-   * ISO timestamp — team admin only sees leads created at/after this
-   * (keeps pre-existing owner leads off her “all leads” view).
-   */
-  teamAdminSince?: string;
 };
 
 /** Registered partners — edit/add as affiliates join. */
@@ -45,8 +40,6 @@ export const AFFILIATES: Affiliate[] = [
     ctaLabel: "Start with Sara",
     footerNote: "Education for the SARA TRADING FX group. Not financial advice.",
     teamAdmin: true,
-    // Owner leads before Sara started (Darren, Fortune) stay on owner admin only
-    teamAdminSince: "2026-10-06T00:00:00.000Z",
   },
 ];
 
