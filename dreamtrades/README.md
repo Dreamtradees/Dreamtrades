@@ -185,7 +185,12 @@ Open [http://127.0.0.1:43217](http://127.0.0.1:43217)
 - `/#live-gold` — homepage live XAUUSD TradingView chart (study tool)
 - `/learn#live-gold` — full advanced chart next to the curriculum
 - `/admin/completions?key=…` — private leads table + graduate count (needs `ADMIN_SECRET`)
+- `/admin/crm?key=…` — DreamTrades lead desk (board, table, dashboard). Same `ADMIN_SECRET`. Owner key only.
+- `/admin/crm/scripts?key=…` — follow-up scripts to copy and send by hand
+- `/admin/crm/guide?key=…` — how to use the desk
 - `POST /api/completions` — graduation claim form submit (stores lead, then Telegram notify)
+- `POST /api/leads` — homepage signup (stage New, source Website form, then the same owner Telegram note)
+- `GET|POST|PATCH /api/crm?key=…` — owner lead desk API
 - `GET /api/completions/stats` — public graduate count (no contact details)
 - `GET|POST /api/completions/telegram-setup?key=…` — discover chat id / send test DM
 
@@ -199,6 +204,45 @@ When a learner ticks every checklist box, the graduation panel shows community Q
 4. The learner sees: **You’re counted — we’ll contact you.**
 
 **Reach out:** open the Telegram DM (or admin table) and message them on Telegram or WhatsApp.
+
+## DreamTrades lead desk
+
+Private CRM for the DreamTrades book only. Open it with the same owner key as the graduate list:
+
+```text
+https://YOUR_DEPLOYMENT_URL/admin/crm?key=YOUR_ADMIN_SECRET
+```
+
+No new environment variables. The desk uses the vars you already set:
+
+| Variable | Used for |
+|---|---|
+| `ADMIN_SECRET` | Unlocks `/admin/crm`, scripts, the guide, and `/api/crm` |
+| `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | Durable lead records (key `dreamtrades:crm:v1`). Vercel KV aliases work too. |
+| `TELEGRAM_BOT_TOKEN` + `TELEGRAM_OWNER_CHAT_ID` | Owner note when someone uses the homepage form |
+
+Local file fallback (no Redis): `dreamtrades/.data/crm.json`, same rules as the graduate file store.
+
+### What you can do
+
+- **Board** — one column per stage, with a count. Stages: New, Welcomed, Course, Broker account, First deposit, VIP, Active Trader, Lost.
+- **Table** — search and filter by stage, follow-up, assignee, and source. Overdue follow-ups are highlighted. Due-today rows are marked too.
+- **Drawer** — click a card or row and edit every field. Assignee defaults to `DreamTrades team` (dropdown, or type a desk name).
+- **Add a lead** — for someone you already spoke to.
+- **Dashboard** — funnel with conversion from the previous stage, overdue and today follow-ups, new leads in the last 7 days, count and total of first deposits.
+- **CSV** — exports the rows currently filtered.
+- **Scripts** — Welcome, 48 hours with no account, 7 days with no deposit, funded + VIP invite. Copy, then send yourself.
+- **How to use** — `/admin/crm/guide?key=…` explains each stage and field.
+
+Nothing on the desk messages a client. The team copies the text and sends it by hand. New homepage signups still notify the owner on Telegram, the same way checklist claims do.
+
+### Homepage signup
+
+The homepage VIP block (`/#vip`) collects name, Telegram, WhatsApp, and consent. It posts to `POST /api/leads`, stores stage **New** and source **Website form**, and sends the owner Telegram note. The form tells the visitor that DreamTrades stores the details and that a person writes back — nothing is sent to them automatically.
+
+### Checklist graduates
+
+Organic checklist claims (no `ref` on the stored record) are copied into the desk the first time you open it, as stage **Course**, source **Checklist graduate**, keeping their original name, Telegram, WhatsApp, note, and created time. Ids are `DT-0001`, `DT-0002`, and so on, oldest first. The graduate list at `/admin/completions` is unchanged. Claims that already carry a `ref` stay on that list and are not copied into this desk.
 
 ## What it teaches
 

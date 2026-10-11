@@ -43,6 +43,12 @@ export function SiteHeader({ tone = "light", active }: Props) {
             Why this
           </Link>
           <Link
+            href="/#vip"
+            className={cn("hidden px-3 py-2 text-sm font-medium transition-colors sm:inline", dark ? "text-[#f4f7f8]/75 hover:text-[#f4f7f8]" : "text-ink/65 hover:text-ink")}
+          >
+            Join
+          </Link>
+          <Link
             href={startHref}
             data-testid="start-learning"
             className={cn(

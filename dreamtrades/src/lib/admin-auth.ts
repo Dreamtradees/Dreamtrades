@@ -12,6 +12,17 @@ export function teamAdminSlugs(): string[] {
 }
 
 /**
+ * DreamTrades owner key only. Used by the private lead desk.
+ * Team admin keys that unlock another book do not unlock this desk.
+ */
+export function ownerAdminAuthorized(key: string | undefined): boolean {
+  const k = key?.trim();
+  const owner = process.env.ADMIN_SECRET?.trim();
+  if (!k || !owner) return false;
+  return k === owner;
+}
+
+/**
  * Owner ADMIN_SECRET or AFFILIATE_<slug>_ADMIN_SECRET for affiliates with teamAdmin.
  */
 export function adminAccessAuthorized(key: string | undefined): boolean {

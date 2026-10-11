@@ -107,6 +107,16 @@ export default async function AdminCompletionsPage({ searchParams }: PageProps) 
         <h1 className="mt-3 font-heading text-3xl font-bold tracking-tight text-ink md:text-4xl">
           {teamActorName ? `${teamActorName} — your leads` : "Checklist graduates"}
         </h1>
+        {authorized && !teamActor && key ? (
+          <p className="mt-4 text-sm">
+            <Link
+              href={`/admin/crm?key=${encodeURIComponent(key)}`}
+              className="font-medium text-mark underline-offset-2 hover:underline"
+            >
+              Open the DreamTrades lead desk
+            </Link>
+          </p>
+        ) : null}
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink/65">
           {teamActorName ? (
             <>
