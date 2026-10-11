@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Hero } from "@/components/hero";
 import { PathTeaser } from "@/components/path-teaser";
 import { LiveGoldDesk } from "@/components/live-gold-desk";
+import { HomeSignup } from "@/components/home-signup";
 import { SiteFooter } from "@/components/site-footer";
 
 export default function HomePage() {
@@ -13,6 +14,7 @@ export default function HomePage() {
       <Hero />
       <PathTeaser />
       <LiveGoldDesk variant="overview" showLearnCta />
+      <HomeSignup />
       <SiteFooter />
     </main>
   );
