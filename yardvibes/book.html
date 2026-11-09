@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book a table — Yard Vibes</title>
+  <meta name="description" content="Request a Yard Vibes table in Dubai. Sunday dinner, Hotbox, or a private sitting.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <span>Dubai · Jamaican table</span>
+      <a href="https://www.instagram.com/yardvibesdxb/">@yardvibesdxb</a>
+    </div>
+  </div>
+  <header class="header">
+    <div class="wrap">
+      <a class="brand" href="index.html">Yard <span>Vibes</span></a>
+      <nav aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="food.html">Hotbox</a>
+        <a href="sunday.html">Sunday dinner</a>
+        <a class="book-link" href="book.html" aria-current="page">Book</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="wrap">
+        <p class="eyebrow">The book</p>
+        <h1>Request a table.</h1>
+        <p class="lede">Fill this in, copy the message, and send it to @yardvibesdxb. Nothing is booked until Yard Vibes replies. The page does not store the form.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap split">
+        <form id="book-form">
+          <div class="form-row">
+            <label>Name
+              <input name="name" autocomplete="name" required maxlength="80">
+            </label>
+            <label>People
+              <input name="people" inputmode="numeric" required value="2" minlength="1" maxlength="3">
+            </label>
+          </div>
+          <div class="form-row">
+            <label>Date
+              <input name="date" type="date" required>
+            </label>
+            <label>What you want
+              <select name="kind" required>
+                <option value="7Heaven Sunday Dinner">7Heaven Sunday Dinner</option>
+                <option value="Hotbox plates">Hotbox plates</option>
+                <option value="A private table">A private table</option>
+              </select>
+            </label>
+          </div>
+          <label>Plates to hold, and anything we should know
+            <textarea name="note" maxlength="500" placeholder="Oxtail for four. One guest does not take pepper."></textarea>
+          </label>
+          <div class="form-actions">
+            <button class="btn btn-dark" type="submit">Copy message</button>
+            <a class="btn btn-line" id="ig-link" href="https://www.instagram.com/yardvibesdxb/">Open Instagram</a>
+          </div>
+          <p class="form-status" id="status" role="status"></p>
+        </form>
+        <aside class="aside">
+          <p class="eyebrow">Before you send</p>
+          <h2>A reply holds the table.</h2>
+          <ul>
+            <li>Send the copied note to @yardvibesdxb.</li>
+            <li>Wait for the time and the address.</li>
+            <li>If you need the Hotbox only, say how many plates.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div>
+        <strong>Yard Vibes</strong>
+        <p>Messages go to the yard by hand. This page only prepares the note.</p>
+      </div>
+      <div>
+        <strong>The book</strong>
+        <ul>
+          <li><a href="food.html">Hotbox</a></li>
+          <li><a href="sunday.html">Sunday dinner</a></li>
+        </ul>
+      </div>
+      <div>
+        <strong>Find us</strong>
+        <ul>
+          <li><a href="https://www.instagram.com/yardvibesdxb/">@yardvibesdxb</a></li>
+          <li><a href="https://linktr.ee/yardvibesdxb">Linktree</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <script src="js/book.js"></script>
+</body>
+</html>
